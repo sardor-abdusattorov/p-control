@@ -1,0 +1,335 @@
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
+import {ref, watchEffect} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+import {Message} from "primevue";
+import Button from "primevue/button";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    breadcrumbs: Object,
+    users: Array,
+    projects: Array,
+    applications: Array,
+    currency: Array,
+});
+
+const currentCurrencyCode = ref("UZS");
+const currentLocale = ref("uz-UZ");
+
+const currencyToLocaleMap = {
+    UZS: "uz-UZ",
+    RUB: "ru-RU",
+    USD: "en-US",
+    EUR: "de-DE",
+};
+
+// const user = usePage().props.auth.user;
+// const role = user.roles?.[0]?.name || null;
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
+
+
+const form = useForm({
+    contract_number: "",
+    files: [],
+    title: "",
+    project_id: "",
+    application_id: "",
+    currency_id: 1,
+    user_id: "",
+    budget_sum: "",
+    deadline: new Date(new Date().getFullYear(), 11, 31),
+});
+
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
+        });
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = newFiles;
+        }
+    }
+};
+
+const onClearFiles = () => {
+    form.files = [];
+};
+
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
+};
+const create = () => {
+    form.post(route("contract.store"));
+};
+
+watchEffect(() => {
+    form.errors = {};
+    const newCurrencyId = form.currency_id;
+    const selectedCurrency = props.currency.find((item) => item.id === Number(newCurrencyId));
+    if (selectedCurrency) {
+        currentCurrencyCode.value = selectedCurrency.short_name;
+        currentLocale.value = currencyToLocaleMap[selectedCurrency.short_name] || "uz-UZ";
+    } else {
+        currentCurrencyCode.value = "UZS";
+        currentLocale.value = "uz-UZ";
+    }
+});
+
+
+const getFileIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+        return 'pi pi-file-pdf';
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return 'pi pi-file-word';
+    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        return 'pi pi-file-excel';
+    }
+    return 'pi pi-file';
+};
+
+</script>
+
+<template>
+    <Head :title="props.title"/>
+    <AuthenticatedLayout>
+        <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
+
+        <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
+            <form class="p-6" @submit.prevent="create">
+                <h2
+                    class="text-lg font-medium text-slate-900 dark:text-slate-100"
+                >
+                    {{ lang().label.create }} {{ props.title }}
+                </h2>
+                <div class="my-6 w-full">
+                    <div class="form-group mb-5">
+                        <InputLabel for="contract_number" :value="lang().label.contract_number" />
+                        <InputText
+                            id="contract_number"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.contract_number"
+                            :placeholder="lang().label.contract_number"
+                            :error="form.errors.contract_number"
+                        />
+                        <InputError class="mt-2" :message="form.errors.contract_number" />
+                    </div>
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="title" :value="lang().label.title" />
+                        <InputText
+                            id="title"
+                            type="text"
+                            class="mt-1 block w-full"
+                            v-model="form.title"
+                            :placeholder="lang().label.title"
+                            :error="form.errors.title"
+                        />
+                        <InputError class="mt-2" :message="form.errors.title" />
+                    </div>
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="project_id" :value="lang().label.project" />
+                        <Select
+                            id="project_id"
+                            v-model="form.project_id"
+                            optionLabel="title"
+                            optionValue="id"
+                            :options="props.projects"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :filterPlaceholder="lang().placeholder.select_project"
+                            class="w-full"
+                            :placeholder="lang().label.project_name"
+                        />
+                        <InputError class="mt-2" :message="form.errors.project_id" />
+                    </div>
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="application_id" :value="lang().label.application_id" />
+                        <Select
+                            id="application_id"
+                            v-model="form.application_id"
+                            optionLabel="title"
+                            optionValue="id"
+                            :options="props.applications"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            class="w-full"
+                            :placeholder="lang().label.application_id"
+                            :filterPlaceholder="lang().placeholder.select_application"
+                        />
+                        <InputError class="mt-2" :message="form.errors.application_id" />
+                    </div>
+
+
+                    <div class="form-group mb-5" v-if="isAdmin">
+                        <InputLabel for="user_id" :value="lang().label.user_id" />
+                        <Select
+                            id="user_id"
+                            v-model="form.user_id"
+                            :options="users"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :placeholder="lang().placeholder.select_user"
+                            class="w-full"
+                        />
+                        <InputError class="mt-2" :message="form.errors.user_id" />
+                    </div>
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="currency_id" :value="lang().label.currency_id" />
+                        <Select
+                            v-model="form.currency_id"
+                            :options="currency"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :placeholder="lang().placeholder.select_currency"
+                            class="w-full"
+                        />
+                        <InputError class="mt-2" :message="form.errors.currency_id" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <InputLabel for="budget_sum" :value="lang().label.budget_sum" />
+                        <InputNumber
+                            id="budget_sum"
+                            v-model="form.budget_sum"
+                            class="mt-1 block w-full"
+                            mode="currency"
+                            :currency="currentCurrencyCode"
+                            :locale="currentLocale"
+                            :placeholder="lang().label.budget_sum"
+                            :error="form.errors.budget_sum"
+                        />
+                        <InputError class="mt-2" :message="form.errors.budget_sum" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <InputLabel for="deadline" :value="lang().label.deadline" />
+                        <DatePicker
+                            id="deadline"
+                            v-model="form.deadline"
+                            class="mt-1 block w-full"
+                            :placeholder="lang().label.deadline"
+                            showIcon
+                            showButtonBar
+                            :monthNavigator="true"
+                            :yearNavigator="true"
+                            dateFormat="dd/mm/yy"
+                            yearRange="2020:2030"
+                            :manualInput="false"
+                        />
+                        <InputError class="mt-2" :message="form.errors.deadline" />
+                    </div>
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="files" :value="lang().label.files" />
+                        <FileUpload
+                            name="files[]"
+                            :auto="false"
+                            :accept="'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
+                            :multiple="true"
+                            v-model="form.files"
+                            @select="onFileChange"
+                            :file-limit="6"
+                            :custom-upload="true"
+                            :show-upload-button="false"
+                            @clear="onClearFiles"
+                            :error="form.errors.files"
+                        >
+                            <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
+
+                                <div class="flex flex-col gap-8 pt-4">
+                                    <Message v-for="message of messages" :key="message" :class="{ 'mb-8': !files.length && !uploadedFiles.length}" severity="error">
+                                        {{ message }}
+                                    </Message>
+
+                                    <div v-if="files.length > 0">
+                                        <div class="flex flex-wrap gap-4">
+                                            <div v-for="(file, index) in files.slice(0, 6)" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
+                                                <div>
+                                                    <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
+                                                </div>
+                                                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                                                <Button icon="pi pi-times" @click="removeUploadedFile(index)" outlined rounded severity="danger" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </template>
+
+                            <template #empty>
+                                <div class="flex items-center justify-center flex-col">
+                                    <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color" />
+                                    <p class="mt-6 mb-0">{{ lang().label.drag_and_drop }}</p>
+                                </div>
+                            </template>
+
+                        </FileUpload>
+
+                        <InputError class="mt-2" :message="form.errors.files" />
+                    </div>
+                </div>
+                <div class="flex justify-start">
+                    <BackLink :href="route('contract.index')"/>
+                    <PrimaryButton
+                        class="ml-3"
+                        :class="{ 'opacity-25': form.processing }"
+                        :disabled="form.processing"
+                        @click="create"
+                    >
+                        {{
+                            form.processing
+                                ? lang().button.add + "..."
+                                : lang().button.add
+                        }}
+                    </PrimaryButton>
+                </div>
+            </form>
+        </section>
+
+    </AuthenticatedLayout>
+</template>
+
+<style scoped>
+.p-inputnumber-input {
+    flex: none !important;
+    width: 100%;
+}
+</style>

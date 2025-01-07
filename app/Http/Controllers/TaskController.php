@@ -1,0 +1,350 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\Task\TaskIndexRequest;
+use App\Http\Requests\Task\TaskStoreRequest;
+use App\Http\Requests\Task\TaskUpdateRequest;
+use App\Models\ActivityLog;
+use App\Models\Notification;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\TaskCompletion;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
+
+class TaskController extends Controller
+{
+//    public function __construct()
+//    {
+//        $this->middleware(function ($request, $next) {
+//            $user = auth()->user();
+//
+//            if (!$user) {
+//                return redirect()->route('login');
+//            }
+//
+//            $permissions = [
+//                'create task' => ['task.create', 'task.store'],
+//                'update task' => ['task.edit', 'task.update'],
+//                'delete task' => ['task.destroy'],
+//                'view task' => ['task.index', 'task.show'],
+//                'start task' => ['task.start'],
+//                'complete task' => ['task.complete'],
+//            ];
+//
+//            foreach ($permissions as $permission => $routes) {
+//                if ($user->can($permission)) {
+//                    foreach ($routes as $route) {
+//                        if ($request->routeIs($route)) {
+//                            return $next($request);
+//                        }
+//                    }
+//                }
+//            }
+//            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+//        });
+//    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(TaskIndexRequest $request)
+    {
+        $user = auth()->user();
+        $users = User::all()->pluck('name', 'id')->toArray();
+        if ($user->can('view all tasks')) {
+            $tasks = Task::query();
+        } else {
+            $tasks = Task::query()->where('assigned_user', $user->id);
+        }
+        if ($request->has('search')) {
+            $tasks->where('name', 'LIKE', "%" . $request->search . "%");
+        }
+        if ($request->has(['field', 'order'])) {
+            $tasks->orderBy($request->field, $request->order);
+        }
+        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $tasks = $tasks->paginate($perPage);
+        $statuses = Task::getStatuses();
+        $priorities = Task::getPriorities();
+
+        return Inertia::render('Task/Index', [
+            'title'         => __('app.label.tasks'),
+            'statuses'      => $statuses,
+            'users'      => $users,
+            'priorities'    => $priorities,
+            'filters'       => $request->all(['search', 'field', 'order']),
+            'perPage'       => (int) $perPage,
+            'tasks'         => $tasks,
+            'breadcrumbs'   => [['label' => __('app.label.tasks'), 'href' => route('task.index')]],
+        ]);
+    }
+
+
+    public function delete(Request $request)
+    {
+        try {
+            $tasks = Task::whereIn('id', $request->id)->get();
+            foreach ($tasks as $task) {
+                $task->clearMediaCollection('task files');
+                $task->delete();
+            }
+            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.tasks')]));
+        } catch (\Throwable $th) {
+            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.tasks')]) . $th->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+         */
+    public function create()
+    {
+        $projects = Project::all();
+
+        $user = Auth::user();
+
+        $users = User::where('id', '!=', $user->id)->get();
+
+        $statuses = Task::getStatuses();
+
+        $priorities = Task::getPriorities();
+
+        return Inertia::render('Task/Create', [
+            'title' => __('app.label.tasks'),
+            'breadcrumbs' => [
+                ['label' => __('app.label.tasks'), 'href' => route('task.index')],
+                ['label' => __('app.label.create')]
+            ],
+            'projects' => $projects,
+            'users' => $users,
+            'statuses' => $statuses,
+            'priorities' => $priorities,
+        ]);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(TaskStoreRequest $request)
+    {
+        DB::beginTransaction();
+        try {
+            $task = new Task();
+            $task->project_id = $request->project_id;
+            $task->name = $request->name;
+            $task->description = $request->description;
+            $task->assigned_user = $request->assigned_user;
+            $task->status = 1;
+            $task->priority = $request->priority;
+            $task->user_id = auth()->user()->id;
+            $task->due_date = Carbon::parse($request->due_date)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
+            $task->save();
+
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $ext = $file->extension();
+                    $name = Str::random(24) . '.' . $ext;
+                    $task->addMedia($file)
+                        ->usingFileName($name)
+                        ->toMediaCollection("task files");
+                }
+            }
+
+            $notification = Notification::create([
+                'user_id' => auth()->user()->id,
+                'receiver_id' => $task->assigned_user,
+                'type' => Notification::TYPE_TASK_ASSIGNED,
+                'is_read' => false,
+                'task_id' => $task->id,
+            ]);
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'create',
+                'model' => 'Task',
+                'model_id' => $task->id,
+                'description' => "Task {$task->name} was created."
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
+        } catch (\Throwable $th) {
+
+            DB::rollback();
+            return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Task $task)
+    {
+        $task->load('taskCompletion');
+        $files = $task->getMedia('task files');
+        $statuses = Task::getStatuses();
+        $priorities = Task::getPriorities();
+        $project = Project::where('id', $task->project_id)->first();
+        $users = User::all()->pluck('name', 'id')->toArray();
+
+        return Inertia::render('Task/Show', [
+            'title' => $task->title,
+            'files' => $files,
+            'users' => $users,
+            'task' => $task,
+            'statuses' => $statuses,
+            'priorities' => $priorities,
+            'project' => $project,
+            'breadcrumbs' => [
+                ['label' => __('app.label.tasks'), 'href' => route('task.index')],
+                ['label' => $task->name],
+            ],
+        ]);
+    }
+
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Task $task)
+    {
+        $files = $task->getMedia('task files');
+        $projects = Project::all();
+        $users = User::where('id', '!=', Auth::user()->id)->get();
+        $statuses = Task::getStatuses();
+        $priorities = Task::getPriorities();
+        return inertia('Task/Edit', [
+            'task' => $task,
+            'projects' => $projects,
+            'users' => $users,
+            'statuses' => $statuses,
+            'priorities' => $priorities,
+            'files' => $files,
+            'title' => __('app.label.tasks'),
+            'breadcrumbs' => [
+                ['label' => __('app.label.tasks'), 'href' => route('task.index')],
+                ['label' => $task->name]
+            ]
+        ]);
+    }
+
+    public function start(Task $task)
+    {
+        if (!$task) {
+            return redirect()->back()->with('error', __('app.label.task_not_found'));
+        }
+
+        $task->status = 2;
+        $task->save();
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'start',
+            'model' => 'Task',
+            'model_id' => $task->id,
+            'description' => "Task {$task->name} was started."
+        ]);
+
+        return redirect()->route('task.show', $task->id)
+            ->with('success', __('app.label.started_successfully', ['name' => $task->name]));
+    }
+
+    public function complete(Request $request, Task $task)
+    {
+        $request->validate([
+            'completion_note' => 'nullable|string',
+        ]);
+        TaskCompletion::create([
+            'task_id' => $task->id,
+            'user_id' => auth()->id(),
+            'completion_note' => $request->completion_note,
+            'completed_at' => now(),
+        ]);
+        $task->status = 3;
+        $task->save();
+
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'complete',
+            'model' => 'Task',
+            'model_id' => $task->id,
+            'description' => "Task {$task->name} was completed."
+        ]);
+
+        return redirect()->route('task.show', $task->id)->with('success', __('app.label.task_completed_successfully', ['name' => $task->name]));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(TaskUpdateRequest $request, Task $task)
+    {
+        DB::beginTransaction();
+        try {
+            $task->update([
+                'project_id' => $request->project_id,
+                'name' => $request->name,
+                'description' => $request->description,
+                'assigned_user' => $request->assigned_user,
+                'status' => $request->status,
+                'priority' => $request->priority,
+                'due_date' => Carbon::parse($request->due_date)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+            ]);
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $ext = $file->extension();
+                    $name = Str::random(24) . '.' . $ext;
+                    $task->addMedia($file)
+                        ->usingFileName($name)
+                        ->toMediaCollection("task files");
+                }
+            }
+
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'update',
+                'model' => 'Task',
+                'model_id' => $task->id,
+                'description' => "Task {$task->name} was updated."
+            ]);
+
+            DB::commit();
+            return redirect()->route('task.index')->with('success', __('app.label.updated_successfully', ['name' => $task->name]));
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('error', __('app.label.updated_error', ['name' => $task->name]) . $th->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Task $task)
+    {
+        DB::beginTransaction();
+        try {
+            $task->clearMediaCollection('task files');
+            $task->delete();
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'delete',
+                'model' => 'Task',
+                'model_id' => $task->id,
+                'description' => "Task {$task->name} was deleted."
+            ]);
+            DB::commit();
+            return redirect()->route('task.index')->with('success', __('app.label.deleted_successfully', ['name' => $task->name]));
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with('error', __('app.label.deleted_error', ['name' => $task->name]) . $th->getMessage());
+        }
+    }
+}
