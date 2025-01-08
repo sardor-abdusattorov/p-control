@@ -5,6 +5,8 @@ return [
     'label' => [
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
+        'information' => 'Information',
+        'chat' => 'Chat',
         'logs' => 'Logs',
         'model' => 'Model',
         'upload' => 'Upload',
@@ -76,6 +78,7 @@ return [
         'action' => 'Action',
         'actions' => 'Actions',
         'files' => 'Files',
+        'no_files' => 'No files',
         'status' => 'Status',
         'welcome' => 'Welcome',
         'login' => 'Login',
@@ -224,6 +227,7 @@ return [
     ],
     'status' => [
         'new' => 'New',
+        'send' => 'Send',
         'rejected' => 'Rejected',
         'approved' => 'Approved',
         'in_progress' => 'In Progress',

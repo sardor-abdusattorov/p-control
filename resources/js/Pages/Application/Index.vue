@@ -1,79 +1,3 @@
-<script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head, Link} from "@inertiajs/vue3";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import { reactive, watch } from "vue";
-import DangerButton from "@/Components/DangerButton.vue";
-import pkg from "lodash";
-import { router } from "@inertiajs/vue3";
-import Pagination from "@/Components/Pagination.vue";
-import {ChevronUpDownIcon, TrashIcon,} from "@heroicons/vue/24/solid";
-import Delete from "@/Pages/Application/Delete.vue";
-import DeleteBulk from "@/Pages/Application/DeleteBulk.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import { usePage } from "@inertiajs/vue3";
-import CreateLink from "@/Components/CreateLink.vue";
-import InputText from "primevue/inputtext";
-import Select from "primevue/select";
-import EditLink from "@/Components/EditLink.vue";
-import ViewLink from "@/Components/ViewLink.vue";
-
-const { _, debounce, pickBy } = pkg;
-const props = defineProps({
-    title: String,
-    filters: Object,
-    applications: Object,
-    breadcrumbs: Object,
-    perPage: Number,
-});
-const data = reactive({
-    params: {
-        search: props.filters.search,
-        field: props.filters.field,
-        order: props.filters.order,
-        perPage: props.perPage,
-    },
-    selectedId: [],
-    multipleSelect: false,
-    createOpen: false,
-    editOpen: false,
-    deleteOpen: false,
-    deleteBulkOpen: false,
-    application: null,
-    dataSet: usePage().props.app.perpage,
-});
-
-const order = (field) => {
-    data.params.field = field;
-    data.params.order = data.params.order === "asc" ? "desc" : "asc";
-};
-
-watch(
-    () => _.cloneDeep(data.params),
-    debounce(() => {
-        let params = pickBy(data.params);
-        router.get(route("application.index"), params, {
-            replace: true,
-            preserveState: true,
-            preserveScroll: true,
-        });
-    }, 150)
-);
-
-const selectAll = (event) => {
-    if (event.target.checked === false) {
-        data.selectedId = [];
-    } else {
-        props.applications?.data.forEach((application) => {
-            data.selectedId.push(application.id);
-        });
-    }
-};
-const select = () => {
-    data.multipleSelect = props.applications?.data.length === data.selectedId.length;
-};
-</script>
-
 <template>
     <Head :title="props.title" />
 
@@ -179,7 +103,18 @@ const select = () => {
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
-                                <th class="px-2 py-4 text-center">{{ lang().label.action }}</th>
+                                <th
+                                    class="px-2 py-4 cursor-pointer"
+                                    v-on:click="order('status_id')"
+                                >
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                        <span>{{ lang().label.status }}</span>
+                                        <ChevronUpDownIcon class="w-4 h-4" />
+                                    </div>
+                                </th>
+                                <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -221,6 +156,9 @@ const select = () => {
                                     {{ application.user.name }}
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                    <Badge :value="getStatusLabel(application.status_id)" :severity="getStatusSeverity(application.status_id)" />
+                                </td>
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <div class="gap-1 justify-center overflow-hidden flex items-center">
                                         <ViewLink
                                             :href="route('application.show', { application: application.id })"
@@ -257,3 +195,101 @@ const select = () => {
         </div>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {Head, Link} from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import { reactive, watch } from "vue";
+import DangerButton from "@/Components/DangerButton.vue";
+import pkg from "lodash";
+import { router } from "@inertiajs/vue3";
+import Pagination from "@/Components/Pagination.vue";
+import {ChevronUpDownIcon, TrashIcon,} from "@heroicons/vue/24/solid";
+import Delete from "@/Pages/Application/Delete.vue";
+import DeleteBulk from "@/Pages/Application/DeleteBulk.vue";
+import Checkbox from "@/Components/Checkbox.vue";
+import { usePage } from "@inertiajs/vue3";
+import CreateLink from "@/Components/CreateLink.vue";
+import InputText from "primevue/inputtext";
+import Select from "primevue/select";
+import EditLink from "@/Components/EditLink.vue";
+import ViewLink from "@/Components/ViewLink.vue";
+import Badge from "primevue/badge";
+
+const { _, debounce, pickBy } = pkg;
+const props = defineProps({
+    title: String,
+    filters: Object,
+    applications: Object,
+    breadcrumbs: Object,
+    perPage: Number,
+    statuses: Object,
+});
+const data = reactive({
+    params: {
+        search: props.filters.search,
+        field: props.filters.field,
+        order: props.filters.order,
+        perPage: props.perPage,
+    },
+    selectedId: [],
+    multipleSelect: false,
+    createOpen: false,
+    editOpen: false,
+    deleteOpen: false,
+    deleteBulkOpen: false,
+    application: null,
+    dataSet: usePage().props.app.perpage,
+});
+
+const order = (field) => {
+    data.params.field = field;
+    data.params.order = data.params.order === "asc" ? "desc" : "asc";
+};
+
+watch(
+    () => _.cloneDeep(data.params),
+    debounce(() => {
+        let params = pickBy(data.params);
+        router.get(route("application.index"), params, {
+            replace: true,
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, 150)
+);
+
+const selectAll = (event) => {
+    if (event.target.checked === false) {
+        data.selectedId = [];
+    } else {
+        props.applications?.data.forEach((application) => {
+            data.selectedId.push(application.id);
+        });
+    }
+};
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'success';
+        case 3:
+            return 'danger';
+        default:
+            return 'info';
+    }
+};
+
+const select = () => {
+    data.multipleSelect = props.applications?.data.length === data.selectedId.length;
+};
+</script>
+

@@ -9,6 +9,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Application extends Model implements HasMedia
 {
+    const STATUS_SEND = 1;
+    const STATUS_APPROVED = 2;
+    const STATUS_REJECTED = 3;
+
     use InteractsWithMedia;
     use HasFactory;
 
@@ -24,6 +28,15 @@ class Application extends Model implements HasMedia
     public function getDocuments()
     {
         return $this->getMedia('documents');
+    }
+
+    public static function getStatuses(): array
+    {
+        return [
+            ['id' => self::STATUS_SEND, 'label' => __('app.status.send')],
+            ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
+            ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
+        ];
     }
 
     public function user()

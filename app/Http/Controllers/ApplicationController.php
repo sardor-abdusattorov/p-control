@@ -49,6 +49,7 @@ class ApplicationController extends Controller
     public function index(ApplicationIndexRequest $request)
     {
         $user = auth()->user();
+        $statuses = Application::getStatuses();
         if ($user->can('view all applications')) {
             $applications = Application::query()->with(['user', 'project']);
         } else {
@@ -70,6 +71,7 @@ class ApplicationController extends Controller
             'filters'       => $request->all(['search', 'field', 'order']),
             'perPage'       => (int) $perPage,
             'applications'      => $applications->paginate($perPage),
+            'statuses'      => $statuses,
             'breadcrumbs'   => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
         ]);
     }
@@ -137,16 +139,18 @@ class ApplicationController extends Controller
      */
     public function show(Application $application)
     {
-        $projects = Project::all();
+        $application->load(['user']);
+        $project = Project::where([
+            'id' => $application->project_id,
+        ])->first();
         $files = $application->getMedia('documents');
-        $recipients = Recipient::where('user_id', auth()->id())->get();
-
+        $statuses = Application::getStatuses();
         $users = User::where('id', '!=', auth()->id())->get();
 
         return Inertia::render('Application/Show', [
             'title' => $application->title,
-            'projects' => $projects,
-            'recipients' => $recipients,
+            'project' => $project,
+            'statuses' => $statuses,
             'users' => $users,
             'application' => $application,
             'files' => $files,
@@ -156,7 +160,6 @@ class ApplicationController extends Controller
             ],
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.

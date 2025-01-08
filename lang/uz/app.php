@@ -5,6 +5,8 @@ return [
     'label' => [
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
+        'chat' => 'Chat',
+        'information' => 'Ma\'lumotlar',
         'logs' => 'Jurnallar',
         'model' => 'Model',
         'cancel' => 'Bekor qilish',
@@ -76,6 +78,7 @@ return [
         'action' => 'Amal',
         'actions' => 'Amallar',
         'files' => 'Fayllar',
+        'no_files' => 'Fayllar mavjud emas',
         'status' => 'Holat',
         'welcome' => 'Xush kelibsiz',
         'login' => 'Kirish',
@@ -224,6 +227,7 @@ return [
     ],
     'status' => [
         'new' => 'Yangi',
+        'send' => 'Jo\'natilgan',
         'rejected' => 'Rad etilgan',
         'approved' => 'Tasdiqlangan',
         'in_progress' => 'Jarayonda',
