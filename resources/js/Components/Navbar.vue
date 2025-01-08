@@ -59,13 +59,6 @@ const emit = defineEmits(["open"]);
                                                         " "
                                                     )[0]
                                                 }}
-                                                <CheckBadgeIcon
-                                                    class="ml-[2px] w-4 h-4 text-white dark:text-white lg:text-primary"
-                                                    v-show="
-                                                        $page.props.auth.user
-                                                            .email_verified_at
-                                                    "
-                                                />
                                             </span>
                                             <ChevronDownIcon
                                                 class="ml-2 h-5 w-5 fill-current"
@@ -82,21 +75,7 @@ const emit = defineEmits(["open"]);
                                             class="flex items-center justify-start text-sm truncate"
                                         >
                                             {{ $page.props.auth.user.name }}
-                                            <CheckBadgeIcon
-                                                class="ml-[2px] w-4 h-4 dark:text-white text-primary"
-                                                v-show="
-                                                    $page.props.auth.user
-                                                        .email_verified_at
-                                                "
-                                            />
                                         </span>
-                                        <span
-                                            class="block text-sm font-medium text-slate-500 truncate dark:text-slate-400"
-                                        >
-                                            {{
-                                                $page.props.auth.user.email
-                                            }}</span
-                                        >
                                     </div>
                                     <DropdownLink :href="route('profile.edit')">
                                         {{ lang().label.profile }}

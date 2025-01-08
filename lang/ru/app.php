@@ -3,6 +3,7 @@
 return [
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'company_name' => 'Фонд развития культуры и искусства при Кабинете Министров Республики Узбекистан.',
         'logs' => 'Логи',
         'upload' => 'Загрузить',
         'model' => 'Модель',
@@ -11,8 +12,8 @@ return [
         'image' => 'Изображение',
         'notifications' => 'Уведомления',
         'no_notifications' => 'Нет уведомлений',
-        'completed_tasks' => 'Завершенные задачи',
-        'pending_tasks' => 'Ожидающие задачи',
+        'completed_tasks' => 'Выполненные задачи',
+        'pending_tasks' => 'Выполняемые задачи',
         'task_assigned' => 'Задача назначена',
         'task_completed' => 'Задача завершена',
         'task_not_found' => 'Задача не найдена.',
@@ -46,7 +47,8 @@ return [
         'priority' => 'Приоритет',
         'assigned_user' => 'Назначенный пользователь',
         'recipients' => 'Получатели',
-        'budget_sum' => 'Бюджет',
+        'budget_sum' => 'Сумма проекта',
+        'contract_sum' => 'Сумма контракта',
         'budget_balance' => 'Остаток',
         'project_year' => 'Год проекта',
         'deadline' => 'Срок',

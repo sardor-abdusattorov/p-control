@@ -16,11 +16,11 @@ const currentLang = usePage().props.locale;
             <div class="grid grid-cols-1 lg:grid-cols-2">
                 <div class="space-y-6 px-6 py-4 lg:py-16">
                     <div class="flex justify-between items-center">
-                        <Link class="flex items-center" href="/">
-
-                            <p class="text-lg ml-2">
-                                {{ $page.props.app.name }}
-                            </p>
+                        <Link :href="route('dashboard')" class="flex items-center gap-2 hover:text-primary transition-colors duration-300">
+                            <img src="/images/main_logo.png" alt="Logo" class="rounded-full w-8 h-auto" />
+                            <span class="brand-text text-xl font-semibold">
+                                ACDF
+                            </span>
                         </Link>
                         <div class="flex space-x-2 items-center">
                             <SwitchLangNavbar />

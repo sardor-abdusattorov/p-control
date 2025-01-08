@@ -179,7 +179,7 @@ const getStatusSeverity = (statusId) => {
 
                             <th class="px-2 py-4 cursor-pointer" @click="order('budget_sum')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.budget_sum }}</span>
+                                    <span>{{ lang().label.contract_sum }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>

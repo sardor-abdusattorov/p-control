@@ -3,6 +3,7 @@
 return [
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
         'logs' => 'Jurnallar',
         'model' => 'Model',
@@ -13,8 +14,8 @@ return [
         'no_notifications' => 'Bildirishnomalar yo\'q',
         'task_assigned' => 'Vazifa berildi',
         'task_completed' => 'Vazifa tugatildi',
-        'completed_tasks' => 'Tugatilgan vazifalar',
-        'pending_tasks' => 'Kutayotgan vazifalar',
+        'completed_tasks' => 'Bajarilgan vazifalar',
+        'pending_tasks' => 'Bajarilayotgan vazifalar',
         'task_not_found' => 'Vazifa topilmadi.',
         'completion_note' => 'Yakunlash eslatmasi',
         'task_already_completed' => 'Ushbu vazifa allaqachon yakunlangan.',
@@ -46,7 +47,8 @@ return [
         'priority' => 'Prioritet',
         'assigned_user' => 'Topshirilgan foydalanuvchi',
         'recipients' => 'Oluvchilar',
-        'budget_sum' => 'Byudjet',
+        'budget_sum' => 'Loyiha qiymati',
+        'contract_sum' => 'Shartnoma qiymati',
         'budget_balance' => 'Balans',
         'project_year' => 'Loyiha yili',
         'deadline' => 'So\'nggi sana',

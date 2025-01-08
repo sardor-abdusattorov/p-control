@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 const destroy = () => {
-    form.post(route("task.delete"), {
+    form.post(route("task.destroy-bulk"), {
         preserveScroll: true,
         onSuccess: () => {
             emit("close");

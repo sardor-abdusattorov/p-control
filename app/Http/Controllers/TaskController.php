@@ -31,7 +31,7 @@ class TaskController extends Controller
             $permissions = [
                 'create task' => ['task.create', 'task.store'],
                 'update task' => ['task.edit', 'task.update'],
-                'delete task' => ['task.destroy'],
+                'delete task' => ['task.destroy', 'task.destroy-bulk'],
                 'view task' => ['task.index', 'task.show'],
                 'start task' => ['task.start'],
                 'complete task' => ['task.complete'],
@@ -106,13 +106,9 @@ class TaskController extends Controller
     public function create()
     {
         $projects = Project::all();
-
         $user = Auth::user();
-
         $users = User::where('id', '!=', $user->id)->get();
-
         $statuses = Task::getStatuses();
-
         $priorities = Task::getPriorities();
 
         return Inertia::render('Task/Create', [
@@ -209,7 +205,11 @@ class TaskController extends Controller
     {
         $files = $task->getMedia('task files');
         $projects = Project::all();
-        $users = User::where('id', '!=', Auth::user()->id)->get();
+        if (Auth::user()->hasRole('superadmin')) {
+            $users = User::all();
+        } else {
+            $users = User::where('id', '!=', Auth::id())->get();
+        }
         $statuses = Task::getStatuses();
         $priorities = Task::getPriorities();
         return inertia('Task/Edit', [
@@ -305,6 +305,20 @@ class TaskController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
             return back()->with('error', __('app.label.deleted_error', ['name' => $task->name]) . $th->getMessage());
+        }
+    }
+
+    public function destroyBulk(Request $request)
+    {
+        try {
+            $tasks = Task::whereIn('id', $request->id)->get();
+            foreach ($tasks as $task) {
+                $task->clearMediaCollection('task files');
+                $task->delete();
+            }
+            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.tasks')]));
+        } catch (\Throwable $th) {
+            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.tasks')]) . $th->getMessage());
         }
     }
 }

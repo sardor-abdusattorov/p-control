@@ -1,73 +1,4 @@
-    <script setup>
-    import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-    import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
-    import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
-    import Breadcrumb from "@/Components/Breadcrumb.vue";
-    import InputText from 'primevue/inputtext';
-    import InputLabel from "@/Components/InputLabel.vue";
-    import PrimaryButton from "@/Components/PrimaryButton.vue";
-    import InputError from "@/Components/InputError.vue";
-    import Select from 'primevue/select';
-    import { ref, computed } from "vue";
-    import Tabs from 'primevue/tabs';
-    import TabList from 'primevue/tablist';
-    import Tab from 'primevue/tab';
-    import TabPanels from 'primevue/tabpanels';
-    import TabPanel from 'primevue/tabpanel';
-    import MultiSelect from 'primevue/multiselect';
-
-
-    const props = defineProps({
-        mustVerifyEmail: Boolean,
-        status: String,
-        departments: Array,
-        positions: Array,
-        users: Array,
-        recipients: Array,
-    });
-
-    const user = usePage().props.auth.user;
-
-    const form = useForm({
-        name: user.name,
-        email: user.email,
-        department_id: user.department_id,
-        position_id: user.position_id,
-        telegram_id: user.telegram_id,
-        image: null,
-        recipients: props.recipients.map(recipient => recipient.recipient_id)
-    });
-
-    const previewImage = ref(user.profile_image);
-
-    const updateProfile = () => {
-        form.post(route("profile.update"), {
-            preserveScroll: true,
-        });
-    };
-
-    const handleImageChange = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            form.image = file;
-            previewImage.value = URL.createObjectURL(file);
-        }
-    };
-
-    const filteredPositions = computed(() => {
-        return form.department_id
-            ? props.positions.filter(position => position.department_id === form.department_id)
-            : [];
-    });
-
-    const onDepartmentChange = () => {
-        form.position_id = null;
-    };
-    </script>
-
-
-
-    <template>
+<template>
         <Head :title="lang().label.profile" />
 
         <AuthenticatedLayout>
@@ -133,6 +64,7 @@
                                                 class="w-full mt-1"
                                                 v-model="form.email"
                                                 required
+                                                :disabled="!isAdmin"
                                                 autocomplete="email"
                                                 :placeholder="lang().placeholder.email"
                                             />
@@ -178,6 +110,7 @@
                                                 :placeholder="lang().label.select_departments"
                                                 class="w-full"
                                                 @change="onDepartmentChange"
+                                                :disabled="!isAdmin"
                                             />
                                             <InputError class="mt-2" :message="form.errors.department_id" />
                                         </div>
@@ -191,8 +124,9 @@
                                                 optionValue="id"
                                                 placeholder="Select Position"
                                                 class="w-full"
-                                                :disabled="!form.department_id"
+                                                :disabled="!form.department_id || !isAdmin"
                                             />
+
                                             <InputError class="mt-2" :message="form.errors.position_id" />
                                         </div>
 
@@ -210,7 +144,7 @@
                                     </div>
 
                                     <div class="flex items-center gap-4">
-                                        <PrimaryButton :disabled="form.processing">Save</PrimaryButton>
+                                        <PrimaryButton :disabled="form.processing">{{lang().button.save}}</PrimaryButton>
                                         <Transition
                                             enter-active-class="transition ease-in-out"
                                             enter-from-class="opacity-0"
@@ -234,3 +168,74 @@
             </div>
         </AuthenticatedLayout>
     </template>
+
+<script setup>
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
+import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import InputText from 'primevue/inputtext';
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import InputError from "@/Components/InputError.vue";
+import Select from 'primevue/select';
+import { ref, computed } from "vue";
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
+import MultiSelect from 'primevue/multiselect';
+
+
+const props = defineProps({
+    mustVerifyEmail: Boolean,
+    status: String,
+    departments: Array,
+    positions: Array,
+    users: Array,
+    recipients: Array,
+});
+
+const user = usePage().props.auth.user;
+
+const form = useForm({
+    name: user.name,
+    email: user.email,
+    department_id: user.department_id,
+    position_id: user.position_id,
+    telegram_id: user.telegram_id,
+    image: null,
+    recipients: props.recipients.map(recipient => recipient.recipient_id)
+});
+
+const previewImage = ref(user.profile_image);
+
+const updateProfile = () => {
+    form.post(route("profile.update"), {
+        preserveScroll: true,
+    });
+};
+
+const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        form.image = file;
+        previewImage.value = URL.createObjectURL(file);
+    }
+};
+
+const filteredPositions = computed(() => {
+    return form.department_id
+        ? props.positions.filter(position => position.department_id === form.department_id)
+        : [];
+});
+
+const onDepartmentChange = () => {
+    form.position_id = null;
+};
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+</script>
+

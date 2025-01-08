@@ -212,15 +212,14 @@ const getFileIcon = (fileType) => {
                     </div>
 
                     <div class="form-group mb-3">
-                        <InputLabel for="budget_sum" :value="lang().label.budget_sum"/>
+                        <InputLabel for="budget_sum" :value="lang().label.contract_sum"/>
                         <InputNumber
                             id="budget_sum"
                             v-model="form.budget_sum"
                             class="mt-1 block w-full"
-                            mode="currency"
-                            currency="UZS"
-                            locale="uz-UZ"
-                            :placeholder="lang().label.budget_sum"
+                            :minFractionDigits="2"
+                            fluid
+                            :placeholder="lang().label.contract_sum"
                             :error="form.errors.budget_sum"
                         />
                         <InputError class="mt-2" :message="form.errors.budget_sum"/>

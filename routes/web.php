@@ -59,12 +59,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('positions', PositionsController::class);
     Route::post('/positions/destroy-bulk', [PositionsController::class, 'destroyBulk'])->name('positions.destroy-bulk');
 
-    Route::post('/task/delete', [TaskController::class, 'delete'])->name('task.delete');
     Route::resource('task', TaskController::class)->except(['update']);
+    Route::post('/task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
     Route::post('/task/{task}', [TaskController::class, 'update'])->name('task.update');
     Route::post('/task/{task}/start', [TaskController::class, 'start'])->name('task.start');
     Route::post('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
-    Route::post('/task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
 
     Route::resource('/user', UserController::class)->except(['update']);
     Route::post('/user/{user}', [UserController::class, 'update'])->name('user.update');
@@ -77,8 +76,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/permission/destroy-bulk', [PermissionController::class, 'destroyBulk'])->name('permission.destroy-bulk');
 
     Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
-
-    Route::resource('logs', ActivityLogController::class);
 
 });
 

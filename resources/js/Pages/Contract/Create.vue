@@ -108,15 +108,14 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <InputLabel for="budget_sum" :value="lang().label.budget_sum" />
+                        <InputLabel for="budget_sum" :value="lang().label.contract_sum" />
                         <InputNumber
                             id="budget_sum"
                             v-model="form.budget_sum"
                             class="mt-1 block w-full"
-                            mode="currency"
-                            :currency="currentCurrencyCode"
-                            :locale="currentLocale"
-                            :placeholder="lang().label.budget_sum"
+                            :minFractionDigits="2"
+                            fluid
+                            :placeholder="lang().label.contract_sum"
                             :error="form.errors.budget_sum"
                         />
                         <InputError class="mt-2" :message="form.errors.budget_sum" />
@@ -170,7 +169,7 @@
                                         <div class="flex flex-wrap gap-4">
                                             <div v-for="(file, index) in files.slice(0, 6)" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
                                                 <div>
-                                                    <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
+                                                    <i class="pi pi-file" style="font-size: 32px;"></i>
                                                 </div>
                                                 <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
                                                 <Button icon="pi pi-times" @click="removeUploadedFile(index)" outlined rounded severity="danger" />
@@ -241,16 +240,6 @@ const props = defineProps({
     currency: Array,
 });
 
-const currentCurrencyCode = ref("UZS");
-const currentLocale = ref("uz-UZ");
-
-const currencyToLocaleMap = {
-    UZS: "uz-UZ",
-    RUB: "ru-RU",
-    USD: "en-US",
-    EUR: "de-DE",
-};
-
 // const user = usePage().props.auth.user;
 // const role = user.roles?.[0]?.name || null;
 
@@ -273,7 +262,7 @@ const form = useForm({
     application_id: "",
     currency_id: 1,
     user_id: "",
-    budget_sum: "",
+    budget_sum: null,
     deadline: new Date(new Date().getFullYear(), 11, 31),
 });
 
@@ -307,34 +296,5 @@ const create = () => {
 watchEffect(() => {
     form.errors = {};
     const newCurrencyId = form.currency_id;
-    const selectedCurrency = props.currency.find((item) => item.id === Number(newCurrencyId));
-    if (selectedCurrency) {
-        currentCurrencyCode.value = selectedCurrency.short_name;
-        currentLocale.value = currencyToLocaleMap[selectedCurrency.short_name] || "uz-UZ";
-    } else {
-        currentCurrencyCode.value = "UZS";
-        currentLocale.value = "uz-UZ";
-    }
 });
-
-
-const getFileIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-        return 'pi pi-file-pdf';
-    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        return 'pi pi-file-word';
-    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        return 'pi pi-file-excel';
-    }
-    return 'pi pi-file';
-};
-
 </script>
-
-
-<style scoped>
-.p-inputnumber-input {
-    flex: none !important;
-    width: 100%;
-}
-</style>

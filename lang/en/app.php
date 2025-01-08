@@ -3,6 +3,7 @@
 return [
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
         'logs' => 'Logs',
         'model' => 'Model',
@@ -46,7 +47,8 @@ return [
         'priority' => 'Priority',
         'assigned_user' => 'Assigned User',
         'recipients' => 'Recipients',
-        'budget_sum' => 'Budget',
+        'budget_sum' => 'Budget Amount',
+        'contract_sum' => 'Contract Amount',
         'budget_balance' => 'Balance',
         'project_year' => 'Project Year',
         'deadline' => 'Deadline',
