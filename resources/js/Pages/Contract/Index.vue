@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import { reactive, watch } from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
@@ -163,16 +163,16 @@ const getStatusSeverity = (statusId) => {
                             </th>
                             <th class="px-2 py-4">#</th>
 
-                            <th class="px-2 py-4 cursor-pointer" @click="order('contract_number')">
+                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.project_number }}</span>
+                                    <span>{{ lang().label.title }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
+                            <th class="px-2 py-4 cursor-pointer" @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.title }}</span>
+                                    <span>{{ lang().label.project_number }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
@@ -218,10 +218,12 @@ const getStatusSeverity = (statusId) => {
                                 {{ ++index }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ contract.contract_number }}
+                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline">
+                                    {{ contract.title ?? lang().label.undefined }}
+                                </Link>
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ contract.title }}
+                                {{ contract.contract_number }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ contract.budget_sum }} {{ contract.currency?.short_name || '' }}

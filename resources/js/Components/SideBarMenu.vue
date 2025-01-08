@@ -1,37 +1,3 @@
-<script setup>
-import {
-    BriefcaseIcon,
-    ExclamationCircleIcon,
-    UserIcon,
-    KeyIcon,
-    ShieldCheckIcon,
-    ChevronDownIcon,
-    ClipboardDocumentListIcon,
-    FolderIcon,
-    DocumentIcon,
-    UsersIcon,
-    CurrencyDollarIcon,
-} from "@heroicons/vue/24/solid";
-import {Link, usePage} from "@inertiajs/vue3";
-import {ref, onMounted} from "vue";
-
-const showRbacMenu = ref(false);
-const user = usePage().props.auth.user;
-
-function toggleRbacMenu() {
-    showRbacMenu.value = !showRbacMenu.value;
-}
-
-function checkRbacActiveRoutes() {
-    const activeRoutes = ['user.index', 'role.index', 'permission.index'];
-    showRbacMenu.value = activeRoutes.some(routeName => route().current(routeName));
-}
-
-onMounted(() => {
-    checkRbacActiveRoutes();
-});
-</script>
-
 <template>
     <div class="text-slate-300 pb-20">
         <div class="border-b border-slate-700 dark:border-slate-800 py-3">
@@ -138,6 +104,15 @@ onMounted(() => {
                 </Link>
             </li>
 
+            <li v-show="can(['view logs'])"
+                class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
+                :class="route().current('logs.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'">
+                <Link :href="route('logs.index')" class="flex items-center py-2 px-4">
+                    <ArchiveBoxIcon class="w-6 h-5" />
+                    <span class="ml-3">{{ lang().label.logs }}</span>
+                </Link>
+            </li>
+
             <li
                 v-show="can(['manage rbac'])"
                 @click="toggleRbacMenu"
@@ -190,3 +165,39 @@ onMounted(() => {
         </ul>
     </div>
 </template>
+
+<script setup>
+import {
+    BriefcaseIcon,
+    ExclamationCircleIcon,
+    UserIcon,
+    KeyIcon,
+    ArchiveBoxIcon,
+    ShieldCheckIcon,
+    ChevronDownIcon,
+    ClipboardDocumentListIcon,
+    FolderIcon,
+    DocumentIcon,
+    UsersIcon,
+    CurrencyDollarIcon,
+} from "@heroicons/vue/24/solid";
+import {Link, usePage} from "@inertiajs/vue3";
+import {ref, onMounted} from "vue";
+
+const showRbacMenu = ref(false);
+const user = usePage().props.auth.user;
+
+function toggleRbacMenu() {
+    showRbacMenu.value = !showRbacMenu.value;
+}
+
+function checkRbacActiveRoutes() {
+    const activeRoutes = ['user.index', 'role.index', 'permission.index'];
+    showRbacMenu.value = activeRoutes.some(routeName => route().current(routeName));
+}
+
+onMounted(() => {
+    checkRbacActiveRoutes();
+});
+</script>
+

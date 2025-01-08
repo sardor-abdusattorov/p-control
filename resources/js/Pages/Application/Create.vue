@@ -104,7 +104,7 @@ const getFileIcon = (fileType) => {
                             class="mt-1 block w-full"
                             v-model="form.title"
                             required
-                            :placeholder="lang().placeholder.title"
+                            :placeholder="lang().label.title"
                             :error="form.errors.title"
                         />
                         <InputError class="mt-2" :message="form.errors.title" />
@@ -154,6 +154,9 @@ const getFileIcon = (fileType) => {
                             :file-limit="4"
                             :custom-upload="true"
                             :show-upload-button="false"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
                             @clear="onClearFiles"
                             :error="form.errors.files"
                         >

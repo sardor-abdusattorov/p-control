@@ -3,6 +3,11 @@
 return [
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'upload' => 'Yuklash',
+        'logs' => 'Jurnallar',
+        'model' => 'Model',
+        'cancel' => 'Bekor qilish',
+        'choose' => 'Tanlash',
         'image' => 'Rasm',
         'notifications' => 'Bildirishnomalar',
         'no_notifications' => 'Bildirishnomalar yo\'q',
@@ -67,6 +72,7 @@ return [
         'head_of_department' => 'Bo\'lim boshlig\'i',
         'title' => 'Sarlavha',
         'action' => 'Amal',
+        'actions' => 'Amallar',
         'files' => 'Fayllar',
         'status' => 'Holat',
         'welcome' => 'Xush kelibsiz',

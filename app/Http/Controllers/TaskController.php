@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Task\TaskIndexRequest;
 use App\Http\Requests\Task\TaskStoreRequest;
 use App\Http\Requests\Task\TaskUpdateRequest;
-use App\Models\ActivityLog;
 use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Task;
@@ -20,36 +19,36 @@ use Inertia\Inertia;
 
 class TaskController extends Controller
 {
-//    public function __construct()
-//    {
-//        $this->middleware(function ($request, $next) {
-//            $user = auth()->user();
-//
-//            if (!$user) {
-//                return redirect()->route('login');
-//            }
-//
-//            $permissions = [
-//                'create task' => ['task.create', 'task.store'],
-//                'update task' => ['task.edit', 'task.update'],
-//                'delete task' => ['task.destroy'],
-//                'view task' => ['task.index', 'task.show'],
-//                'start task' => ['task.start'],
-//                'complete task' => ['task.complete'],
-//            ];
-//
-//            foreach ($permissions as $permission => $routes) {
-//                if ($user->can($permission)) {
-//                    foreach ($routes as $route) {
-//                        if ($request->routeIs($route)) {
-//                            return $next($request);
-//                        }
-//                    }
-//                }
-//            }
-//            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-//        });
-//    }
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+
+            if (!$user) {
+                return redirect()->route('login');
+            }
+
+            $permissions = [
+                'create task' => ['task.create', 'task.store'],
+                'update task' => ['task.edit', 'task.update'],
+                'delete task' => ['task.destroy'],
+                'view task' => ['task.index', 'task.show'],
+                'start task' => ['task.start'],
+                'complete task' => ['task.complete'],
+            ];
+
+            foreach ($permissions as $permission => $routes) {
+                if ($user->can($permission)) {
+                    foreach ($routes as $route) {
+                        if ($request->routeIs($route)) {
+                            return $next($request);
+                        }
+                    }
+                }
+            }
+            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+        });
+    }
 
     /**
      * Display a listing of the resource.
@@ -157,20 +156,12 @@ class TaskController extends Controller
                 }
             }
 
-            $notification = Notification::create([
+            Notification::create([
                 'user_id' => auth()->user()->id,
                 'receiver_id' => $task->assigned_user,
                 'type' => Notification::TYPE_TASK_ASSIGNED,
                 'is_read' => false,
                 'task_id' => $task->id,
-            ]);
-
-            ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'create',
-                'model' => 'Task',
-                'model_id' => $task->id,
-                'description' => "Task {$task->name} was created."
             ]);
 
             DB::commit();
@@ -245,14 +236,6 @@ class TaskController extends Controller
         $task->status = 2;
         $task->save();
 
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'start',
-            'model' => 'Task',
-            'model_id' => $task->id,
-            'description' => "Task {$task->name} was started."
-        ]);
-
         return redirect()->route('task.show', $task->id)
             ->with('success', __('app.label.started_successfully', ['name' => $task->name]));
     }
@@ -270,14 +253,6 @@ class TaskController extends Controller
         ]);
         $task->status = 3;
         $task->save();
-
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'complete',
-            'model' => 'Task',
-            'model_id' => $task->id,
-            'description' => "Task {$task->name} was completed."
-        ]);
 
         return redirect()->route('task.show', $task->id)->with('success', __('app.label.task_completed_successfully', ['name' => $task->name]));
     }
@@ -308,14 +283,6 @@ class TaskController extends Controller
                 }
             }
 
-            ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'update',
-                'model' => 'Task',
-                'model_id' => $task->id,
-                'description' => "Task {$task->name} was updated."
-            ]);
-
             DB::commit();
             return redirect()->route('task.index')->with('success', __('app.label.updated_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {
@@ -333,13 +300,6 @@ class TaskController extends Controller
         try {
             $task->clearMediaCollection('task files');
             $task->delete();
-            ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => 'delete',
-                'model' => 'Task',
-                'model_id' => $task->id,
-                'description' => "Task {$task->name} was deleted."
-            ]);
             DB::commit();
             return redirect()->route('task.index')->with('success', __('app.label.deleted_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {

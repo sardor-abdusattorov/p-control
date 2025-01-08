@@ -2,9 +2,9 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import TextInput from "@/Components/TextInput.vue";
+
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import SelectInput from "@/Components/SelectInput.vue";
+
 import { reactive, watch } from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import pkg from "lodash";
@@ -18,6 +18,8 @@ import DeleteBulk from "@/Pages/Permission/DeleteBulk.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import InfoButton from "@/Components/InfoButton.vue";
 import { usePage } from "@inertiajs/vue3";
+import Select from "primevue/select";
+import InputText from "primevue/inputtext";
 
 const { _, debounce, pickBy } = pkg;
 const props = defineProps({
@@ -127,9 +129,11 @@ watch(
             >
                 <div class="flex justify-between p-2">
                     <div class="flex space-x-2">
-                        <SelectInput
+                        <Select
                             v-model="data.params.perPage"
-                            :dataSet="data.dataSet"
+                            :options="data.dataSet"
+                            optionLabel="label"
+                            optionValue="value"
                         />
                         <DangerButton
                             @click="data.deleteBulkOpen = true"
@@ -142,7 +146,7 @@ watch(
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
-                    <TextInput
+                    <InputText
                         v-model="data.params.search"
                         type="text"
                         class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"

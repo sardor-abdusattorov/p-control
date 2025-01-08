@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\CurrencyController;
@@ -36,8 +37,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile/positions', [ProfileController::class, 'getPositions'])->name('profile.getPositions');
 
     Route::resource('/application', ApplicationController::class)->except(['update']);
-    Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
     Route::post('/application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
+    Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
 
     Route::resource('status', StatusController::class);
     Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');
@@ -52,8 +53,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
 
     Route::resource('contract', ContractController::class)->except(['update']);
-    Route::post('/contract/{contract}', [ContractController::class, 'update'])->name('contract.update');
     Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk');
+    Route::post('/contract/{contract}', [ContractController::class, 'update'])->name('contract.update');
 
     Route::resource('positions', PositionsController::class);
     Route::post('/positions/destroy-bulk', [PositionsController::class, 'destroyBulk'])->name('positions.destroy-bulk');
@@ -64,7 +65,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/task/{task}/start', [TaskController::class, 'start'])->name('task.start');
     Route::post('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
     Route::post('/task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
-
 
     Route::resource('/user', UserController::class)->except(['update']);
     Route::post('/user/{user}', [UserController::class, 'update'])->name('user.update');
@@ -77,6 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/permission/destroy-bulk', [PermissionController::class, 'destroyBulk'])->name('permission.destroy-bulk');
 
     Route::post('notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+
+    Route::resource('logs', ActivityLogController::class);
+
 });
 
 require __DIR__.'/auth.php';

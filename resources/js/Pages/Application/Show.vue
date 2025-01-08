@@ -60,7 +60,7 @@ watchEffect(() => {
                             class="mt-1 block w-full"
                             v-model="form.title"
                             required
-                            :placeholder="lang().placeholder.title"
+                            :placeholder="lang().label.title"
                             :error="form.errors.title"
                             readonly
                         />
@@ -115,6 +115,9 @@ watchEffect(() => {
                             :custom-upload="true"
                             :show-upload-button="false"
                             :error="form.errors.files"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
                         >
                         <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
                             <div class="flex flex-col gap-8 pt-4">

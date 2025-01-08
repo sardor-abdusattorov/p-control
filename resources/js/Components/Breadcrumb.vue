@@ -1,20 +1,11 @@
-<script setup>
-import { ChevronRightIcon } from "@heroicons/vue/24/solid";
-import { Link } from "@inertiajs/vue3";
-defineProps({
-    title: String,
-    breadcrumbs: Array, // Исправлено с Object на Array
-});
-</script>
-
 <template>
     <div
         class="flex items-center justify-between py-4 px-4 sm:px-0 text-slate-500 dark:text-slate-300"
     >
         <p>{{ title }}</p>
         <div class="hidden sm:flex space-x-2 items-center">
-            <Link :href="route('dashboard')" v-show="breadcrumbs.length != 0">
-                Dashboard
+            <Link :href="route('dashboard')" v-show="breadcrumbs.length !== 0">
+                {{lang().label.dashboard}}
             </Link>
             <div
                 v-for="(breadcrumb, index) in breadcrumbs"
@@ -36,3 +27,13 @@ defineProps({
         </div>
     </div>
 </template>
+
+<script setup>
+import { ChevronRightIcon } from "@heroicons/vue/24/solid";
+import { Link } from "@inertiajs/vue3";
+defineProps({
+    title: String,
+    breadcrumbs: Array,
+});
+</script>
+

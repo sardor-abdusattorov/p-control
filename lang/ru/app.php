@@ -3,6 +3,11 @@
 return [
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'logs' => 'Логи',
+        'upload' => 'Загрузить',
+        'model' => 'Модель',
+        'cancel' => 'Отменить',
+        'choose' => 'Выбрать',
         'image' => 'Изображение',
         'notifications' => 'Уведомления',
         'no_notifications' => 'Нет уведомлений',
@@ -66,7 +71,8 @@ return [
         'departments' => 'Отделы',
         'head_of_department' => 'Руководитель отдела',
         'title' => 'Название',
-        'action' => 'Действия',
+        'actions' => 'Действия',
+        'action' => 'Действие',
         'files' => 'Файлы',
         'status' => 'Статус',
         'welcome' => 'Добро пожаловать',

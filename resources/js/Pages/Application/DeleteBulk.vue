@@ -17,7 +17,7 @@ const form = useForm({
     id: [],
 });
 
-const destory = () => {
+const destroy = () => {
     form.post(route("application.destroy-bulk"), {
         preserveScroll: true,
         onSuccess: () => {
@@ -39,7 +39,7 @@ watchEffect(() => {
 <template>
     <section class="space-y-6">
         <Modal :show="props.show" @close="emit('close')" :maxWidth="'lg'">
-            <form class="p-6" @submit.prevent="destory">
+            <form class="p-6" @submit.prevent="destroy">
                 <h2
                     class="text-lg font-medium text-slate-900 dark:text-slate-100"
                 >
@@ -60,7 +60,7 @@ watchEffect(() => {
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
-                        @click="destory"
+                        @click="destroy"
                     >
                         {{ form.processing ? "Delete..." : "Delete" }}
                     </DangerButton>

@@ -27,7 +27,7 @@ class ApplicationController extends Controller
             $permissions = [
                 'create application' => ['application.create', 'application.store'],
                 'update application' => ['application.edit', 'application.update'],
-                'delete application' => ['application.delete', 'application.delete-bulk'],
+                'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
             ];
             foreach ($permissions as $permission => $routes) {

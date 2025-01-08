@@ -24,6 +24,8 @@ class RoleSeeder extends Seeder
             'manage position',
             'manage department',
 
+            'view logs',
+
             'create task',
             'update task',
             'delete task',

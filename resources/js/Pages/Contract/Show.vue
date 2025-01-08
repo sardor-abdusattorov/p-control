@@ -203,6 +203,9 @@ watchEffect(() => {
                             :show-upload-button="false"
                             :disabled="true"
                             :error="form.errors.files"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
                         >
                             <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
                                 <div class="flex flex-col gap-8 pt-4">

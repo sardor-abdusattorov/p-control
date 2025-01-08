@@ -240,6 +240,7 @@ const getFileIcon = (fileType) => {
                             yearRange="2020:2030"
                             dateFormat="dd/mm/yy"
                             :manualInput="false"
+                            :minDate="new Date()"
                         />
                         <InputError class="mt-2" :message="form.errors.deadline"/>
                     </div>
@@ -258,6 +259,9 @@ const getFileIcon = (fileType) => {
                             :show-upload-button="false"
                             @clear="onClearFiles"
                             :error="form.errors.files"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
                         >
                             <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
 

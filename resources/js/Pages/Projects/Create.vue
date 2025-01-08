@@ -108,6 +108,7 @@ watchEffect(() => {
                                 showButtonBar
                                 class="w-full"
                                 :manualInput="false"
+                                :minDate="new Date()"
                             />
                             <InputError class="mt-2" :message="form.errors.project_year" />
                         </div>
@@ -126,6 +127,7 @@ watchEffect(() => {
                                 yearRange="2020:2030"
                                 dateFormat="dd/mm/yy"
                                 :manualInput="false"
+                                :minDate="new Date()"
                             />
                             <InputError class="mt-2" :message="form.errors.deadline" />
                         </div>

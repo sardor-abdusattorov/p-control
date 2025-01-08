@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import { reactive, watch } from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
@@ -207,7 +207,10 @@ const select = () => {
                                 </td>
                                     <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <span class="flex justify-start items-center">
-                                        {{ application?.title || 'No title available' }}
+                                          <Link :href="route('application.show', { application: application.id })" class="text-blue-500 hover:underline">
+                                             {{ application?.title || lang().label.no_available }}
+                                        </Link>
+
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">

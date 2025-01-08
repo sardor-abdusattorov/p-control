@@ -1,120 +1,3 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {ref, watchEffect} from "vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Select from "primevue/select";
-import DatePicker from "primevue/datepicker";
-import InputText from "primevue/inputtext";
-import InputNumber from "primevue/inputnumber";
-import BackLink from "@/Components/BackLink.vue";
-import FileUpload from 'primevue/fileupload';
-import {Message} from "primevue";
-import Button from "primevue/button";
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    breadcrumbs: Object,
-    users: Array,
-    projects: Array,
-    applications: Array,
-    currency: Array,
-});
-
-const currentCurrencyCode = ref("UZS");
-const currentLocale = ref("uz-UZ");
-
-const currencyToLocaleMap = {
-    UZS: "uz-UZ",
-    RUB: "ru-RU",
-    USD: "en-US",
-    EUR: "de-DE",
-};
-
-// const user = usePage().props.auth.user;
-// const role = user.roles?.[0]?.name || null;
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
-
-const allowedFileTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-];
-
-
-const form = useForm({
-    contract_number: "",
-    files: [],
-    title: "",
-    project_id: "",
-    application_id: "",
-    currency_id: 1,
-    user_id: "",
-    budget_sum: "",
-    deadline: new Date(new Date().getFullYear(), 11, 31),
-});
-
-const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        const newFiles = event.files;
-        const invalidFiles = [];
-        newFiles.forEach((file) => {
-            if (!allowedFileTypes.includes(file.type)) {
-                invalidFiles.push(file.name);
-            }
-        });
-        if (invalidFiles.length > 0) {
-        } else {
-            form.files = newFiles;
-        }
-    }
-};
-
-const onClearFiles = () => {
-    form.files = [];
-};
-
-const removeUploadedFile = (index) => {
-    form.files.splice(index, 1);
-};
-const create = () => {
-    form.post(route("contract.store"));
-};
-
-watchEffect(() => {
-    form.errors = {};
-    const newCurrencyId = form.currency_id;
-    const selectedCurrency = props.currency.find((item) => item.id === Number(newCurrencyId));
-    if (selectedCurrency) {
-        currentCurrencyCode.value = selectedCurrency.short_name;
-        currentLocale.value = currencyToLocaleMap[selectedCurrency.short_name] || "uz-UZ";
-    } else {
-        currentCurrencyCode.value = "UZS";
-        currentLocale.value = "uz-UZ";
-    }
-});
-
-
-const getFileIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-        return 'pi pi-file-pdf';
-    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        return 'pi pi-file-word';
-    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        return 'pi pi-file-excel';
-    }
-    return 'pi pi-file';
-};
-
-</script>
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
@@ -253,6 +136,7 @@ const getFileIcon = (fileType) => {
                             dateFormat="dd/mm/yy"
                             yearRange="2020:2030"
                             :manualInput="false"
+                            :minDate="new Date()"
                         />
                         <InputError class="mt-2" :message="form.errors.deadline" />
                     </div>
@@ -268,6 +152,9 @@ const getFileIcon = (fileType) => {
                             @select="onFileChange"
                             :file-limit="6"
                             :custom-upload="true"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
                             :show-upload-button="false"
                             @clear="onClearFiles"
                             :error="form.errors.files"
@@ -326,6 +213,124 @@ const getFileIcon = (fileType) => {
 
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
+import {ref, watchEffect} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+import {Message} from "primevue";
+import Button from "primevue/button";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    breadcrumbs: Object,
+    users: Array,
+    projects: Array,
+    applications: Array,
+    currency: Array,
+});
+
+const currentCurrencyCode = ref("UZS");
+const currentLocale = ref("uz-UZ");
+
+const currencyToLocaleMap = {
+    UZS: "uz-UZ",
+    RUB: "ru-RU",
+    USD: "en-US",
+    EUR: "de-DE",
+};
+
+// const user = usePage().props.auth.user;
+// const role = user.roles?.[0]?.name || null;
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
+
+
+const form = useForm({
+    contract_number: "",
+    files: [],
+    title: "",
+    project_id: "",
+    application_id: "",
+    currency_id: 1,
+    user_id: "",
+    budget_sum: "",
+    deadline: new Date(new Date().getFullYear(), 11, 31),
+});
+
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
+        });
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = newFiles;
+        }
+    }
+};
+
+const onClearFiles = () => {
+    form.files = [];
+};
+
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
+};
+const create = () => {
+    form.post(route("contract.store"));
+};
+
+watchEffect(() => {
+    form.errors = {};
+    const newCurrencyId = form.currency_id;
+    const selectedCurrency = props.currency.find((item) => item.id === Number(newCurrencyId));
+    if (selectedCurrency) {
+        currentCurrencyCode.value = selectedCurrency.short_name;
+        currentLocale.value = currencyToLocaleMap[selectedCurrency.short_name] || "uz-UZ";
+    } else {
+        currentCurrencyCode.value = "UZS";
+        currentLocale.value = "uz-UZ";
+    }
+});
+
+
+const getFileIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+        return 'pi pi-file-pdf';
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return 'pi pi-file-word';
+    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        return 'pi pi-file-excel';
+    }
+    return 'pi pi-file';
+};
+
+</script>
+
 
 <style scoped>
 .p-inputnumber-input {

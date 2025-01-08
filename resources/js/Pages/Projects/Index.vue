@@ -1,6 +1,182 @@
+<template>
+    <Head :title="props.title"/>
+
+    <AuthenticatedLayout>
+        <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
+        <div class="space-y-4">
+            <div class="px-4 sm:px-0">
+
+                <div class="rounded-lg overflow-hidden w-fit">
+                    <div>
+                        <CreateLink :href="route('projects.create')" v-show="can(['create project'])"/>
+                    </div>
+                    <Delete v-show="can(['delete project'])"
+                        :show="data.deleteOpen"
+                        @close="data.deleteOpen = false"
+                        :project="data.project"
+                        :title="props.title"
+                    />
+                    <DeleteBulk v-show="can(['delete project'])"
+                        :show="data.deleteBulkOpen"
+                        @close="
+                            (data.deleteBulkOpen = false),
+                                (data.multipleSelect = false),
+                                (data.selectedId = [])
+                        "
+                        :selectedId="data.selectedId"
+                        :title="props.title"
+                    />
+                </div>
+            </div>
+            <div class="relative bg-white dark:bg-slate-800 shadow sm:rounded-lg">
+                <div class="flex justify-between p-2">
+                    <div class="flex space-x-2">
+                        <Select
+                            v-model="data.params.perPage"
+                            :options="data.dataSet"
+                            optionLabel="label"
+                            optionValue="value"
+                        />
+
+                        <DangerButton
+                            @click="data.deleteBulkOpen = true"
+                            v-show="data.selectedId.length !== 0 && can(['delete project'])"
+                            class="px-3 py-1.5"
+                            v-tooltip="lang().tooltip.delete_selected"
+                        >
+                            <TrashIcon class="w-5 h-5" />
+                        </DangerButton>
+                    </div>
+                    <InputText
+                        v-model="data.params.search"
+                        type="text"
+                        class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"
+                        :placeholder="lang().placeholder.search"
+                    />
+                </div>
+                <div class="overflow-x-auto scrollbar-table">
+                    <table class="w-full">
+                        <thead class="uppercase text-sm border-t border-slate-200 dark:border-slate-700">
+                        <tr class="dark:bg-slate-900/50 text-left">
+                            <th class="px-2 py-4 text-center">
+                                <Checkbox
+                                    v-show="can(['delete project'])"
+                                    v-model:checked="data.multipleSelect"
+                                    @change="selectAll"
+                                />
+                            </th>
+                            <th class="px-2 py-4">#</th>
+
+                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.title }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4"/>
+                                </div>
+                            </th>
+
+
+                            <th class="px-2 py-4 cursor-pointer" @click="order('project_number')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.project_number }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4"/>
+                                </div>
+                            </th>
+
+                            <th class="px-2 py-4 cursor-pointer" @click="order('budget_sum')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.budget_sum }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4"/>
+                                </div>
+                            </th>
+
+                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.user_id }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('status')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.status }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 text-center">{{ lang().label.action }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr
+                            v-for="(project, index) in props.projects.data"
+                            :key="index"
+                            class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20"
+                        >
+                            <td class="whitespace-nowrap py-4 px-2 text-center">
+                                <input
+                                    v-show="can(['delete project'])"
+                                    class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
+                                    type="checkbox"
+                                    @change="select"
+                                    :value="project.id"
+                                    v-model="data.selectedId"
+                                />
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ ++index }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <Link :href="route('projects.show', { project: project.id })" class="text-blue-500 hover:underline">
+                                    {{ project.title ?? lang().label.undefined }}
+                                </Link>
+
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ project.project_number }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ project.budget_sum }} {{ project.currency?.short_name || '' }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ project.user?.name || 'Не указано' }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ project.status?.name || 'Не указан' }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2">
+                                <div class="gap-1 justify-center overflow-hidden flex items-center">
+                                    <ViewLink
+                                        :href="route('projects.show', { project: project.id })"
+                                        v-tooltip="lang().tooltip.show"
+                                    />
+                                    <EditLink  v-show="can(['update project'])"
+                                        :href="route('projects.edit', { project: project.id })"
+                                        v-tooltip="lang().tooltip.edit"
+                                    />
+                                    <DangerButton
+                                        type="button"
+                                        @click="(data.deleteOpen = true), (data.project = project)"
+                                        v-tooltip="lang().tooltip.delete"
+                                        v-show="can(['delete project'])"
+                                    >
+                                        <TrashIcon class="w-4 h-4" />
+                                    </DangerButton>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+                <div class="flex justify-between items-center p-2 border-t border-slate-200 dark:border-slate-700">
+                    <Pagination :links="props.projects" :filters="data.params"/>
+                </div>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
+
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
+import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import { reactive, watch } from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
@@ -76,175 +252,3 @@ const select = () => {
 };
 
 </script>
-
-<template>
-    <Head :title="props.title"/>
-
-    <AuthenticatedLayout>
-        <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
-        <div class="space-y-4">
-            <div class="px-4 sm:px-0">
-
-                <div class="rounded-lg overflow-hidden w-fit">
-                    <div>
-                        <CreateLink :href="route('projects.create')" v-show="can(['create project'])"/>
-                    </div>
-                    <Delete v-show="can(['delete project'])"
-                        :show="data.deleteOpen"
-                        @close="data.deleteOpen = false"
-                        :project="data.project"
-                        :title="props.title"
-                    />
-                    <DeleteBulk v-show="can(['delete project'])"
-                        :show="data.deleteBulkOpen"
-                        @close="
-                            (data.deleteBulkOpen = false),
-                                (data.multipleSelect = false),
-                                (data.selectedId = [])
-                        "
-                        :selectedId="data.selectedId"
-                        :title="props.title"
-                    />
-                </div>
-            </div>
-            <div class="relative bg-white dark:bg-slate-800 shadow sm:rounded-lg">
-                <div class="flex justify-between p-2">
-                    <div class="flex space-x-2">
-                        <Select
-                            v-model="data.params.perPage"
-                            :options="data.dataSet"
-                            optionLabel="label"
-                            optionValue="value"
-                        />
-
-                        <DangerButton
-                            @click="data.deleteBulkOpen = true"
-                            v-show="data.selectedId.length !== 0 && can(['delete project'])"
-                            class="px-3 py-1.5"
-                            v-tooltip="lang().tooltip.delete_selected"
-                        >
-                            <TrashIcon class="w-5 h-5" />
-                        </DangerButton>
-                    </div>
-                    <InputText
-                        v-model="data.params.search"
-                        type="text"
-                        class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"
-                        :placeholder="lang().placeholder.search"
-                    />
-                </div>
-                <div class="overflow-x-auto scrollbar-table">
-                    <table class="w-full">
-                        <thead class="uppercase text-sm border-t border-slate-200 dark:border-slate-700">
-                        <tr class="dark:bg-slate-900/50 text-left">
-                            <th class="px-2 py-4 text-center">
-                                <Checkbox
-                                    v-show="can(['delete project'])"
-                                    v-model:checked="data.multipleSelect"
-                                    @change="selectAll"
-                                />
-                            </th>
-                            <th class="px-2 py-4">#</th>
-
-                            <th class="px-2 py-4 cursor-pointer" @click="order('project_number')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.project_number }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4"/>
-                                </div>
-                            </th>
-
-                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.title }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4"/>
-                                </div>
-                            </th>
-
-                            <th class="px-2 py-4 cursor-pointer" @click="order('budget_sum')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.budget_sum }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4"/>
-                                </div>
-                            </th>
-
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.user_id }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4" />
-                                </div>
-                            </th>
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('status')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.status }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4" />
-                                </div>
-                            </th>
-                            <th class="px-2 py-4 text-center">{{ lang().label.action }}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr
-                            v-for="(project, index) in props.projects.data"
-                            :key="index"
-                            class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20"
-                        >
-                            <td class="whitespace-nowrap py-4 px-2 text-center">
-                                <input
-                                    v-show="can(['delete project'])"
-                                    class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
-                                    type="checkbox"
-                                    @change="select"
-                                    :value="project.id"
-                                    v-model="data.selectedId"
-                                />
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.project_number }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.title }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.budget_sum }} {{ project.currency?.short_name || '' }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.user?.name || 'Не указано' }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.status?.name || 'Не указан' }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2">
-                                <div class="gap-1 justify-center overflow-hidden flex items-center">
-                                    <ViewLink
-                                        :href="route('projects.show', { project: project.id })"
-                                        v-tooltip="lang().tooltip.show"
-                                    />
-                                    <EditLink  v-show="can(['update project'])"
-                                        :href="route('projects.edit', { project: project.id })"
-                                        v-tooltip="lang().tooltip.edit"
-                                    />
-                                    <DangerButton
-                                        type="button"
-                                        @click="(data.deleteOpen = true), (data.project = project)"
-                                        v-tooltip="lang().tooltip.delete"
-                                        v-show="can(['delete project'])"
-                                    >
-                                        <TrashIcon class="w-4 h-4" />
-                                    </DangerButton>
-                                </div>
-                            </td>
-                        </tr>
-                        </tbody>
-
-                    </table>
-                </div>
-                <div class="flex justify-between items-center p-2 border-t border-slate-200 dark:border-slate-700">
-                    <Pagination :links="props.projects" :filters="data.params"/>
-                </div>
-            </div>
-        </div>
-    </AuthenticatedLayout>
-</template>

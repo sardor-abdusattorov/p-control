@@ -72,7 +72,7 @@ const onFileChange = (event) => {
 const onClearFiles = () => {
     form.files = [];
 };
-console.log(props.task.due_date)
+
 const removeUploadedFile = (index) => {
     form.files.splice(index, 1);
 };
@@ -232,6 +232,10 @@ watchEffect(() => {
                             :file-limit="6"
                             :custom-upload="true"
                             :show-upload-button="false"
+                            :chooseLabel="lang().label.choose"
+                            :uploadLabel="lang().label.upload"
+                            :cancelLabel="lang().label.cancel"
+
                             @clear="onClearFiles"
                             :error="form.errors.files"
                         >

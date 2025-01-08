@@ -22,6 +22,33 @@ class ContractController extends Controller
      * Display a listing of the resource.
      */
 
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+            if (!$user) {
+                return redirect()->route('login');
+            }
+            $permissions = [
+                'create contract' => ['contract.create', 'contract.store'],
+                'update contract' => ['contract.edit', 'contract.update'],
+                'delete contract' => ['contract.destroy', 'contract.destroy-bulk'],
+                'view contract' => ['contract.index', 'contract.show'],
+            ];
+            foreach ($permissions as $permission => $routes) {
+                if ($user->can($permission)) {
+                    foreach ($routes as $route) {
+                        if ($request->routeIs($route)) {
+                            return $next($request);
+                        }
+                    }
+                }
+            }
+            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+        });
+    }
+
+
 
     public function index(ContractIndexRequest $request)
     {

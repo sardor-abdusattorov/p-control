@@ -49,5 +49,8 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'delete contract']);
         Permission::create(['name' => 'view contract']);
         Permission::create(['name' => 'view all contracts']);
+
+
+        Permission::create(['name' => 'view logs']);
     }
 }
