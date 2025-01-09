@@ -11,6 +11,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,7 +49,6 @@ class ProfileController extends Controller
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-
         $user = auth()->user();
         $data = $request->validated();
         $user->telegram_id = $data['telegram_id'] ?? null;
@@ -61,8 +61,11 @@ class ProfileController extends Controller
             if ($user->getFirstMedia('profile_image')) {
                 $user->getFirstMedia('profile_image')->delete();
             }
-
+            $file = $request->file('image');
+            $ext = $file->extension();
+            $name = Str::random(24) . '.' . $ext;
             $user->addMediaFromRequest('image')
+                ->usingFileName($name)
                 ->toMediaCollection('profile_image');
         }
 

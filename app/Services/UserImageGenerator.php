@@ -10,7 +10,7 @@ class UserImageGenerator implements BasePathGenerator
     /**
      * Get the path for the given media, relative to the root storage path.
      *
-     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media $media
+     * @param Media $media
      * @return string
      */
     public function getPath(Media $media): string
@@ -22,24 +22,24 @@ class UserImageGenerator implements BasePathGenerator
     /**
      * Get the path for conversions of the given media, relative to the root storage path.
      *
-     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media $media
+     * @param Media $media
      * @return string
      */
     public function getPathForConversions(Media $media): string
     {
-        // Conversions directory for the media
+
         return $this->getPath($media) . 'conversions/';
     }
 
     /**
      * Get the path for responsive images of the given media, relative to the root storage path.
      *
-     * @param \Spatie\MediaLibrary\MediaCollections\Models\Media $media
+     * @param Media $media
      * @return string
      */
     public function getPathForResponsiveImages(Media $media): string
     {
-        // Responsive images directory for the media
+
         return $this->getPath($media) . 'responsive/';
     }
 }

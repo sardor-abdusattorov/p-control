@@ -102,15 +102,15 @@
                                             <TabPanels>
                                                 <TabPanel value="dialogs">
                                                     <div class="flex flex-col gap-2 h-full max-h-[350px] overflow-y-auto">
-                                                        <div class="py-2 px-2 flex items-center gap-2 justify-between rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer select-none">
+                                                        <div v-for="(user, index) in props.users" :key="index" class="py-2 px-2 flex items-center gap-2 justify-between rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer select-none">
                                                             <div class="flex items-center gap-2 min-w-0 flex-1">
-                                                                <span class="avatar avatar-circle avatar-md">
-                                                                    <img class="avatar-img avatar-circle" loading="lazy" src="/img/avatars/thumb-4.jpg">
-                                                                </span>
+                                                                      <span class="avatar avatar-circle avatar-md">
+                                                                        <img class="avatar-img avatar-circle rounded-full max-w-8" loading="lazy" :src="user.profile_image" />
+                                                                      </span>
                                                                 <div class="min-w-0 flex-1">
                                                                     <div class="flex justify-between">
                                                                         <div class="font-semibold text-sm dark:text-gray-100 text-gray-800 truncate flex gap-2 items-center">
-                                                                            <span>Shannon Baker</span>
+                                                                            <span>{{ user.name }}</span>
                                                                         </div>
                                                                     </div>
                                                                     <div class="text-gray-600 truncate dark:text-gray-400">Will do. Appreciate it!</div>
@@ -124,15 +124,15 @@
                                                 </TabPanel>
                                                 <TabPanel value="all_users">
                                                     <div class="flex flex-col gap-2 h-full max-h-[350px] overflow-y-auto">
-                                                        <div class="py-2 px-2 flex items-center gap-2 justify-between rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer select-none">
+                                                        <div v-for="(user, index) in props.users" :key="index" class="py-2 px-2 flex items-center gap-2 justify-between rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer select-none">
                                                             <div class="flex items-center gap-2 min-w-0 flex-1">
-                                                                <span class="avatar avatar-circle avatar-md">
-                                                                    <img class="avatar-img avatar-circle" loading="lazy" src="/img/avatars/thumb-4.jpg">
-                                                                </span>
+                                                                      <span class="avatar avatar-circle avatar-md">
+                                                                        <img class="avatar-img avatar-circle rounded-full max-w-8" loading="lazy" :src="user.profile_image" />
+                                                                      </span>
                                                                 <div class="min-w-0 flex-1">
                                                                     <div class="flex justify-between">
                                                                         <div class="font-semibold text-sm dark:text-gray-100 text-gray-800 truncate flex gap-2 items-center">
-                                                                            <span>Shannon Baker</span>
+                                                                            <span>{{ user.name }}</span>
                                                                         </div>
                                                                     </div>
                                                                     <div class="text-gray-600 truncate dark:text-gray-400">Will do. Appreciate it!</div>
