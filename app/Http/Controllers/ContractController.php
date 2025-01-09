@@ -7,8 +7,10 @@ use App\Http\Requests\Contract\ContractStoreRequest;
 use App\Http\Requests\Contract\ContractUpdateRequest;
 use App\Models\Application;
 use App\Models\Contract;
+use App\Models\ContractApproval;
 use App\Models\Currency;
 use App\Models\Project;
+use App\Models\Recipient;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -48,30 +50,28 @@ class ContractController extends Controller
         });
     }
 
-
-
     public function index(ContractIndexRequest $request)
     {
-
+        $user = auth()->user();
         $statuses = Contract::getStatuses();
-
-        $contracts = Contract::query()->with(['user']);
-        if ($request->has('search')) {
-            $contracts->where('title', 'LIKE', "%" . $request->search . "%");
+        $contracts = Contract::query()->with(['user', 'currency']);
+        if (!$user->can('view all contracts')) {
+            $contracts->where('user_id', $user->id);
         }
-
+        if ($request->has('search')) {
+            $contracts->where('name', 'LIKE', "%" . $request->search . "%");
+        }
         if ($request->has(['field', 'order'])) {
             $contracts->orderBy($request->field, $request->order);
         }
-
         $perPage = $request->has('perPage') ? $request->perPage : 10;
-
+        $contracts = $contracts->paginate($perPage);
         return Inertia::render('Contract/Index', [
             'title'         => __('app.label.contracts'),
             'filters'       => $request->all(['search', 'field', 'order']),
             'perPage'       => (int) $perPage,
-            'contracts'     => $contracts->paginate($perPage),
-            'statuses' => $statuses,
+            'contracts'     => $contracts,
+            'statuses'      => $statuses,
             'breadcrumbs'   => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
         ]);
     }
@@ -82,13 +82,14 @@ class ContractController extends Controller
     public function create()
     {
         $currency = Currency::where(['status' => 1])->get();
+        $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
         if (auth()->user()->can('get all application')) {
             $applications = Application::all();
         }else {
             $applications = auth()->user()->applications;
         }
-        $users = User::all();
+        $users = User::where('id', '!=', auth()->id())->get();
 
         return Inertia::render('Contract/Create', [
             'title' => __('app.label.contracts'),
@@ -99,7 +100,8 @@ class ContractController extends Controller
             'currency' => $currency,
             'projects' => $projects,
             'applications' => $applications,
-            'users' => $users
+            'users' => $users,
+            'recipients' => $recipients
         ]);
     }
 
@@ -116,16 +118,11 @@ class ContractController extends Controller
             $contract->project_id = $request->project_id;
             $contract->application_id = $request->application_id ?? null;
             $contract->currency_id = $request->currency_id;
-            if(auth()->user()->hasRole('superadmin')) {
-                $contract->user_id = $request->user_id;
-            } else {
-                $contract->user_id = auth()->user()->id;
-            }
+            $contract->user_id = Auth()->user()->id;
             $contract->budget_sum = $request->budget_sum;
             $contract->status = 1;
             $contract->deadline = Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
             $contract->save();
-
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -134,6 +131,15 @@ class ContractController extends Controller
                         ->usingFileName($name)
                         ->toMediaCollection("files");
                 }
+            }
+
+            $recipients = $request->recipients;
+            foreach ($recipients as $user) {
+                ContractApproval::create([
+                    'user_id' => $user,
+                    'contract_id' => $contract->id,
+                    'status' => ContractApproval::STATUS_NEW,
+                ]);
             }
             DB::commit();
             return redirect()->route('contract.index')->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
@@ -149,28 +155,23 @@ class ContractController extends Controller
      */
     public function show(Contract $contract)
     {
+        $statuses = Contract::getStatuses();
         $files = $contract->getMedia('files');
-        $currency = Currency::where(['status' => 1])->get();
-        $projects = Project::all();
-        $applications = Application::all();
-
-        $users = User::all();
-
+        $project = Project::where('id', $contract->project_id)->first();
+        $application = Application::where('id', $contract->application_id)->first();
         return Inertia::render('Contract/Show', [
             'title' => $contract->title,
-            'users' => $users,
             'files' => $files,
-            'currency' => $currency,
-            'projects' => $projects,
-            'applications' => $applications,
-            'contract' => $contract,
+            'statuses' => $statuses,
+            'project' => $project,
+            'application' => $application,
+            'contract' => $contract->load(['user', 'currency']),
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('contract.index')],
                 ['label' => $contract->title]
             ],
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.

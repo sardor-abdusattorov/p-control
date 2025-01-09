@@ -1,35 +1,3 @@
-<script setup>
-import {defineProps, reactive} from 'vue';
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head} from "@inertiajs/vue3";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import DangerButton from "@/Components/DangerButton.vue";
-import {TrashIcon} from "@heroicons/vue/24/solid";
-import EditLink from "@/Components/EditLink.vue";
-import Delete from "@/Pages/Projects/Delete.vue";
-
-const props = defineProps({
-    project: {
-        type: Object,
-        required: true,
-    },
-    title: {
-        type: String,
-        required: true,
-    },
-    breadcrumbs: {
-        type: Object,
-        required: true,
-    },
-});
-
-const data = reactive({
-    deleteOpen: false,
-    project: null,
-});
-
-</script>
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
@@ -50,6 +18,15 @@ const data = reactive({
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>
+                        <Link :href="route('projects.related-contracts', { project: project.id })"
+                              class="px-2 py-2 rounded-md flex items-center gap-2 justify-center border border-transparent shadow-lg bg-green-500 text-white hover:bg-green-400 transition-all duration-300 ease-in-out"
+
+                          v-tooltip="lang().tooltip.view_contracts"
+                        >
+                            {{lang().label.related_contracts}}
+                            <DocumentTextIcon class="w-4 h-4" />
+                        </Link>
+
                         <DangerButton
                             type="button"
                             @click="(data.deleteOpen = true), (data.project = project)"
@@ -94,13 +71,15 @@ const data = reactive({
                         class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                     >
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.budget_sum }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.budget_sum }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ formatNumber(project.budget_sum) }} {{ project.currency?.short_name || '' }}</td>
                     </tr>
                     <tr
                         class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                     >
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.budget_balance }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.budget_balance }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ formatNumber(project.budget_balance) }} {{ project.currency?.short_name || '' }}
+                        </td>
                     </tr>
                     <tr
                         class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
@@ -123,12 +102,14 @@ const data = reactive({
 
                     <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.status ? project.status.name : 'No status assigned' }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            <Badge :value="getStatusLabel(project.status_id)" :severity="getStatusSeverity(project.status_id)" />
+                        </td>
                     </tr>
 
                     <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.currency }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.currency ? project.currency.name : 'No currency assigned' }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.currency ? project.currency.name : lang().label.undefined }}</td>
                     </tr>
                     <tr
                         class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
@@ -146,3 +127,67 @@ const data = reactive({
         </div>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import {defineProps, reactive} from 'vue';
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {Head, Link} from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import DangerButton from "@/Components/DangerButton.vue";
+import {DocumentTextIcon, TrashIcon} from "@heroicons/vue/24/solid";
+import EditLink from "@/Components/EditLink.vue";
+import Delete from "@/Pages/Projects/Delete.vue";
+import Badge from "primevue/badge";
+
+const props = defineProps({
+    project: {
+        type: Object,
+        required: true,
+    },
+    statuses: Object,
+    title: {
+        type: String,
+        required: true,
+    },
+    breadcrumbs: {
+        type: Object,
+        required: true,
+    },
+});
+
+const data = reactive({
+    deleteOpen: false,
+    project: null,
+});
+
+const formatNumber = (amount) => {
+    if (!amount) return '-';
+    const formattedAmount = new Intl.NumberFormat('ru-RU', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+
+    return formattedAmount;
+};
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'success';
+        case -1:
+            return 'danger';
+        default:
+            return 'info';
+    }
+};
+
+
+</script>

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Contract\ContractRelatedRequest;
 use App\Http\Requests\Projects\ProjectsIndexRequest;
 use App\Http\Requests\Projects\ProjectsStoreRequest;
 use App\Http\Requests\Projects\ProjectsUpdateRequest;
+use App\Models\Contract;
+use App\Models\Currency;
 use App\Models\Project;
 use App\Models\User;
 use Carbon\Carbon;
@@ -27,7 +30,7 @@ class ProjectsController extends Controller
                 'create project' => ['projects.create', 'projects.store'],
                 'update project' => ['projects.edit', 'projects.update'],
                 'delete project' => ['projects.destroy', 'projects.destroy-bulk'],
-                'view project' => ['projects.index', 'projects.show'],
+                'view project' => ['projects.index', 'projects.show', 'projects.related-contracts'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -47,28 +50,69 @@ class ProjectsController extends Controller
      */
     public function index(ProjectsIndexRequest $request)
     {
-        $projects = Project::query()
-            ->with(['user', 'currency', 'status']);
-
+        $user = auth()->user();
+        $statuses = Contract::getStatuses();
+        $currencies = Currency::where(['status' => 1])->get();
+        $projectsQuery = Project::query()->with(['user', 'currency', 'status', 'contracts']);
+        $contractsQuery = Contract::query();
+        if (!$user->can('view all contracts')) {
+            $contractsQuery->where('user_id', $user->id);
+        }
         if ($request->has('search')) {
-            $projects->where(function ($query) use ($request) {
-                $query->where('title', 'LIKE', "%" . $request->search . "%")
-                    ->orWhere('project_number', 'LIKE', "%" . $request->search . "%");
-            });
+            $projectsQuery->where('name', 'LIKE', "%" . $request->search . "%");
         }
-
         if ($request->has(['field', 'order'])) {
-            $projects->orderBy($request->field, $request->order);
+            $projectsQuery->orderBy($request->field, $request->order);
         }
-
         $perPage = $request->has('perPage') ? $request->perPage : 10;
-
+        $projects = $projectsQuery->paginate($perPage);
         return Inertia::render('Projects/Index', [
-            'title'         => __('app.label.projects'),
+            'title'       => __('app.label.projects'),
+            'filters'     => $request->all(['search', 'field', 'order']),
+            'perPage'     => (int) $perPage,
+            'projects'    => $projects,
+            'statuses'    => $statuses,
+            'contracts'   => $contractsQuery->get(),
+            'currencies'  => $currencies,
+            'breadcrumbs' => [
+                ['label' => __('app.label.projects'), 'href' => route('projects.index')],
+            ],
+        ]);
+    }
+
+
+
+    public function relatedContracts(ContractRelatedRequest $request, Project $project)
+    {
+        $user = auth()->user();
+        $statuses = Contract::getStatuses();
+        $contractsQuery = Contract::query()
+            ->where('project_id', $project->id)
+            ->with('currency');
+        if (!$user->can('view all contracts')) {
+            $contractsQuery->where('user_id', $user->id);
+        }
+        if ($request->has('search')) {
+            $contractsQuery->where('name', 'LIKE', "%" . $request->search . "%");
+        }
+        if ($request->has(['field', 'order'])) {
+            $contractsQuery->orderBy($request->field, $request->order);
+        }
+        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $contracts = $contractsQuery->paginate($perPage);
+
+        return Inertia::render('Projects/RelatedContract', [
+            'title'         => __('app.label.contracts'),
             'filters'       => $request->all(['search', 'field', 'order']),
             'perPage'       => (int) $perPage,
-            'projects'      => $projects->paginate($perPage),
-            'breadcrumbs'   => [['label' => __('app.label.projects'), 'href' => route('projects.index')]],
+            'contracts'     => $contracts,
+            'statuses'      => $statuses,
+            'project'       => $project,
+            'breadcrumbs'   => [
+                ['label' => __('app.label.projects'), 'href' => route('projects.index')],
+                ['label' => $project->title, 'href' => route('projects.show', $project->id)],
+                ['label' => __('app.label.related_contracts')]
+            ]
         ]);
     }
 
@@ -124,8 +168,10 @@ class ProjectsController extends Controller
      */
     public function show(Project $project)
     {
+        $statuses = Contract::getStatuses();
         return Inertia::render('Projects/Show', [
             'project' => $project->load(['user', 'status', 'currency']),
+            'statuses' => $statuses,
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
@@ -146,7 +192,8 @@ class ProjectsController extends Controller
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
-                ['label' => $project->title]
+                ['label' => $project->title, 'href' => route('projects.show', $project->id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }

@@ -24,14 +24,14 @@
                 <div class="p-2 sm:p-4">
                     <h6 class="text-[14px] md:text-lg font-semibold mb-2 sm:mb-4 dark:text-white">{{ lang().label.notifications }}</h6>
                     <div class="max-h-[350px] overflow-y-auto">
-                        <ul v-if="usePage().props.notifications.length > 0" class="divide-y divide-slate-200 dark:divide-zinc-600">
+                        <ul v-if="notifications.length > 0" class="divide-y divide-slate-200 dark:divide-zinc-600">
                             <li
-                                v-for="notification in usePage().props.notifications"
+                                v-for="notification in notifications"
                                 :key="notification.id"
                                 class="flex items-start p-2 sm:p-4 gap-2 sm:gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700"
                             >
                                 <div v-if="notification.type == 1">
-                                    <Link @click.prevent="handleNotificationClick(notification.id)" :href="route('tasks.show', notification.task_id)">
+                                    <Link @click.prevent="handleNotificationClick(notification)" :href="route('task.show', notification.task_id)">
                                         <div class="flex-grow">
                                             <h6 class="font-medium dark:text-white mb-2 sm:mb-4">{{ lang().notification.task_assigned }}</h6>
                                             <p class="text-[14px] sm:text-xs text-slate-400 dark:text-zinc-400">
@@ -41,7 +41,7 @@
                                     </Link>
                                 </div>
                                 <div v-if="notification.type == 2">
-                                    <Link @click.prevent="handleNotificationClick(notification.id)" :href="route('tasks.show', notification.task_id)">
+                                    <Link @click.prevent="handleNotificationClick(notification)" :href="route('task.show', notification.task_id)">
                                         <div class="flex-grow">
                                             <h6 class="text-[14px] sm:font-medium dark:text-white mb-2 sm:mb-4">{{ lang().notification.task_completed }}</h6>
                                             <p class="text-[14px] sm:text-xs text-slate-400 dark:text-zinc-400">
@@ -67,13 +67,18 @@ import {BellIcon} from "@heroicons/vue/24/solid";
 import Dropdown from "@/Components/Dropdown.vue";
 import {Link, usePage} from "@inertiajs/vue3";
 import axios from "axios";
-const handleNotificationClick = (notificationId) => {
-    axios.post(`/notifications/${notificationId}/mark-as-read`)
+import {ref} from "vue";
+
+
+const notifications = ref(usePage().props.notifications);
+
+const handleNotificationClick = (notification) => {
+    axios.post(`/notifications/${notification.id}/mark-as-read`)
         .then((response) => {
+            notifications.value = notifications.value.filter(n => n.id !== notification.id);
         })
         .catch((error) => {
+            console.error('Error marking notification as read:', error);
         });
 };
-
 </script>
-

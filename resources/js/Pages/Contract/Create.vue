@@ -73,22 +73,20 @@
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
-
-                    <div class="form-group mb-5" v-if="isAdmin">
-                        <InputLabel for="user_id" :value="lang().label.user_id" />
-                        <Select
-                            id="user_id"
-                            v-model="form.user_id"
-                            :options="users"
-                            optionLabel="name"
+                    <div class="form-group mb-3">
+                        <InputLabel for="recipients" :value="lang().label.recipients" />
+                        <MultiSelect
+                            v-model="form.recipients"
+                            display="chip"
                             optionValue="id"
+                            :options="props.users"
+                            optionLabel="name"
                             filter
-                            checkmark
-                            :highlightOnSelect="false"
-                            :placeholder="lang().placeholder.select_user"
+                            :placeholder="lang().placeholder.select_recipients"
+                            :maxSelectedLabels="8"
                             class="w-full"
                         />
-                        <InputError class="mt-2" :message="form.errors.user_id" />
+                        <InputError class="mt-2" :message="form.errors.recipients" />
                     </div>
 
                     <div class="form-group mb-5">
@@ -229,6 +227,7 @@ import BackLink from "@/Components/BackLink.vue";
 import FileUpload from 'primevue/fileupload';
 import {Message} from "primevue";
 import Button from "primevue/button";
+import MultiSelect from "primevue/multiselect";
 
 const props = defineProps({
     show: Boolean,
@@ -238,12 +237,11 @@ const props = defineProps({
     projects: Array,
     applications: Array,
     currency: Array,
+    recipients: Array,
 });
 
 // const user = usePage().props.auth.user;
 // const role = user.roles?.[0]?.name || null;
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const allowedFileTypes = [
     'application/pdf',
@@ -257,11 +255,11 @@ const allowedFileTypes = [
 const form = useForm({
     contract_number: "",
     files: [],
+    recipients: [],
     title: "",
     project_id: "",
     application_id: "",
     currency_id: 1,
-    user_id: "",
     budget_sum: null,
     deadline: new Date(new Date().getFullYear(), 11, 31),
 });
@@ -295,6 +293,7 @@ const create = () => {
 
 watchEffect(() => {
     form.errors = {};
+    form.recipients = props.recipients.map(recipient => recipient.recipient_id)
     const newCurrencyId = form.currency_id;
 });
 </script>

@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'Фонд развития культуры и искусства при Кабинете Министров Республики Узбекистан.',
         'logs' => 'Логи',
+        'related_contracts' => 'Связанные контракты',
         'chat' => 'Чат',
         'information' => 'Информация',
         'upload' => 'Загрузить',
@@ -37,6 +38,8 @@ return [
         'drag_and_drop' => 'Перетащить',
         'project_number' => 'Номер проекта',
         'contracts' => 'Контракты',
+        'no_contracts' => 'Нет контрактов',
+        'contracts_length' => 'Количество контрактов',
         'currency_id' => 'Валюта',
         'no_available' => 'Нет доступных',
         'contract_number' => 'Номер контракта',
@@ -185,6 +188,7 @@ return [
         'detail' => 'Нажмите для подробностей',
         'locale' => 'Изменить на индонезийский',
         'notifications' => 'Уведомления',
+        'view_contracts' => 'Просмотр контрактов',
     ],
     'profile' => [
         'profile_information' => 'Информация о профиле',

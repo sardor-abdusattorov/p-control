@@ -26,6 +26,14 @@
                         :selectedId="data.selectedId"
                         :title="props.title"
                     />
+                    <Contracts
+                        :show="data.contractsOpen"
+                        @close="data.contractsOpen = false"
+                        :project="data.project || {}"
+                        :currencies="props.currencies"
+                        :title="data.project?.title || props.title"
+                    />
+
                 </div>
             </div>
             <div class="relative bg-white dark:bg-slate-800 shadow sm:rounded-lg">
@@ -74,6 +82,13 @@
                                 </div>
                             </th>
 
+                            <th class="px-2 py-4 cursor-pointer">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.contracts }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4"/>
+                                </div>
+                            </th>
+
 
                             <th class="px-2 py-4 cursor-pointer" @click="order('project_number')">
                                 <div class="flex justify-between items-center">
@@ -95,12 +110,13 @@
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('status')">
+                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('status_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.status }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
+
                             <th class="px-2 py-4 text-center">{{ lang().label.action }}</th>
                         </tr>
                         </thead>
@@ -124,22 +140,31 @@
                                 {{ ++index }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                <Link :href="route('projects.show', { project: project.id })" class="text-blue-500 hover:underline">
+                                <Link :href="route('projects.show', { project: project.id })" class="whitespace-nowrap py-4 px-2 sm:py-3 cursor-pointer text-blue-600 dark:text-blue-400 font-bold underline font-bold">
                                     {{ project.title ?? lang().label.undefined }}
                                 </Link>
-
+                            </td>
+                            <td
+                                v-tooltip="lang().tooltip.detail"
+                                @click="project.contracts.length > 0 ? (data.contractsOpen = true, data.project = project) : null"
+                                class="whitespace-nowrap py-4 px-2 sm:py-3 cursor-pointer text-blue-600 dark:text-blue-400 font-bold underline"
+                                :class="{'cursor-not-allowed opacity-50': project.contracts.length === 0}"
+                            >
+                                {{ project.contracts.length > 0
+                                ? `${lang().label.contracts_length}: ${project.contracts.length}`
+                                : lang().label.no_contracts }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.project_number }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.budget_sum }} {{ project.currency?.short_name || '' }}
+                                {{ formatNumber(project.budget_sum) }} {{ project.currency?.short_name || '' }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.user?.name || 'Не указано' }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.status?.name || 'Не указан' }}
+                                <Badge :value="getStatusLabel(project.status_id)" :severity="getStatusSeverity(project.status_id)" />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
                                 <div class="gap-1 justify-center overflow-hidden flex items-center">
@@ -183,10 +208,7 @@ import DangerButton from "@/Components/DangerButton.vue";
 import pkg from "lodash";
 import { router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import {
-    ChevronUpDownIcon,
-    TrashIcon,
-} from "@heroicons/vue/24/solid";
+import {ChevronUpDownIcon,TrashIcon,} from "@heroicons/vue/24/solid";
 import Delete from "@/Pages/Projects/Delete.vue";
 import DeleteBulk from "@/Pages/Projects/DeleteBulk.vue";
 import Checkbox from "@/Components/Checkbox.vue";
@@ -196,6 +218,8 @@ import EditLink from "@/Components/EditLink.vue";
 import CreateLink from "@/Components/CreateLink.vue";
 import Select from "primevue/select";
 import InputText from "primevue/inputtext";
+import Badge from "primevue/badge";
+import Contracts from "@/Pages/Projects/Contracts.vue";
 
 const { _, debounce, pickBy } = pkg;
 
@@ -203,6 +227,8 @@ const props = defineProps({
     title: String,
     filters: Object,
     projects: Object,
+    statuses: Object,
+    currencies: Object,
     breadcrumbs: Object,
     perPage: Number,
 });
@@ -217,6 +243,7 @@ const data = reactive({
     multipleSelect: false,
     deleteOpen: false,
     deleteBulkOpen: false,
+    contractsOpen: false,
     project: null,
     dataSet: usePage().props.app.perpage,
 });
@@ -248,7 +275,38 @@ const selectAll = (event) => {
     }
 };
 const select = () => {
-    data.multipleSelect = props.project.data.length === data.selectedId.length;
+    data.multipleSelect = props.projects.data.length === data.selectedId.length;
 };
+
+const formatNumber = (amount) => {
+    if (!amount) return '-';
+    const formattedAmount = new Intl.NumberFormat('ru-RU', {
+        style: 'decimal',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+
+    return formattedAmount;
+};
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'success';
+        case -1:
+            return 'danger';
+        default:
+            return 'info';
+    }
+};
+
+
 
 </script>

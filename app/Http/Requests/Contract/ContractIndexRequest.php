@@ -24,7 +24,7 @@ class ContractIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:name,short_name,value,status,created_at,'],
+            'field' => ['in:title,contract_number,user_id,budget_sum,status,currency_id'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];

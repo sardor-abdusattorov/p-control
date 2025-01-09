@@ -1,11 +1,16 @@
 <?php
 
-namespace App\Http\Requests\Projects;
+namespace App\Http\Requests\Contract;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProjectsIndexRequest extends FormRequest
+class ContractRelatedRequest extends FormRequest
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize()
     {
         return true;
@@ -19,7 +24,7 @@ class ProjectsIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,project_number,budget_sum,user_id,status_id'],
+            'field' => ['in:title,contract_number,budget_sum,status,currency_id'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];

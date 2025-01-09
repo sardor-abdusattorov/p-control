@@ -11,6 +11,11 @@ class Project extends Model
 
     protected $table = 'projects';
 
+    const STATUS_NEW = 1;
+    const STATUS_APPROVED = 2;
+    const STATUS_REJECTED = -1;
+
+
     protected $fillable = [
         'project_number',
         'title',
@@ -28,9 +33,23 @@ class Project extends Model
         return $this->belongsTo(User::class);
     }
 
+    public static function getStatuses(): array
+    {
+        return [
+            ['id' => self::STATUS_NEW, 'label' => __('app.status.new')],
+            ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
+            ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
+        ];
+    }
+
     public function status()
     {
         return $this->belongsTo(Status::class, 'status_id');
+    }
+
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class, 'project_id');
     }
 
     public function currency()

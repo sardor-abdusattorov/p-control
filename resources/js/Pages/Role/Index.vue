@@ -78,11 +78,7 @@ const selectAll = (event) => {
     }
 };
 const select = () => {
-    if (props.roles?.data.length == data.selectedId.length) {
-        data.multipleSelect = true;
-    } else {
-        data.multipleSelect = false;
-    }
+    data.multipleSelect = props.roles?.data.length === data.selectedId.length;
 };
 </script>
 

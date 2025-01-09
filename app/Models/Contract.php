@@ -15,7 +15,7 @@ class Contract extends Model implements HasMedia
     const STATUS_NEW = 1;
     const STATUS_IN_PROGRESS = 2;
     const STATUS_APPROVED = 3;
-    const STATUS_REJECTED = 4;
+    const STATUS_REJECTED = -1;
 
 
     protected $table = 'contracts';
@@ -37,6 +37,11 @@ class Contract extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
+
     public static function getStatuses(): array
     {
         return [
@@ -45,6 +50,11 @@ class Contract extends Model implements HasMedia
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
         ];
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
     }
 
     public function getCreatedAtAttribute() {

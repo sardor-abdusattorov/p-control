@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
+        'related_contracts' => 'Aloqador shartnomalar',
         'chat' => 'Chat',
         'information' => 'Ma\'lumotlar',
         'logs' => 'Jurnallar',
@@ -37,6 +38,8 @@ return [
         'drag_and_drop' => 'Tortib qo\'yish',
         'project_number' => 'Loyihaning raqami',
         'contracts' => 'Shartnomalar',
+        'contracts_length' => 'Shartnomalar soni',
+        'no_contracts' => 'Shartnomalar yo\'q',
         'currency_id' => 'Valyuta',
         'no_available' => 'Mavjud emas',
         'contract_number' => 'Shartnoma raqami',
@@ -185,6 +188,7 @@ return [
         'detail' => 'Tafsilotlarni ko‘rish',
         'locale' => 'Indoneziya tiliga o‘zgartirish',
         'notifications' => 'Xabarlar',
+        'view_contracts' => 'Shartnomalarni ko\'rish',
     ],
     'profile' => [
         'profile_information' => 'Profil ma’lumotlari',

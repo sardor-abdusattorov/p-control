@@ -19,7 +19,6 @@ const props = defineProps({
         <Breadcrumb :title="'Dashboard'" :breadcrumbs="[]" />
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-
                 <div
                     class="px-4 py-6 flex justify-between bg-green-600/70 dark:bg-green-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer ripple-effect"
                 >
@@ -34,20 +33,17 @@ const props = defineProps({
                         <CheckCircleIcon class="w-16 h-auto text-white" />
                     </div>
                 </div>
-
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-amber-600/70 dark:bg-amber-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
                         <p class="text-white text-2xl font-semibold">{{lang().label.pending_tasks}}</p>
                         <p class="text-xl md:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{props.pendingTasksCount}}</span> /
-                            <span class="ml-2">{{props.totalTasksCount}}</span>
+                            <span class="mr-2">{{props.pendingTasksCount}}</span>
                         </p>
                     </div>
                     <div>
                         <ClockIcon class="w-16 h-auto text-white" />
                     </div>
                 </div>
-
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-blue-600/70 dark:bg-blue-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
                         <p class="text-white text-2xl font-semibold">{{lang().label.contracts}}</p>
@@ -59,7 +55,6 @@ const props = defineProps({
                         <DocumentTextIcon class="w-16 h-auto text-white" />
                     </div>
                 </div>
-
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-red-600/70 dark:bg-red-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
                         <p class="text-white text-2xl font-semibold">{{lang().label.applications}}</p>
@@ -71,7 +66,6 @@ const props = defineProps({
                         <InboxIcon class="w-16 h-auto text-white" />
                     </div>
                 </div>
-
             </div>
         </div>
     </AuthenticatedLayout>

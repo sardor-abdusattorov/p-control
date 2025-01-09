@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
+        'related_contracts' => 'Related contracts',
         'information' => 'Information',
         'chat' => 'Chat',
         'logs' => 'Logs',
@@ -37,6 +38,8 @@ return [
         'drag_and_drop' => 'Drag and Drop',
         'project_number' => 'Project number',
         'contracts' => 'Contract',
+        'contracts_length' => 'Contracts',
+        'no_contracts' => 'No Contracts',
         'currency_id' => 'Currency',
         'no_available' => 'No available',
         'contract_number' => 'Contract number',
@@ -185,6 +188,7 @@ return [
         'detail' => 'Click to detail',
         'locale' => 'Change to Indonesian',
         'notifications' => 'Notifications',
+        'view_contracts' => 'View Contracts',
     ],
     'profile' => [
         'profile_information' => 'Profile Information',

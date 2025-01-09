@@ -57,7 +57,7 @@ class ApplicationController extends Controller
         }
 
         if ($request->has('search')) {
-            $applications->where('title', 'LIKE', "%" . $request->search . "%");
+            $applications->where('name', 'LIKE', "%" . $request->search . "%");
         }
 
         if ($request->has(['field', 'order'])) {

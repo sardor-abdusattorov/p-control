@@ -1,251 +1,162 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import {Head, useForm, usePage} from "@inertiajs/vue3";
-import { watchEffect } from "vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Select from "primevue/select";
-import DatePicker from "primevue/datepicker";
-import InputText from "primevue/inputtext";
-import InputNumber from "primevue/inputnumber";
-import BackLink from "@/Components/BackLink.vue";
-import FileUpload from 'primevue/fileupload';
-import { Message } from "primevue";
-
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    breadcrumbs: Object,
-    contract: Object,
-    users: Array,
-    projects: Array,
-    applications: Array,
-    currency: Array,
-    files: Array,
-});
-
-const form = useForm({
-    contract_number: "",
-    files: [],
-    title: "",
-    project_id: "",
-    application_id: "",
-    currency_id: "",
-    user_id: "",
-    budget_sum: "",
-    deadline: new Date(new Date().getFullYear(), 11, 31),
-});
-
-watchEffect(() => {
-    form.contract_number = props.contract.contract_number
-    form.project_id = props.contract.project_id
-    form.application_id = props.contract.application_id
-    form.user_id = props.contract.user_id
-    form.currency_id = props.contract.currency_id
-    form.title = props.contract.title
-    form.budget_sum = props.contract.budget_sum
-    form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
-    form.files = props.files;
-});
-</script>
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
 
-        <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
-            <form class="p-6">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
-                    {{ lang().label.preview }} {{ props.title }}
-                </h2>
-                <div class="my-6 w-full">
-                    <div class="form-group mb-5">
-                        <InputLabel for="contract_number" :value="lang().label.contract_number"/>
-                        <InputText
-                            id="contract_number"
-                            type="text"
-                            class="mt-1 block w-full"
-                            v-model="form.contract_number"
-                            :placeholder="lang().label.contract_number"
-                            :error="form.errors.contract_number"
-                            readonly
-                        />
-                        <InputError class="mt-2" :message="form.errors.contract_number"/>
-                    </div>
+        <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
 
-                    <div class="form-group mb-5">
-                        <InputLabel for="title" :value="lang().label.title"/>
-                        <InputText
-                            id="title"
-                            type="text"
-                            class="mt-1 block w-full"
-                            v-model="form.title"
-                            :placeholder="lang().label.title"
-                            :error="form.errors.title"
-                            readonly
-                        />
-                        <InputError class="mt-2" :message="form.errors.title"/>
-                    </div>
+            <div class="p-4 sm:p-8">
 
-                    <div class="form-group mb-5">
-                        <InputLabel for="project_id" :value="lang().label.project_id"/>
-                        <Select
-                            id="project_id"
-                            v-model="form.project_id"
-                            optionLabel="title"
-                            optionValue="id"
-                            :options="props.projects"
-                            filter
-                            :filterPlaceholder="lang().placeholder.select_project"
-                            class="w-full"
-                            :placeholder="lang().label.project_id"
-                            :disabled="true"
-                        />
-                        <InputError class="mt-2" :message="form.errors.project_id"/>
-                    </div>
-
-                    <div class="form-group mb-5">
-                        <InputLabel for="application_id" :value="lang().label.application_id"/>
-                        <Select
-                            id="application_id"
-                            v-model="form.application_id"
-                            optionLabel="title"
-                            optionValue="id"
-                            :options="props.applications"
-                            filter
-                            class="w-full"
-                            :placeholder="lang().placeholder.select_application"
-                            :disabled="true"
-                        />
-                        <InputError class="mt-2" :message="form.errors.application_id"/>
-                    </div>
-
-                    <div class="form-group mb-5" v-if="isAdmin">
-                        <InputLabel for="user_id" :value="lang().label.user_id"/>
-                        <Select
-                            v-model="form.user_id"
-                            :options="users"
-                            optionLabel="name"
-                            optionValue="id"
-                            filter
-                            :placeholder="lang().placeholder.select_user"
-                            class="w-full"
-                            :disabled="true"
-                        />
-                        <InputError class="mt-2" :message="form.errors.user_id"/>
-                    </div>
-
-                    <div class="form-group mb-5">
-                        <InputLabel for="currency_id" :value="lang().label.currency_id"/>
-                        <Select
-                            v-model="form.currency_id"
-                            :options="currency"
-                            optionLabel="name"
-                            optionValue="id"
-                            filter
-                            :placeholder="lang().placeholder.select_currency"
-                            class="w-full"
-                            :disabled="true"
-                        />
-                        <InputError class="mt-2" :message="form.errors.currency_id"/>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <InputLabel for="budget_sum" :value="lang().label.contract_sum"/>
-                        <InputNumber
-                            id="budget_sum"
-                            v-model="form.budget_sum"
-                            class="mt-1 block w-full"
-                            :minFractionDigits="2"
-                            fluid
-                            :placeholder="lang().label.contract_sum"
-                            :error="form.errors.budget_sum"
-                            readonly
-                        />
-                        <InputError class="mt-2" :message="form.errors.budget_sum"/>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <InputLabel for="deadline" :value="lang().label.deadline"/>
-                        <DatePicker
-                            id="deadline"
-                            v-model="form.deadline"
-                            class="mt-1 block w-full"
-                            :placeholder="lang().label.deadline"
-                            showIcon
-                            showButtonBar
-                            :monthNavigator="true"
-                            :yearNavigator="true"
-                            yearRange="2020:2030"
-                            dateFormat="dd/mm/yy"
-                            :manualInput="false"
-                            readonly
-                        />
-                        <InputError class="mt-2" :message="form.errors.deadline"/>
-                    </div>
-
-                    <div class="form-group mb-5">
-                        <InputLabel for="files" :value="lang().label.files"/>
-                        <FileUpload
-                            name="files[]"
-                            :auto="false"
-                            :accept="'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
-                            :multiple="true"
-                            v-model="form.files"
-                            :file-limit="6"
-                            :custom-upload="true"
-                            :show-upload-button="false"
-                            :disabled="true"
-                            :error="form.errors.files"
-                            :chooseLabel="lang().label.choose"
-                            :uploadLabel="lang().label.upload"
-                            :cancelLabel="lang().label.cancel"
+                <div class="block-header mb-5 border-b-amber-400">
+                    <h1 class="text-2xl font-bold mb-4">{{ contract.title }}</h1>
+                    <div class="actions flex items-center gap-2">
+                        <EditLink
+                            :href="route('contract.edit', { contract: contract.id })"
+                            class="px-4 py-2 rounded-md"
+                            v-tooltip="lang().tooltip.edit"
+                            v-show="can(['update project'])"
                         >
-                            <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
-                                <div class="flex flex-col gap-8 pt-4">
-                                    <Message v-for="message of messages" :key="message"
-                                             :class="{ 'mb-8': !files.length && !uploadedFiles.length}"
-                                             severity="error">
-                                        {{ message }}
-                                    </Message>
-
-                                    <div v-if="form.files.length > 0">
-                                        <div class="flex flex-wrap gap-4">
-                                            <div v-for="(file, index) in form.files"
-                                                 :key="file.name + file.type + file.size"
-                                                 class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                                                <div>
-                                                    <i class="pi pi-file" style="font-size: 32px;"></i>
-                                                </div>
-                                                <span
-                                                    class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{
-                                                        file.name
-                                                    }}</span>
-                                                <a
-                                                    :href="file.original_url"
-                                                    target="_blank"
-                                                    class="p-button p-component p-button-outlined p-button-success">
-                                                    <span class="p-button-label">{{ lang().label.download }}</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </FileUpload>
-
-                        <InputError class="mt-2" :message="form.errors.files"/>
+                            {{ lang().tooltip.edit }}
+                        </EditLink>
+                        <DangerButton
+                            type="button"
+                            @click="(data.deleteOpen = true), (data.contract = contract)"
+                            class="px-4 py-2 rounded-md"
+                            v-tooltip="lang().tooltip.delete"
+                            v-show="can(['delete contract'])"
+                        >
+                            {{ lang().tooltip.delete }}
+                            <TrashIcon class="w-5 h-5" />
+                        </DangerButton>
+                        <Delete
+                            :show="data.deleteOpen"
+                            @close="data.deleteOpen = false"
+                            :project="data.project"
+                            :title="props.title"
+                        />
                     </div>
                 </div>
-                <div class="flex justify-start">
-                    <BackLink :href="route('contract.index')"/>
-                </div>
-            </form>
-        </section>
+
+                <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
+                    <tbody>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.id }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.contract_number }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.contract_number }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.title }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.title }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.application_id }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.title }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.contract_sum }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.budget_sum }} {{ contract.currency.short_name}}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.deadline }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.deadline }}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.user_id }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.user ? contract.user.name : 'No user assigned' }}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.currency }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.currency.name ? contract.currency.name : lang().label.undefined }}</td>
+                    </tr>
+                    <tr
+                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                    >
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.created_at }}</td>
+                    </tr>
+                    <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.updated_at }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import {defineProps, reactive} from 'vue';
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {Head} from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import DangerButton from "@/Components/DangerButton.vue";
+import {TrashIcon} from "@heroicons/vue/24/solid";
+import EditLink from "@/Components/EditLink.vue";
+import Delete from "@/Pages/Projects/Delete.vue";
+import Badge from "primevue/badge";
+
+const props = defineProps({
+    contract: {
+        type: Object,
+        required: true,
+    },
+    statuses: Object,
+    project: Object,
+    application: Object,
+    title: {
+        type: String,
+        required: true,
+    },
+    breadcrumbs: {
+        type: Object,
+        required: true,
+    },
+});
+
+const data = reactive({
+    deleteOpen: false,
+    contract: null,
+});
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'success';
+        case -1:
+            return 'danger';
+        default:
+            return 'info';
+    }
+};
+
+
+</script>
