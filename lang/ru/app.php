@@ -35,6 +35,7 @@ return [
         'project_id' => 'Проект',
         'project_name' => 'Название проекта',
         'applications' => 'Заявки',
+        'application' => 'Заявка',
         'settings' => 'Настройки',
         'drag_and_drop' => 'Перетащить',
         'project_number' => 'Номер проекта',

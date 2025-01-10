@@ -35,6 +35,7 @@ return [
         'project_id' => 'Project',
         'project_name' => 'Project name',
         'applications' => 'Applications',
+        'application' => 'Application',
         'settings' => 'Settings',
         'drag_and_drop' => 'Drag and Drop',
         'project_number' => 'Project number',

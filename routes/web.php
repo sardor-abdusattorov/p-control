@@ -34,12 +34,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile/positions', [ProfileController::class, 'getPositions'])->name('profile.getPositions');
+
     Route::resource('/application', ApplicationController::class)->except(['update']);
     Route::post('/application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
     Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
     Route::get('/application/{application}/chat', [ApplicationController::class, 'chat'])
         ->name('application.chat');
-    Route::post('/application/{id}/send-message', [ApplicationController::class, 'sendMessage'])->name('application.send-message');
+    Route::post('/application/{application}/send-message', [ApplicationController::class, 'sendMessage'])
+        ->name('application.send-message');
 
     Route::resource('status', StatusController::class);
     Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');

@@ -6,6 +6,7 @@ use App\Http\Requests\Application\ApplicationIndexRequest;
 use App\Http\Requests\Application\ApplicationStoreRequest;
 use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
+use App\Models\Chat;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
@@ -59,7 +60,7 @@ class ApplicationController extends Controller
         }
 
         if ($request->has('search')) {
-            $applications->where('name', 'LIKE', "%" . $request->search . "%");
+            $applications->where('title', 'LIKE', "%" . $request->search . "%");
         }
 
         if ($request->has(['field', 'order'])) {
@@ -108,7 +109,6 @@ class ApplicationController extends Controller
     public function store(ApplicationStoreRequest $request)
     {
         DB::beginTransaction();
-
         try {
             $application = new Application();
             $application->title = $request->title;
@@ -125,8 +125,36 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
+            if (!empty($request->recipients)) {
+                foreach ($request->recipients as $recipient) {
+
+                    $chat = new Chat();
+                    $chat->model_type = 'application';
+                    $chat->model_id = $application->id;
+                    $chat->user_id = auth()->id();
+                    $chat->receiver_id = $recipient;
+                    $chat->name = 'Chat for application #' . $application->id;
+
+                    if ($chat->save()) {
+                        $messageContent = 'Отправляю заявку на ваше рассмотрение';
+                        $message = Message::create([
+                            'chat_id' => $chat->id,
+                            'user_id' => auth()->id(),
+                            'text' => $messageContent,
+                            'created_date' => now(),
+                            'is_notified' => 0
+                        ]);
+                    } else {
+                        DB::rollback();
+                        return redirect()->back()->with('error', __('app.label.chat_creation_failed'));
+                    }
+                }
+            }
+
             DB::commit();
-            return redirect()->route('application.index')->with('success', __('app.label.created_successfully', ['name' => $application->title]));
+
+            return redirect()->route('application.index')
+                ->with('success', __('app.label.created_successfully', ['name' => $application->title]));
 
         } catch (\Throwable $th) {
             DB::rollback();
@@ -174,27 +202,43 @@ class ApplicationController extends Controller
         ]);
     }
 
-    public function sendMessage(Request $request, $id)
+    public function sendMessage(Request $request, Application $application)
     {
         $validated = $request->validate([
             'message' => 'required|string|max:1000',
             'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
         ]);
+        DB::beginTransaction();
 
-        $message = Message::create([
-            'application_id' => $id,
-            'content' => $validated['message'],
-            'user_id' => auth()->id(),
-        ]);
-
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-
-                $message->addMedia($file)
-                    ->toMediaCollection('files');
+        try {
+            $chat = Chat::firstOrCreate([
+                'model_type' => 'application',
+                'model_id' => $application->id,
+                'user_id' => auth()->id(),
+            ]);
+            $message = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => auth()->id(),
+                'content' => $validated['message'],
+            ]);
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    // Добавляем файл в медиабиблиотеку
+                    $message->addMedia($file)
+                        ->toMediaCollection('files');
+                }
             }
+
+            // Завершаем транзакцию
+            DB::commit();
+
+            return back()->with('success', 'Message sent successfully!');
+        } catch (\Exception $e) {
+            // Откат транзакции в случае ошибки
+            DB::rollBack();
+
+            return back()->with('error', 'An error occurred. Please try again later.');
         }
-        return back()->with('success', 'Message sent successfully!');
     }
 
     /**

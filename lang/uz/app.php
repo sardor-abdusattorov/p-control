@@ -35,6 +35,7 @@ return [
         'project_id' => 'Loyiha',
         'project_name' => 'Project name',
         'applications' => 'Arizalar',
+        'applications' => 'Ariza',
         'settings' => 'Sozlamalar',
         'drag_and_drop' => 'Tortib qo\'yish',
         'project_number' => 'Loyihaning raqami',
