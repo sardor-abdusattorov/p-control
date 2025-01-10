@@ -1,122 +1,3 @@
-<script setup>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head } from "@inertiajs/vue3";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import { reactive, watch } from "vue";
-import DangerButton from "@/Components/DangerButton.vue";
-import pkg from "lodash";
-import { router } from "@inertiajs/vue3";
-import Pagination from "@/Components/Pagination.vue";
-import {ChevronUpDownIcon, TrashIcon} from "@heroicons/vue/24/solid";
-import Delete from "@/Pages/Task/Delete.vue";
-import DeleteBulk from "@/Pages/Task/DeleteBulk.vue";
-import Checkbox from "@/Components/Checkbox.vue";
-import { usePage } from "@inertiajs/vue3";
-import ViewLink from "@/Components/ViewLink.vue";
-import EditLink from "@/Components/EditLink.vue";
-import CreateLink from "@/Components/CreateLink.vue";
-import InputText from "primevue/inputtext";
-import Select from "primevue/select";
-import Badge from 'primevue/badge';
-import {Link} from "@inertiajs/vue3";
-
-const { _, debounce, pickBy } = pkg;
-
-const props = defineProps({
-    title: String,
-    filters: Object,
-    tasks: Object,
-    statuses: Object,
-    priorities: Object,
-    breadcrumbs: Object,
-    users: Object,
-    perPage: Number,
-});
-const data = reactive({
-    params: {
-        search: props.filters.search,
-        field: props.filters.field,
-        order: props.filters.order,
-        perPage: props.perPage,
-    },
-    selectedId: [],
-    multipleSelect: false,
-    deleteOpen: false,
-    deleteBulkOpen: false,
-    task: null,
-    dataSet: usePage().props.app.perpage,
-});
-
-const order = (field) => {
-    data.params.field = field;
-    data.params.order = data.params.order === "asc" ? "desc" : "asc";
-};
-
-watch(
-    () => _.cloneDeep(data.params),
-    debounce(() => {
-        let params = pickBy(data.params);
-        router.get(route("task.index"), params, {
-            replace: true,
-            preserveState: true,
-            preserveScroll: true,
-        });
-    }, 150)
-);
-
-const selectAll = (event) => {
-    if (event.target.checked === false) {
-        data.selectedId = [];
-    } else {
-        props.tasks?.data.forEach((task) => {
-            data.selectedId.push(task.id);
-        });
-    }
-};
-const select = () => {
-    data.multipleSelect = props.tasks.data.length === data.selectedId.length;
-};
-
-const getPriorityLabel = (priorityId) => {
-    const priority = props.priorities.find(p => p.id === priorityId);
-    return priority ? priority.label : '';
-};
-
-const getStatusLabel = (statusId) => {
-    const status = props.statuses.find(s => s.id === statusId);
-    return status ? status.label : '';
-};
-
-const getPrioritySeverity = (priorityId) => {
-    switch (priorityId) {
-        case 1:
-            return 'contrast';
-        case 2:
-            return 'warn';
-        case 3:
-            return 'danger';
-        default:
-            return 'contrast';
-    }
-};
-
-const getStatusSeverity = (statusId) => {
-    switch (statusId) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'info';
-        case 3:
-            return 'success';
-        case 4:
-            return 'danger';
-        default:
-            return 'contrast';
-    }
-};
-
-</script>
-
 <template>
     <Head :title="props.title"/>
 
@@ -287,3 +168,123 @@ const getStatusSeverity = (statusId) => {
         </div>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { Head } from "@inertiajs/vue3";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import { reactive, watch } from "vue";
+import DangerButton from "@/Components/DangerButton.vue";
+import pkg from "lodash";
+import { router } from "@inertiajs/vue3";
+import Pagination from "@/Components/Pagination.vue";
+import {ChevronUpDownIcon, TrashIcon} from "@heroicons/vue/24/solid";
+import Delete from "@/Pages/Task/Delete.vue";
+import DeleteBulk from "@/Pages/Task/DeleteBulk.vue";
+import Checkbox from "@/Components/Checkbox.vue";
+import { usePage } from "@inertiajs/vue3";
+import ViewLink from "@/Components/ViewLink.vue";
+import EditLink from "@/Components/EditLink.vue";
+import CreateLink from "@/Components/CreateLink.vue";
+import InputText from "primevue/inputtext";
+import Select from "primevue/select";
+import Badge from 'primevue/badge';
+import {Link} from "@inertiajs/vue3";
+
+const { _, debounce, pickBy } = pkg;
+
+const props = defineProps({
+    title: String,
+    filters: Object,
+    tasks: Object,
+    statuses: Object,
+    priorities: Object,
+    breadcrumbs: Object,
+    users: Object,
+    perPage: Number,
+});
+const data = reactive({
+    params: {
+        search: props.filters.search,
+        field: props.filters.field,
+        order: props.filters.order,
+        perPage: props.perPage,
+    },
+    selectedId: [],
+    multipleSelect: false,
+    deleteOpen: false,
+    deleteBulkOpen: false,
+    task: null,
+    dataSet: usePage().props.app.perpage,
+});
+
+const order = (field) => {
+    data.params.field = field;
+    data.params.order = data.params.order === "asc" ? "desc" : "asc";
+};
+
+watch(
+    () => _.cloneDeep(data.params),
+    debounce(() => {
+        let params = pickBy(data.params);
+        router.get(route("task.index"), params, {
+            replace: true,
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, 150)
+);
+
+const selectAll = (event) => {
+    if (event.target.checked === false) {
+        data.selectedId = [];
+    } else {
+        props.tasks?.data.forEach((task) => {
+            data.selectedId.push(task.id);
+        });
+    }
+};
+const select = () => {
+    data.multipleSelect = props.tasks.data.length === data.selectedId.length;
+};
+
+const getPriorityLabel = (priorityId) => {
+    const priority = props.priorities.find(p => p.id === priorityId);
+    return priority ? priority.label : '';
+};
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+const getPrioritySeverity = (priorityId) => {
+    switch (priorityId) {
+        case 1:
+            return 'contrast';
+        case 2:
+            return 'warn';
+        case 3:
+            return 'danger';
+        default:
+            return 'contrast';
+    }
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'info';
+        case 3:
+            return 'success';
+        case 4:
+            return 'danger';
+        default:
+            return 'contrast';
+    }
+};
+
+</script>
+

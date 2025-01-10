@@ -67,7 +67,6 @@ watchEffect(() => {
                         <InputError class="mt-2" :message="form.errors.title" />
                     </div>
 
-                    <!-- Project ID field (readonly) -->
                     <div class="form-group mb-3">
                         <InputLabel for="project_id" :value="lang().label.project_id" />
                         <Select
@@ -85,7 +84,6 @@ watchEffect(() => {
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
-                    <!-- Recipients field (readonly) -->
                     <div class="form-group mb-3">
                         <InputLabel for="recipients" :value="lang().label.recipients" />
                         <MultiSelect

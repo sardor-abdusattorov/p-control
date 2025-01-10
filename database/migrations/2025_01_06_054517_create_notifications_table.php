@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('receiver_id');
-            $table->unsignedBigInteger('task_id')->nullable();
-            $table->string('type');
+            $table->unsignedBigInteger('model_id')->nullable();
+            $table->string('model')->nullable();
+            $table->string('action')->nullable();
             $table->timestamp('read_at')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamps();

@@ -240,8 +240,13 @@ return [
         'completed' => 'Завершено',
     ],
     "notification" => [
-        "task_assigned"=> "Задача назначена вам",
-        "task_completed"=> "Задача завершена"
+        "task_assigned" => "Вам была назначена задача.",
+        "task_started"=> "Задача начата",
+        "task_completed" => "Задача, назначенная вами, завершена.",
+
+
+
+        "application_received"=> "Заявка получена"
     ]
 
 ];

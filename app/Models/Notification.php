@@ -11,27 +11,15 @@ class Notification extends Model
 
     use HasFactory;
 
-    const TYPE_TASK_ASSIGNED = 1;
-    const TYPE_TASK_COMPLETED = 2;
-
     protected $fillable = [
         'user_id',
         'receiver_id',
-        'type',
+        'model_id',
+        'model',
         'read_at',
-        'task_id',
+        'action',
         'is_read'
     ];
-
-
-    public static function getType(): array
-    {
-        return [
-            ['id' => self::TYPE_TASK_ASSIGNED, 'label' => __('app.label.task_assigned')],
-            ['id' => self::TYPE_TASK_COMPLETED, 'label' => __('app.label.task_completed')]
-        ];
-    }
-
 
     public function getCreatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['created_at']));
@@ -41,3 +29,4 @@ class Notification extends Model
         return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
     }
 }
+

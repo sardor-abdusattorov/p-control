@@ -140,31 +140,35 @@ class TaskController extends Controller
             $task->priority = $request->priority;
             $task->user_id = auth()->user()->id;
             $task->due_date = Carbon::parse($request->due_date)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
-            $task->save();
 
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $ext = $file->extension();
-                    $name = Str::random(24) . '.' . $ext;
-                    $task->addMedia($file)
-                        ->usingFileName($name)
-                        ->toMediaCollection("task files");
+            if ($task->save()) {
+                if ($request->hasFile('files')) {
+                    foreach ($request->file('files') as $file) {
+                        $ext = $file->extension();
+                        $name = Str::random(24) . '.' . $ext;
+                        $task->addMedia($file)
+                            ->usingFileName($name)
+                            ->toMediaCollection("task files");
+                    }
                 }
+
+                Notification::create([
+                    'user_id' => auth()->user()->id,
+                    'receiver_id' => $task->assigned_user,
+                    'model' => 'task',
+                    'model_id' => $task->id,
+                    'is_read' => false,
+                    'action' => 'create',
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
+            } else {
+                DB::rollback();
+                return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]));
             }
-
-            Notification::create([
-                'user_id' => auth()->user()->id,
-                'receiver_id' => $task->assigned_user,
-                'type' => Notification::TYPE_TASK_ASSIGNED,
-                'is_read' => false,
-                'task_id' => $task->id,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {
-
             DB::rollback();
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
         }
@@ -232,9 +236,17 @@ class TaskController extends Controller
         if (!$task) {
             return redirect()->back()->with('error', __('app.label.task_not_found'));
         }
-
         $task->status = 2;
-        $task->save();
+        if ($task->save()) {
+            Notification::create([
+                'user_id' => auth()->user()->id,
+                'receiver_id' => $task->user_id,
+                'model' => 'task',
+                'model_id' => $task->id,
+                'is_read' => false,
+                'action' => 'start',
+            ]);
+        }
 
         return redirect()->route('task.show', $task->id)
             ->with('success', __('app.label.started_successfully', ['name' => $task->name]));
@@ -245,16 +257,28 @@ class TaskController extends Controller
         $request->validate([
             'completion_note' => 'nullable|string',
         ]);
+
         TaskCompletion::create([
             'task_id' => $task->id,
             'user_id' => auth()->id(),
             'completion_note' => $request->completion_note,
             'completed_at' => now(),
         ]);
+
         $task->status = 3;
         $task->save();
 
-        return redirect()->route('task.show', $task->id)->with('success', __('app.label.task_completed_successfully', ['name' => $task->name]));
+        Notification::create([
+            'user_id' => auth()->user()->id,
+            'receiver_id' => $task->user_id,
+            'model' => 'task',
+            'model_id' => $task->id,
+            'is_read' => false,
+            'action' => 'complete',
+        ]);
+
+        return redirect()->route('task.show', $task->id)
+            ->with('success', __('app.label.task_completed_successfully', ['name' => $task->name]));
     }
 
     /**

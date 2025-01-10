@@ -241,6 +241,12 @@ return [
     ],
     "notification" => [
         "task_assigned"=> "A task has been assigned to you",
-        "task_completed"=> "The task is completed"
+        "task_started"=> "A task has been started",
+        "task_completed"=> "The task is completed",
+
+
+        "application_received"=> "Application received"
+
+
     ]
 ];

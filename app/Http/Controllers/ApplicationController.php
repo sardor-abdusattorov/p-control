@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SendMessage;
 use App\Http\Requests\Application\ApplicationIndexRequest;
 use App\Http\Requests\Application\ApplicationStoreRequest;
 use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
 use App\Models\Chat;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
@@ -116,6 +118,7 @@ class ApplicationController extends Controller
             $application->user_id = auth()->id();
             $application->status_id = 1;
             $application->save();
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -125,9 +128,9 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
+
             if (!empty($request->recipients)) {
                 foreach ($request->recipients as $recipient) {
-
                     $chat = new Chat();
                     $chat->model_type = 'application';
                     $chat->model_id = $application->id;
@@ -143,6 +146,14 @@ class ApplicationController extends Controller
                             'text' => $messageContent,
                             'created_date' => now(),
                             'is_notified' => 0
+                        ]);
+                        Notification::create([
+                            'user_id' => auth()->user()->id,
+                            'receiver_id' => $recipient,
+                            'model' => 'application',
+                            'model_id' => $application->id,
+                            'is_read' => false,
+                            'action' => 'create',
                         ]);
                     } else {
                         DB::rollback();
@@ -190,14 +201,30 @@ class ApplicationController extends Controller
     public function chat(Application $application)
     {
         $users = User::where('id', '!=', auth()->id())->get();
+
+        $chats = Chat::with(['messages' => function ($query) {
+            $query->orderBy('created_date', 'desc');
+        }])->where('model_type', 'application')
+            ->where('model_id', $application->id)
+            ->where(function ($query) {
+                $query->where('user_id', auth()->id())
+                    ->orWhere('receiver_id', auth()->id());
+            })->get();
+
+        $dialogUserIds = $chats->pluck('user_id')->merge($chats->pluck('receiver_id'))->unique()->toArray();
+
+        $dialogsUsers = $users->whereIn('id', $dialogUserIds);
+
         return Inertia::render('Application/Chat', [
-            'title' => __('app.label.applications'),
+            'title' => __('app.label.application_chat'),
             'users' => $users,
+            'dialogsUsers' => $dialogsUsers,
+            'chats' => $chats,
             'application' => $application,
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => $application->title, 'href' => route('application.show', $application->id)],
-                ['label' => __('app.label.application_chat')]
+                ['label' => __('app.label.application_chat')],
             ],
         ]);
     }
@@ -216,18 +243,24 @@ class ApplicationController extends Controller
                 'model_id' => $application->id,
                 'user_id' => auth()->id(),
             ]);
+
+            // Создаем сообщение
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => auth()->id(),
                 'content' => $validated['message'],
             ]);
+
+            // Добавляем файлы, если они есть
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     // Добавляем файл в медиабиблиотеку
-                    $message->addMedia($file)
-                        ->toMediaCollection('files');
+                    $message->addMedia($file)->toMediaCollection('files');
                 }
             }
+
+            // Отправляем событие для WebSocket
+            event(new SendMessage($message));
 
             // Завершаем транзакцию
             DB::commit();
@@ -240,7 +273,6 @@ class ApplicationController extends Controller
             return back()->with('error', 'An error occurred. Please try again later.');
         }
     }
-
     /**
      * Show the form for editing the specified resource.
      */

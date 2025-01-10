@@ -241,6 +241,9 @@ return [
     ],
     "notification" => [
         "task_assigned"=> "Sizga vazifa tayinlandi",
-        "task_completed"=> "Vazifa tugatildi"
+        "task_started"=> "Vazifa boshlangan",
+        "task_completed"=> "Vazifa tugatildi",
+
+        "application_received"=> "Ariza qabul qilindi"
     ]
 ];
