@@ -6,6 +6,7 @@ use App\Http\Requests\Application\ApplicationIndexRequest;
 use App\Http\Requests\Application\ApplicationStoreRequest;
 use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
+use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
@@ -29,6 +30,7 @@ class ApplicationController extends Controller
                 'update application' => ['application.edit', 'application.update'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
+                'application chat' => ['application.chat', 'application.send-message'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -132,8 +134,6 @@ class ApplicationController extends Controller
         }
     }
 
-
-
     /**
      * Display the specified resource.
      */
@@ -145,13 +145,11 @@ class ApplicationController extends Controller
         ])->first();
         $files = $application->getMedia('documents');
         $statuses = Application::getStatuses();
-        $users = User::where('id', '!=', auth()->id())->get();
 
         return Inertia::render('Application/Show', [
             'title' => $application->title,
             'project' => $project,
             'statuses' => $statuses,
-            'users' => $users,
             'application' => $application,
             'files' => $files,
             'breadcrumbs' => [
@@ -159,6 +157,44 @@ class ApplicationController extends Controller
                 ['label' => $application->title]
             ],
         ]);
+    }
+
+    public function chat(Application $application)
+    {
+        $users = User::where('id', '!=', auth()->id())->get();
+        return Inertia::render('Application/Chat', [
+            'title' => __('app.label.applications'),
+            'users' => $users,
+            'application' => $application,
+            'breadcrumbs' => [
+                ['label' => __('app.label.applications'), 'href' => route('application.index')],
+                ['label' => $application->title, 'href' => route('application.show', $application->id)],
+                ['label' => __('app.label.application_chat')]
+            ],
+        ]);
+    }
+
+    public function sendMessage(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'message' => 'required|string|max:1000',
+            'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
+        ]);
+
+        $message = Message::create([
+            'application_id' => $id,
+            'content' => $validated['message'],
+            'user_id' => auth()->id(),
+        ]);
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+
+                $message->addMedia($file)
+                    ->toMediaCollection('files');
+            }
+        }
+        return back()->with('success', 'Message sent successfully!');
     }
 
     /**

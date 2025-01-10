@@ -7,6 +7,7 @@ return [
         'upload' => 'Yuklash',
         'related_contracts' => 'Aloqador shartnomalar',
         'chat' => 'Chat',
+        'application_chat' => 'Ariza chati',
         'information' => 'Ma\'lumotlar',
         'logs' => 'Jurnallar',
         'model' => 'Model',

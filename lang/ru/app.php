@@ -7,6 +7,7 @@ return [
         'logs' => 'Логи',
         'related_contracts' => 'Связанные контракты',
         'chat' => 'Чат',
+        'application_chat' => 'Чат заявки',
         'information' => 'Информация',
         'upload' => 'Загрузить',
         'model' => 'Модель',

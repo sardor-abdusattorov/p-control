@@ -37,6 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/application', ApplicationController::class)->except(['update']);
     Route::post('/application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
     Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
+    Route::get('/application/{application}/chat', [ApplicationController::class, 'chat'])
+        ->name('application.chat');
+    Route::post('/application/{id}/send-message', [ApplicationController::class, 'sendMessage'])->name('application.send-message');
+
     Route::resource('status', StatusController::class);
     Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');
     Route::resource('currency', CurrencyController::class);

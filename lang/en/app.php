@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
+        'application_chat' => 'Application chat',
         'related_contracts' => 'Related contracts',
         'information' => 'Information',
         'chat' => 'Chat',

@@ -1,98 +1,3 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import Select from 'primevue/select';
-import { Head, useForm } from "@inertiajs/vue3";
-import {watchEffect} from "vue";
-import InputText from "primevue/inputtext";
-import MultiSelect from "primevue/multiselect";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import BackLink from "@/Components/BackLink.vue";
-import FileUpload from 'primevue/fileupload';
-import Button from "primevue/button";
-import {Message} from "primevue";
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    application: Object,
-    breadcrumbs: Object,
-    recipients: Array,
-    projects: Array,
-    users: Array,
-    files: Array
-});
-
-const emit = defineEmits(["close"]);
-
-const form = useForm({
-    title: "",
-    project_id: "",
-    recipients: [],
-    files: [],
-    old_files: []
-});
-
-watchEffect(() => {
-    form.errors = {};
-    form.recipients = props.recipients.map(recipient => recipient.recipient_id);
-    form.title = props.application.title;
-    form.project_id = props.application.project_id;
-    form.files = [];
-    form.old_files = props.files;
-});
-
-const allowedFileTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-];
-
-const update = () => {
-    form.post(route("application.update", props.application?.id), {
-    });
-};
-
-const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        const newFiles = event.files;
-        const invalidFiles = [];
-
-        newFiles.forEach((file) => {
-            if (!allowedFileTypes.includes(file.type)) {
-                invalidFiles.push(file.name);
-            }
-        });
-
-        if (invalidFiles.length > 0) {
-        } else {
-            form.files = [...form.files, ...newFiles];
-        }
-    }
-};
-
-const onClearFiles = () => {
-    form.files = [];
-};
-const removeUploadedFile = (index) => {
-    form.old_files.splice(index, 1);
-};
-
-const getFileIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-        return 'pi pi-file-pdf';
-    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        return 'pi pi-file-word';
-    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        return 'pi pi-file-excel';
-    }
-    return 'pi pi-file';
-};
-</script>
 
 <template>
     <Head :title="props.title" />
@@ -230,3 +135,99 @@ const getFileIcon = (fileType) => {
         </section>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import Select from 'primevue/select';
+import { Head, useForm } from "@inertiajs/vue3";
+import {watchEffect} from "vue";
+import InputText from "primevue/inputtext";
+import MultiSelect from "primevue/multiselect";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+import Button from "primevue/button";
+import {Message} from "primevue";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    application: Object,
+    breadcrumbs: Object,
+    recipients: Array,
+    projects: Array,
+    users: Array,
+    files: Array
+});
+
+const emit = defineEmits(["close"]);
+
+const form = useForm({
+    title: "",
+    project_id: "",
+    recipients: [],
+    files: [],
+    old_files: []
+});
+
+watchEffect(() => {
+    form.errors = {};
+    form.recipients = props.recipients.map(recipient => recipient.recipient_id);
+    form.title = props.application.title;
+    form.project_id = props.application.project_id;
+    form.files = [];
+    form.old_files = props.files;
+});
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
+
+const update = () => {
+    form.post(route("application.update", props.application?.id), {
+    });
+};
+
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
+        });
+
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = [...form.files, ...newFiles];
+        }
+    }
+};
+
+const onClearFiles = () => {
+    form.files = [];
+};
+const removeUploadedFile = (index) => {
+    form.old_files.splice(index, 1);
+};
+
+const getFileIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+        return 'pi pi-file-pdf';
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return 'pi pi-file-word';
+    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        return 'pi pi-file-excel';
+    }
+    return 'pi pi-file';
+};
+</script>

@@ -39,6 +39,7 @@ class RoleSeeder extends Seeder
             'delete application',
             'view application',
             'view all applications',
+            'application chat',
 
             'create project',
             'update project',
