@@ -86,20 +86,6 @@ class TaskController extends Controller
     }
 
 
-    public function delete(Request $request)
-    {
-        try {
-            $tasks = Task::whereIn('id', $request->id)->get();
-            foreach ($tasks as $task) {
-                $task->clearMediaCollection('task files');
-                $task->delete();
-            }
-            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.tasks')]));
-        } catch (\Throwable $th) {
-            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.tasks')]) . $th->getMessage());
-        }
-    }
-
     /**
      * Show the form for creating a new resource.
          */
@@ -130,6 +116,7 @@ class TaskController extends Controller
     public function store(TaskStoreRequest $request)
     {
         DB::beginTransaction();
+
         try {
             $task = new Task();
             $task->project_id = $request->project_id;
@@ -139,7 +126,9 @@ class TaskController extends Controller
             $task->status = 1;
             $task->priority = $request->priority;
             $task->user_id = auth()->user()->id;
-            $task->due_date = Carbon::parse($request->due_date)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
+            $task->due_date = Carbon::parse($request->due_date)
+                ->timezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s');
 
             if ($task->save()) {
                 if ($request->hasFile('files')) {
@@ -160,6 +149,18 @@ class TaskController extends Controller
                     'is_read' => false,
                     'action' => 'create',
                 ]);
+                activity('task')
+                    ->causedBy(auth()->user())
+                    ->performedOn($task)
+                    ->withProperties([
+                        'task_id' => $task->id,
+                        'name' => $task->name,
+                        'project_id' => $task->project_id,
+                        'assigned_user' => $task->assigned_user,
+                        'priority' => $task->priority,
+                        'due_date' => $task->due_date,
+                    ])
+                    ->log('Создана задача');
 
                 DB::commit();
 
@@ -170,6 +171,17 @@ class TaskController extends Controller
             }
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'project_id' => $request->project_id,
+                    'name' => $request->name,
+                ])
+                ->log('Ошибка при создании задачи');
+
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
         }
     }
@@ -200,7 +212,6 @@ class TaskController extends Controller
             ],
         ]);
     }
-
 
     /**
      * Show the form for editing the specified resource.
@@ -236,7 +247,9 @@ class TaskController extends Controller
         if (!$task) {
             return redirect()->back()->with('error', __('app.label.task_not_found'));
         }
+
         $task->status = 2;
+
         if ($task->save()) {
             Notification::create([
                 'user_id' => auth()->user()->id,
@@ -246,6 +259,17 @@ class TaskController extends Controller
                 'is_read' => false,
                 'action' => 'start',
             ]);
+
+            // Логирование старта задачи
+            activity('task')
+                ->causedBy(auth()->user())
+                ->performedOn($task)
+                ->withProperties([
+                    'task_id' => $task->id,
+                    'name' => $task->name,
+                    'status' => $task->status,
+                ])
+                ->log('Задача запущена');
         }
 
         return redirect()->route('task.show', $task->id)
@@ -277,6 +301,18 @@ class TaskController extends Controller
             'action' => 'complete',
         ]);
 
+        // Логирование завершения задачи
+        activity('task')
+            ->causedBy(auth()->user())
+            ->performedOn($task)
+            ->withProperties([
+                'task_id' => $task->id,
+                'name' => $task->name,
+                'completion_note' => $request->completion_note,
+                'status' => $task->status,
+            ])
+            ->log('Задача завершена');
+
         return redirect()->route('task.show', $task->id)
             ->with('success', __('app.label.task_completed_successfully', ['name' => $task->name]));
     }
@@ -287,7 +323,10 @@ class TaskController extends Controller
     public function update(TaskUpdateRequest $request, Task $task)
     {
         DB::beginTransaction();
+
         try {
+            $originalTask = $task->getOriginal(); // Получаем данные до обновления
+
             $task->update([
                 'project_id' => $request->project_id,
                 'name' => $request->name,
@@ -297,6 +336,7 @@ class TaskController extends Controller
                 'priority' => $request->priority,
                 'due_date' => Carbon::parse($request->due_date)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
             ]);
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -307,10 +347,31 @@ class TaskController extends Controller
                 }
             }
 
+            // Логирование обновления задачи
+            activity('task')
+                ->causedBy(auth()->user())
+                ->performedOn($task)
+                ->withProperties([
+                    'before' => $originalTask,
+                    'after' => $task->getChanges(), // Данные, которые изменились
+                ])
+                ->log('Задача обновлена');
+
             DB::commit();
+
             return redirect()->route('task.index')->with('success', __('app.label.updated_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'task_id' => $task->id,
+                ])
+                ->log('Ошибка при обновлении задачи');
+
             return back()->with('error', __('app.label.updated_error', ['name' => $task->name]) . $th->getMessage());
         }
     }
@@ -321,14 +382,75 @@ class TaskController extends Controller
     public function destroy(Task $task)
     {
         DB::beginTransaction();
+
         try {
+            $taskName = $task->name;
             $task->clearMediaCollection('task files');
             $task->delete();
+            activity('task')
+                ->causedBy(auth()->user())
+                ->performedOn($task)
+                ->withProperties([
+                    'task_id' => $task->id,
+                    'name' => $taskName,
+                ])
+                ->log('Удалена задача');
+
             DB::commit();
-            return redirect()->route('task.index')->with('success', __('app.label.deleted_successfully', ['name' => $task->name]));
+
+            return redirect()->route('task.index')->with('success', __('app.label.deleted_successfully', ['name' => $taskName]));
         } catch (\Throwable $th) {
             DB::rollback();
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'task_id' => $task->id,
+                ])
+                ->log('Ошибка при удалении задачи');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => $task->name]) . $th->getMessage());
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        try {
+            $tasks = Task::whereIn('id', $request->id)->get();
+            $deletedTasks = []; // Массив для хранения успешно удаленных задач
+
+            foreach ($tasks as $task) {
+                $taskName = $task->name; // Сохраняем имя задачи для логов
+                $task->clearMediaCollection('task files');
+                $task->delete();
+
+                // Добавляем задачу в список успешно удаленных
+                $deletedTasks[] = [
+                    'task_id' => $task->id,
+                    'name' => $taskName,
+                ];
+            }
+
+            // Логирование массового удаления задач
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'deleted_tasks' => $deletedTasks,
+                ])
+                ->log('Массовое удаление задач');
+
+            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.tasks')]));
+        } catch (\Throwable $th) {
+            // Логирование ошибки при массовом удалении
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'task_ids' => $request->id,
+                ])
+                ->log('Ошибка при массовом удалении задач');
+
+            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.tasks')]) . $th->getMessage());
         }
     }
 
@@ -336,13 +458,35 @@ class TaskController extends Controller
     {
         try {
             $tasks = Task::whereIn('id', $request->id)->get();
+            $deletedTasks = [];
+
             foreach ($tasks as $task) {
+                $deletedTasks[] = [
+                    'task_id' => $task->id,
+                    'name' => $task->name,
+                ];
                 $task->clearMediaCollection('task files');
                 $task->delete();
             }
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'deleted_tasks' => $deletedTasks,
+                ])
+                ->log('Массовое удаление задач');
+
             return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.tasks')]));
         } catch (\Throwable $th) {
+            activity('task')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'task_ids' => $request->id,
+                ])
+                ->log('Ошибка при массовом удалении задач');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.tasks')]) . $th->getMessage());
         }
     }
+
 }

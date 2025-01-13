@@ -24,6 +24,16 @@
                 <div class="block-header mb-5 flex-1 flex items-center justify-between pb-3 border-b border-gray-300 dark:border-neutral-600">
                     <h1 class="text-2xl font-bold">{{ application.title }}</h1>
                     <div class="actions flex items-center gap-2">
+                        <Button
+                            v-show="application.status_id === 1 && can(['approve application'])"
+                            type="button"
+                            icon="pi pi-check-circle"
+                            :label="lang().button.approve"
+                            severity="success"
+                            class="p-button-sm dark:text-white"
+                            @click="(data.approveOpen = true), (data.application = application)"
+                        />
+
                         <EditLink
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md uppercase"
@@ -47,6 +57,13 @@
                             @close="data.deleteOpen = false"
                             :application="data.application"
                             :title="props.title"
+                        />
+
+                        <Approve  v-show="can(['approve application']) && application.status === 1"
+                                :show="data.approveOpen"
+                                @close="data.approveOpen = false"
+                                :application="data.application"
+                                :title="props.title"
                         />
                     </div>
                 </div>
@@ -138,7 +155,9 @@ import Badge from "primevue/badge";
 import {TrashIcon} from "@heroicons/vue/24/solid";
 import EditLink from "@/Components/EditLink.vue";
 import Delete from "@/Pages/Application/Delete.vue";
+import Approve from "@/Pages/Application/Approve.vue";
 import DangerButton from "@/Components/DangerButton.vue";
+import Button from "primevue/button";
 
 const props = defineProps({
     show: Boolean,
@@ -152,6 +171,7 @@ const props = defineProps({
 
 const data = reactive({
     deleteOpen: false,
+    approveOpen: false,
     project: null,
 });
 

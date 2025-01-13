@@ -5,9 +5,18 @@ return [
     'label' => [
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
+        'approve_application' => 'Arizani tasdiqlash',
+        'approve_application_confirm' => 'Arizani tasdiqlashni xohlaysizmi?',
+        'approve_contract' => 'Kontraktni tasdiqlash',
+        'approve_contract_confirm' => 'Kontraktni tasdiqlashni xohlaysizmi?',
         'related_contracts' => 'Aloqador shartnomalar',
         'chat' => 'Chat',
         'application_chat' => 'Ariza chati',
+        'contract_chat' => 'Shartnoma chati',
+        'chats' => 'Chatlar',
+        'all_users' => 'Barcha foydalanuvchilar',
+        'no_messages' => 'Xabar yo\'q',
+        'selected_files' => 'Tanlangan fayllar',
         'information' => 'Ma\'lumotlar',
         'logs' => 'Jurnallar',
         'model' => 'Model',
@@ -143,6 +152,7 @@ return [
         'confirm' => 'Tasdiqlash',
         'start_task' => 'Vazifani boshlash',
         'complete_task' => 'Vazifani tugatish',
+        'approve' => 'Tasdiqlash',
         'back' => 'Orqaga',
         'login' => 'Kirish',
         'loading' => 'Yuklanmoqda...',
@@ -160,7 +170,8 @@ return [
         'delete' => 'O‘chirish',
         'prev' => 'Oldingi',
         'next' => 'Keyingi',
-        'delete_account' => 'Hisobni o‘chirish'
+        'delete_account' => 'Hisobni o‘chirish',
+        'send' => "Jo'natish"
     ],
     'placeholder' => [
         'select_recipients' => 'Foydalanuvchilarni tanlang...',

@@ -5,8 +5,17 @@ return [
     'label' => [
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
+        'approve_application' => 'Approve Application',
+        'approve_application_confirm' => 'Are you sure you want to approve the application',
+        'approve_contract' => 'Approve Contract',
+        'approve_contract_confirm' => 'Are you sure you want to approve the contract?',
         'application_chat' => 'Application chat',
+        'contract_chat' => 'Contract chat',
+        'chats' => 'Chats',
+        'all_users' => 'All Users',
+        'no_messages' => 'No messages',
         'related_contracts' => 'Related contracts',
+        'selected_files' => 'Selected files',
         'information' => 'Information',
         'chat' => 'Chat',
         'logs' => 'Logs',
@@ -141,6 +150,7 @@ return [
     'button' => [
         'cancel' => 'Cancel',
         'confirm' => 'Confirm',
+        'approve' => 'Approve',
         'start_task' => 'Start Task',
         'complete_task' => 'Complete Task',
         'back' => 'Back',
@@ -160,7 +170,8 @@ return [
         'delete' => 'Delete',
         'prev' => 'Prev',
         'next' => 'Next',
-        'delete_account' => 'Delete Account'
+        'delete_account' => 'Delete Account',
+        'send' => 'Send'
     ],
     'placeholder' => [
         'select_recipients' => 'Select Users...',

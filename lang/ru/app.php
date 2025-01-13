@@ -5,9 +5,18 @@ return [
     'label' => [
         'company_name' => 'Фонд развития культуры и искусства при Кабинете Министров Республики Узбекистан.',
         'logs' => 'Логи',
+        'approve_application' => 'Подтвердить заявку',
+        'approve_application_confirm' => 'Вы уверены, что хотите подтвердить заявку?',
+        'approve_contract' => 'Подтвердить контракт',
+        'approve_contract_confirm' => 'Вы уверены, что хотите подтвердить контракт?',
         'related_contracts' => 'Связанные контракты',
         'chat' => 'Чат',
         'application_chat' => 'Чат заявки',
+        'contract_chat' => 'Чат контракта',
+        'chats' => 'Чаты',
+        'all_users' => 'Все пользователи',
+        'no_messages' => 'Нет сообщений',
+        'selected_files' => 'Выбранные файлы',
         'information' => 'Информация',
         'upload' => 'Загрузить',
         'model' => 'Модель',
@@ -143,6 +152,7 @@ return [
         'confirm' => 'Подтвердить',
         'start_task' => 'Начать задачу',
         'complete_task' => 'Завершить задачу',
+        'approve' => 'Подтвердить',
         'back' => 'Назад',
         'login' => 'Войти',
         'loading' => 'Загрузка...',
@@ -160,7 +170,8 @@ return [
         'delete' => 'Удалить',
         'prev' => 'Предыдущий',
         'next' => 'Следующий',
-        'delete_account' => 'Удалить аккаунт'
+        'delete_account' => 'Удалить аккаунт',
+        'send' => 'Отправить'
     ],
     'placeholder' => [
         'select_recipients' => 'Выберите пользователей...',

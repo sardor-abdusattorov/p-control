@@ -13,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -149,20 +150,44 @@ class ProjectsController extends Controller
             $project->user_id = $request->user_id;
             $project->currency_id = 1;
             $project->status_id = 1;
-            $project->deadline = Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
-            $project->project_year = Carbon::parse($request->project_year)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
+            $project->deadline = Carbon::parse($request->deadline)
+                ->timezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s');
+            $project->project_year = Carbon::parse($request->project_year)
+                ->timezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s');
             $project->save();
+            activity('project')
+                ->causedBy(Auth::user())
+                ->performedOn($project)
+                ->withProperties([
+                    'project_id' => $project->id,
+                    'title' => $project->title,
+                    'project_number' => $project->project_number,
+                    'budget_sum' => $project->budget_sum,
+                    'user_id' => $project->user_id,
+                    'deadline' => $project->deadline,
+                ])
+                ->log('Создан проект');
 
             DB::commit();
-            return redirect()->route('projects.index')->with('success', __('app.label.created_successfully', ['name' => $project->title]));
 
+            return redirect()->route('projects.index')->with('success', __('app.label.created_successfully', ['name' => $project->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+            activity('project')
+                ->causedBy(Auth::user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'title' => $request->title,
+                    'project_number' => $request->project_number,
+                    'budget_sum' => $request->budget_sum,
+                ])
+                ->log('Ошибка при создании проекта');
+
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.project')]) . ' ' . $th->getMessage());
         }
     }
-
-
     /**
      * Display the specified resource.
      */
@@ -204,7 +229,10 @@ class ProjectsController extends Controller
     public function update(ProjectsUpdateRequest $request, Project $project)
     {
         DB::beginTransaction();
+
         try {
+            $originalData = $project->getOriginal(); // Данные до изменений
+
             $project->update([
                 'project_number' => $request->project_number,
                 'budget_sum' => $request->budget_sum,
@@ -215,10 +243,31 @@ class ProjectsController extends Controller
                 'project_year' => Carbon::parse($request->project_year)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
             ]);
 
+            // Логирование успешного обновления проекта
+            activity('project')
+                ->causedBy(auth()->user())
+                ->performedOn($project)
+                ->withProperties([
+                    'before' => $originalData,
+                    'after' => $project->getChanges(),
+                ])
+                ->log('Проект обновлен');
+
             DB::commit();
+
             return redirect()->route('projects.index')->with('success', __('app.label.updated_successfully', ['name' => $project->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки обновления
+            activity('project')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'project_id' => $project->id,
+                ])
+                ->log('Ошибка при обновлении проекта');
+
             return back()->with('error', __('app.label.updated_error', ['name' => $project->title]) . $th->getMessage());
         }
     }
@@ -229,12 +278,37 @@ class ProjectsController extends Controller
     public function destroy(Project $project)
     {
         DB::beginTransaction();
+
         try {
+            $projectName = $project->title; // Сохраняем имя проекта для логов
+
             $project->delete();
+
+            // Логирование успешного удаления проекта
+            activity('project')
+                ->causedBy(auth()->user())
+                ->performedOn($project)
+                ->withProperties([
+                    'project_id' => $project->id,
+                    'title' => $projectName,
+                ])
+                ->log('Проект удален');
+
             DB::commit();
-            return redirect()->route('projects.index')->with('success', __('app.label.deleted_successfully', ['name' => $project->title]));
+
+            return redirect()->route('projects.index')->with('success', __('app.label.deleted_successfully', ['name' => $projectName]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки удаления проекта
+            activity('project')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'project_id' => $project->id,
+                ])
+                ->log('Ошибка при удалении проекта');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => $project->title]) . $th->getMessage());
         }
     }
@@ -242,11 +316,35 @@ class ProjectsController extends Controller
     public function destroyBulk(Request $request)
     {
         try {
-            $project = Project::whereIn('id', $request->id);
-            $project->delete();
-            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.project')]));
+            $projects = Project::whereIn('id', $request->id)->get();
+            $deletedProjects = [];
+
+            foreach ($projects as $project) {
+                $deletedProjects[] = [
+                    'project_id' => $project->id,
+                    'title' => $project->title,
+                ];
+                $project->delete();
+            }
+            activity('project')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'deleted_projects' => $deletedProjects,
+                ])
+                ->log('Массовое удаление проектов');
+
+            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.projects')]));
         } catch (\Throwable $th) {
+            activity('project')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'project_ids' => $request->id,
+                ])
+                ->log('Ошибка при массовом удалении проектов');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.projects')]) . $th->getMessage());
         }
     }
+
 }

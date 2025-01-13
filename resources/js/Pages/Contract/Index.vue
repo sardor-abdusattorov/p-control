@@ -8,7 +8,7 @@
 
                 <div class="rounded-lg overflow-hidden w-fit">
                     <div>
-                        <CreateLink :href="route('contract.create')"/>
+                        <CreateLink :href="route('contract.create')" v-show="can(['create contract'])"/>
                     </div>
                     <Delete
                         :show="data.deleteOpen"

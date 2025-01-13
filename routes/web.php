@@ -46,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('application.get-messages');
     Route::get('/application/{application}/get-all-chats', [ApplicationController::class, 'getAllChats'])
         ->name('application.get-all-chats');
+    Route::post('/application/{application}/approve', [ApplicationController::class, 'confirmApplication'])->name('application.approve');
+
 
     Route::resource('status', StatusController::class);
     Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');
@@ -60,13 +62,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk');
     Route::post('/contract/{contract}', [ContractController::class, 'update'])->name('contract.update');
+    Route::get('/contract/{contract}/chat', [ContractController::class, 'chat'])
+        ->name('contract.chat');
+    Route::post('/contract/{contract}/send-message', [ContractController::class, 'sendMessage'])
+        ->name('contract.send-message');
+    Route::get('/contract/chat-messages/{chat_id}', [ContractController::class, 'getMessages'])
+        ->name('contract.get-messages');
+    Route::get('/contract/{contract}/get-all-chats', [ContractController::class, 'getAllChats'])
+        ->name('contract.get-all-chats');
+    Route::post('/contract/{contract}/approve', [ContractController::class, 'confirmContract'])->name('contract.approve');
+
+
     Route::resource('positions', PositionsController::class);
     Route::post('/positions/destroy-bulk', [PositionsController::class, 'destroyBulk'])->name('positions.destroy-bulk');
+
     Route::resource('task', TaskController::class)->except(['update']);
     Route::post('/task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
     Route::post('/task/{task}', [TaskController::class, 'update'])->name('task.update');
     Route::post('/task/{task}/start', [TaskController::class, 'start'])->name('task.start');
     Route::post('/task/{task}/complete', [TaskController::class, 'complete'])->name('task.complete');
+
     Route::resource('/user', UserController::class)->except(['update']);
     Route::post('/user/{user}', [UserController::class, 'update'])->name('user.update');
     Route::post('/user/destroy-bulk', [UserController::class, 'destroyBulk'])->name('user.destroy-bulk');

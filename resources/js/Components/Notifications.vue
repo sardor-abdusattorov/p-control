@@ -21,28 +21,28 @@
                 @click.stop
                 class="absolute right-0 z-50 sm:w-[16rem] md:w-[20rem] lg:w-[26rem] mt-2 rounded-md bg-white dark:bg-slate-700"
             >
-                <div class="p-2 sm:p-4">
+                <div class="p-2 sm:p-3 md-p-3">
                     <h6 class="text-[14px] md:text-lg font-semibold mb-2 sm:mb-4 dark:text-white">{{ lang && lang().label.notifications ? lang().label.notifications : 'Notifications' }}</h6>
 
-                    <div class="mb-4 flex justify-center space-x-8 border-b-2 border-slate-200 dark:border-slate-600">
+                    <div class="mb-4 flex justify-center space-x-4 border-b-2 border-slate-200 dark:border-slate-600 overflow-auto">
                         <button
                             :class="{'text-blue-500 border-b-2 border-blue-500': activeTab === 'tasks'}"
                             @click="activeTab = 'tasks'"
-                            class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
+                            class="sm:px-4 px-2 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
                         >
                             {{ lang && lang().label.tasks ? lang().label.tasks : 'Tasks' }}
                         </button>
                         <button
                             :class="{'text-blue-500 border-b-2 border-blue-500': activeTab === 'applications'}"
                             @click="activeTab = 'applications'"
-                            class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
+                            class="sm:px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
                         >
                             {{ lang && lang().label.applications ? lang().label.applications : 'Applications' }}
                         </button>
                         <button
                             :class="{'text-blue-500 border-b-2 border-blue-500': activeTab === 'contracts'}"
                             @click="activeTab = 'contracts'"
-                            class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
+                            class="sm:px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-white"
                         >
                             {{ lang && lang().label.contracts ? lang().label.contracts : 'Contracts' }}
                         </button>
@@ -52,7 +52,7 @@
                             <li
                                 v-for="notification in filteredNotifications"
                                 :key="notification.id"
-                                class="flex items-start p-2 sm:p-4 gap-2 sm:gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700"
+                                class="flex items-start p-2 sm:p-3 gap-2 sm:gap-3 hover:bg-slate-50 dark:hover:bg-zinc-700"
                             >
 
                                 <div v-if="notification.model === 'task'">
@@ -115,7 +115,7 @@
                                 </div>
                             </li>
                         </ul>
-                        <p v-else class="text-[14px] sm:text-base text-center text-slate-500 dark:text-zinc-400 p-2 sm:p-4">
+                        <p v-else class="text-[14px] sm:text-base text-center text-slate-500 dark:text-zinc-400 p-2 sm:p-3">
                             {{ lang && lang().label.no_notifications ? lang().label.no_notifications : 'No notifications' }}
                         </p>
                     </div>

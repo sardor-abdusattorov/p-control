@@ -53,7 +53,6 @@ class UserSeeder extends Seeder
         ]);
         $manager->assignRole('manager');
 
-
         $accountant = User::create([
             'name'              => 'Accountant',
             'email'             => 'accountant@company.com',
@@ -62,7 +61,7 @@ class UserSeeder extends Seeder
             'password'          => bcrypt('accountant123'),
             'email_verified_at' => date('Y-m-d H:i')
         ]);
-        $accountant->assignRole('accountant');
+        $accountant->assignRole('lawyer');
 
 
     }

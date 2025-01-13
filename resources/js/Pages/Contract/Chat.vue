@@ -6,13 +6,13 @@
             <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex justify-between items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md">
                 <div class="flex justify-start gap-4">
                     <Link
-                        :href="route('application.show', { application: application.id })"
+                        :href="route('contract.show', { contract: contract.id })"
                         class="px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition-all duration-300"
                     >
                         {{ lang().label.information }}
                     </Link>
                     <Link
-                        :href="route('application.chat', { id: application.id })"
+                        :href="route('contract.chat', { id: contract.id })"
                         class="px-6 py-3 rounded-md bg-green-600 text-white hover:bg-green-700 shadow-lg transition-all duration-300"
                     >
                         {{ lang().label.chat }}
@@ -23,7 +23,7 @@
                 <div class="flex-1 justify-between flex flex-col">
                     <div class="content flex gap-4 flex-wrap">
                         <div class="w-full md:w-[calc(33.333%-10px)] relative bg-gray-100 dark:bg-slate-900 text-gray-900 rounded-md shadow-md border border-slate-200 dark:border-neutral-800 overflow-hidden">
-                            <div class="tabs flex gap-4 border-b border-slate-300 dark:border-neutral-700 overflow-hidden overflow-x-auto">
+                            <div class="tabs flex gap-4 border-b border-slate-300 dark:border-neutral-700">
                                 <button
                                     @click="activeTab = 'dialogs'"
                                     :class="[
@@ -37,7 +37,7 @@
                                 <button
                                     @click="activeTab = 'all_users'"
                                     :class="[
-                                            'px-4 py-4 border-b font-semibold transition-all whitespace-nowrap -mb-px',
+                                            'px-4 py-4 border-b font-semibold transition-all -mb-px',
                                             activeTab === 'all_users'
                                                 ? 'border-black text-black dark:border-white dark:text-white'
                                                 : 'border-gray-300 text-gray-500 dark:border-neutral-700 dark:text-neutral-400'
@@ -133,15 +133,13 @@
                                     </div>
                                 </ScrollPanel>
                             </div>
-
-
                         </div>
 
                         <div class="w-full md:w-[calc(66.666%-10px)] h-full relative bg-white dark:bg-slate-900 text-gray-800 rounded-md shadow-md border border-slate-200 dark:border-neutral-800 overflow-hidden">
                             <ScrollPanel style="width: 100%; height: 450px;">
                                 <div id="messages" class="flex h-full flex-col space-y-4 p-4 scrollbar-thumb-rounded-lg scrollbar-thumb-gray-600 scrollbar-track-gray-200 scrollbar-w-2 scrollbar-thumb-transition-all scrollbar-thumb-opacity-70 scrollbar-thumb-hover:bg-blue-400">
                                     <div v-for="(message, index) in messages" :key="index"
-                                        :class="message.user_id === currentUserId ? 'chat-message right' : 'chat-message left'"
+                                         :class="message.user_id === currentUserId ? 'chat-message mb-5 right' : 'chat-message mb-5 left'"
                                     >
                                         <div class="message-content flex items-end mb-3" :class="message.user_id === currentUserId ? 'justify-end' : ''">
                                             <div class="flex flex-col space-y-2 text-sm max-w-xs mx-2" :class="message.user_id === currentUserId ? 'order-1 items-end' : 'order-2 items-start'">
@@ -178,6 +176,7 @@
                             </ScrollPanel>
                             <div class="p-4 bg-gray-100 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 rounded-md rounded-tl-none rounded-tr-none">
                                 <form class="flex items-stretch" @submit.prevent="send" enctype="multipart/form-data">
+                                    <!-- Скрытое поле для передачи chat_id -->
                                     <input type="hidden" v-model="form.receiver_id" name="receiver_id" />
                                     <input type="hidden" v-model="form.chat_id" name="chat_id" />
 
@@ -209,7 +208,7 @@
                                             :disabled="!activeChat"
                                             class="bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-700 active:bg-blue-800 px-6 py-2 rounded-l-none rounded-md border-1 border-transparent hover:border-blue-400 focus:border-blue-500 shadow-md hover:shadow-lg focus:shadow-lg active:shadow-none transition duration-200 ease-in-out font-semibold uppercase focus:outline-none focus:ring-0"
                                         >
-                                            Send
+                                            {{lang().button.send}}
                                         </button>
                                     </div>
                                 </form>
@@ -245,69 +244,73 @@
 
 <script setup>
 import {nextTick, onMounted, onUnmounted, ref} from 'vue';
-    import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-    import Breadcrumb from '@/Components/Breadcrumb.vue';
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-    import ScrollPanel from 'primevue/scrollpanel';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import Breadcrumb from '@/Components/Breadcrumb.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import ScrollPanel from 'primevue/scrollpanel';
 
-    const activeTab = ref('dialogs');
-    const props = defineProps({
-    application: Object,
+const activeTab = ref('dialogs');
+const props = defineProps({
+    contract: Object,
     title: String,
     breadcrumbs: Object,
     chats: Array,
     users: Array,
 });
-    const form = useForm({
+
+const form = useForm({
     message: '',
     files: [],
     receiver_id: '',
     chat_id: '',
 });
 
-    const activeChat = ref(null);
-    const messages = ref([]);
-    const selectedFiles = ref([]);
+const activeChat = ref(null);
+const messages = ref([]);
+const selectedFiles = ref([]);
 
-    const currentUserId = usePage().props.auth.user.id;
+const currentUserId = usePage().props.auth.user.id;
 
-    const clearForm = () => {
+const clearForm = () => {
     form.message = '';
     form.files = [];
     selectedFiles.value = [];
 };
 
-    const updateChatMessages = (chatId, newMessages) => {
+
+const updateChatMessages = (chatId, newMessages) => {
     const chatIndex = props.chats.findIndex((chat) => chat.id === chatId);
     if (chatIndex !== -1) {
-    props.chats[chatIndex].messages = newMessages;
-}
+        props.chats[chatIndex].messages = newMessages;
+    }
 };
 
-    const fetchMessages = async () => {
+const fetchMessages = async () => {
     if (!activeChat.value?.id) return;
 
     try {
-    const response = await axios.get(route('application.get-messages', { chat_id: activeChat.value.id }));
-    if (response.data?.messages) {
-    messages.value = response.data.messages;
-    updateChatMessages(activeChat.value.id, response.data.messages);
-}
-} catch (error) {
-    console.error('Ошибка при загрузке сообщений:', error);
-}
+        const response = await axios.get(route('contract.get-messages', { chat_id: activeChat.value.id }));
+        if (response.data?.messages) {
+            messages.value = response.data.messages;
+            updateChatMessages(activeChat.value.id, response.data.messages);
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке сообщений:', error);
+    }
 };
-    const fetchAllChats = async () => {
+
+const fetchAllChats = async () => {
     try {
-    const response = await axios.get(route('application.get-all-chats', { application: props.application.id }));
-    if (response.data?.chats) {
-    props.chats.splice(0, props.chats.length, ...response.data.chats);
-}
-} catch (error) {
-    console.error('Ошибка при загрузке чатов:', error);
-}
+        const response = await axios.get(route('contract.get-all-chats', { contract: props.contract.id }));
+        if (response.data?.chats) {
+            props.chats.splice(0, props.chats.length, ...response.data.chats);
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке чатов:', error);
+    }
 };
-    const loadChat = (chat) => {
+
+const loadChat = (chat) => {
     activeChat.value = chat;
     messages.value = chat.messages || [];
     form.receiver_id = chat.receiver_id;
@@ -317,17 +320,21 @@ import {nextTick, onMounted, onUnmounted, ref} from 'vue';
 
 const send = async () => {
     try {
-        await form.post(route('application.send-message', props.application?.id), {
+        await form.post(route('contract.send-message', props.contract?.id), {
             preserveScroll: true,
             onSuccess: (response) => {
                 clearForm();
                 if (response?.data?.message) {
                     messages.value.push(response.data.message);
+
                     if (!activeChat.value.id && response.data.chat) {
+                        // Если чат был создан, обновляем его ID
                         activeChat.value.id = response.data.chat.id;
                         form.chat_id = response.data.chat.id;
                     }
+
                     fetchAllChats();
+
                     nextTick(() => {
                         const messagesContainer = document.getElementById('messages');
                         if (messagesContainer) {
@@ -345,43 +352,43 @@ const send = async () => {
 
 
 const triggerFileInput = () => {
-        const fileInput = document.querySelector('input[type="file"]');
-        fileInput.click();
-    };
+    const fileInput = document.querySelector('input[type="file"]');
+    fileInput.click();
+};
 
-    const handleFileChange = (event) => {
-        const files = event.target.files;
-        if (files.length > 0) {
-            selectedFiles.value = Array.from(files);
-            form.files = selectedFiles.value;
-        }
-    };
-
-    const removeFile = (index) => {
-        selectedFiles.value.splice(index, 1);
+const handleFileChange = (event) => {
+    const files = event.target.files;
+    if (files.length > 0) {
+        selectedFiles.value = Array.from(files);
         form.files = selectedFiles.value;
-    };
+    }
+};
 
-    const getReceiverName = (receiverId) => {
+const removeFile = (index) => {
+    selectedFiles.value.splice(index, 1);
+    form.files = selectedFiles.value;
+};
+
+const getReceiverName = (receiverId) => {
     const user = props.users.find((u) => u.id === receiverId);
     return user?.name || null;
 };
 
-    const getUserImage = (userId) => {
+const getUserImage = (userId) => {
     const user = props.users.find((u) => u.id === userId);
     return user?.profile_image || '/default-avatar.jpg';
 };
 
-    const getLastMessage = (userId) => {
+const getLastMessage = (userId) => {
     const chat = props.chats.find(
-    (c) =>
-    (c.user_id === currentUserId && c.receiver_id === userId) ||
-    (c.receiver_id === currentUserId && c.user_id === userId)
+        (c) =>
+            (c.user_id === currentUserId && c.receiver_id === userId) ||
+            (c.receiver_id === currentUserId && c.user_id === userId)
     );
     return chat?.messages?.[chat.messages.length - 1] || null;
 };
 
-const openChatWithUser = (user) => {
+const openChatWithUser = async (user) => {
     const existingChat = props.chats.find(
         (c) =>
             (c.user_id === currentUserId && c.receiver_id === user.id) ||
@@ -391,24 +398,27 @@ const openChatWithUser = (user) => {
     if (existingChat) {
         loadChat(existingChat);
     } else {
+        // Создаем временный "активный" чат и сразу открываем для отправки сообщения
         activeChat.value = {
-            id: null,
+            id: null, // ID пока нет, так как чат еще не создан на сервере
             receiver_id: user.id,
             user_id: currentUserId,
             messages: [],
         };
-        messages.value = [];
         form.receiver_id = user.id;
-        form.chat_id = null;
+        form.chat_id = null; // ID чата пока не существует
+        messages.value = [];
     }
 };
-    let chatUpdateInterval, messageUpdateInterval;
-    onMounted(() => {
+
+let chatUpdateInterval, messageUpdateInterval;
+
+onMounted(() => {
     chatUpdateInterval = setInterval(fetchAllChats, 10000);
     messageUpdateInterval = setInterval(fetchMessages, 10000);
 });
 
-    onUnmounted(() => {
+onUnmounted(() => {
     clearInterval(chatUpdateInterval);
     clearInterval(messageUpdateInterval);
 });

@@ -37,6 +37,7 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'view application']);
         Permission::create(['name' => 'view all applications']);
         Permission::create(['name' => 'application chat']);
+        Permission::create(['name' => 'approve application']);
 
         //PROJECTS
         Permission::create(['name' => 'create project']);
@@ -50,6 +51,8 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'delete contract']);
         Permission::create(['name' => 'view contract']);
         Permission::create(['name' => 'view all contracts']);
+        Permission::create(['name' => 'contract chat']);
+        Permission::create(['name' => 'approve contract']);
 
 
         Permission::create(['name' => 'view logs']);

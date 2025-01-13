@@ -51,6 +51,7 @@ class RoleSeeder extends Seeder
             'delete contract',
             'view contract',
             'view all contracts',
+            'contract chat',
         ]);
         $manager = Role::create([
             'name' => 'manager'
@@ -70,22 +71,39 @@ class RoleSeeder extends Seeder
             'update contract',
             'view contract',
         ]);
-        $accountant = Role::create([
-            'name' => 'accountant'
-        ]);
-        $accountant->givePermissionTo([
-        ]);
         $chief = Role::create([
             'name' => 'chief'
         ]);
         $chief->givePermissionTo([
+            'create task',
+            'view task',
+            'view all tasks',
 
+            'view application',
+            'view all applications',
+            'application chat',
+            'view project',
+
+            'view contract',
+            'view all contracts',
+            'contract chat',
         ]);
         $lawyer = Role::create([
             'name' => 'lawyer'
         ]);
         $lawyer->givePermissionTo([
+            'create task',
+            'view task',
+            'view all tasks',
 
+            'view application',
+            'view all applications',
+            'application chat',
+            'view project',
+
+            'view contract',
+            'view all contracts',
+            'contract chat',
         ]);
     }
 }

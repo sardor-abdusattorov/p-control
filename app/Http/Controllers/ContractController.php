@@ -6,15 +6,17 @@ use App\Http\Requests\Contract\ContractIndexRequest;
 use App\Http\Requests\Contract\ContractStoreRequest;
 use App\Http\Requests\Contract\ContractUpdateRequest;
 use App\Models\Application;
+use App\Models\Chat;
 use App\Models\Contract;
-use App\Models\ContractApproval;
 use App\Models\Currency;
+use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -36,6 +38,8 @@ class ContractController extends Controller
                 'update contract' => ['contract.edit', 'contract.update'],
                 'delete contract' => ['contract.destroy', 'contract.destroy-bulk'],
                 'view contract' => ['contract.index', 'contract.show'],
+                'contract chat' => ['contract.chat', 'contract.send-message', 'contract.get-messages', 'contract.get-all-chats'],
+                'approve contract' => ['contract.approve'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -123,6 +127,7 @@ class ContractController extends Controller
             $contract->status = 1;
             $contract->deadline = Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
             $contract->save();
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -132,23 +137,68 @@ class ContractController extends Controller
                         ->toMediaCollection("files");
                 }
             }
+            if (!empty($request->recipients)) {
+                foreach ($request->recipients as $recipient) {
+                    $chat = new Chat();
+                    $chat->model_type = 'contract';
+                    $chat->model_id = $contract->id;
+                    $chat->user_id = auth()->id();
+                    $chat->receiver_id = $recipient;
+                    $chat->name = 'Chat for contract #' . $contract->id;
 
-            $recipients = $request->recipients;
-            foreach ($recipients as $user) {
-                ContractApproval::create([
-                    'user_id' => $user,
-                    'contract_id' => $contract->id,
-                    'status' => ContractApproval::STATUS_NEW,
-                ]);
+                    if ($chat->save()) {
+                        $messageContent = 'Отправляю контракт на ваше рассмотрение';
+                        Message::create([
+                            'chat_id' => $chat->id,
+                            'user_id' => auth()->id(),
+                            'text' => $messageContent,
+                            'created_date' => now(),
+                            'is_notified' => 0,
+                        ]);
+                    } else {
+                        DB::rollback();
+                        activity('contract')
+                            ->causedBy(auth()->user())
+                            ->performedOn($contract)
+                            ->withProperties(['error' => 'Chat creation failed'])
+                            ->log('Ошибка при создании чата для контракта');
+
+                        return redirect()->back()->with('error', __('app.label.chat_creation_failed'));
+                    }
+                }
             }
-            DB::commit();
-            return redirect()->route('contract.index')->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'contract_id' => $contract->id,
+                    'title' => $contract->title,
+                    'contract_number' => $contract->contract_number,
+                    'project_id' => $contract->project_id,
+                    'budget_sum' => $contract->budget_sum,
+                    'status' => $contract->status,
+                ])
+                ->log('Создан контракт');
 
+            DB::commit();
+
+            return redirect()->route('contract.index')->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'contract_number' => $request->contract_number,
+                    'title' => $request->title,
+                    'project_id' => $request->project_id,
+                ])
+                ->log('Ошибка при создании контракта');
+
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.contracts')]) . ' ' . $th->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -167,10 +217,160 @@ class ContractController extends Controller
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
             'breadcrumbs' => [
-                ['label' => __('app.label.applications'), 'href' => route('contract.index')],
+                ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
                 ['label' => $contract->title]
             ],
         ]);
+    }
+
+    public function confirmContract(Request $request, Contract $contract)
+    {
+        try {
+            $user = auth()->user();
+
+            if (!$user->hasRole(['accountant', 'lawyer'])) {
+                return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $contract->title]));
+            }
+            $originalStatus = $contract->status;
+            $contract->update([
+                'status' => 3,
+            ]);
+            activity('contract')
+                ->causedBy($user)
+                ->performedOn($contract)
+                ->withProperties([
+                    'contract_id' => $contract->id,
+                    'title' => $contract->title,
+                    'previous_status' => $originalStatus,
+                    'new_status' => 3,
+                ])
+                ->log('Контракт подтвержден');
+
+            return redirect()->route('contract.show', $contract->id)
+                ->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
+        } catch (\Exception $e) {
+            // Логирование ошибки
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'error' => $e->getMessage(),
+                    'contract_id' => $contract->id,
+                    'title' => $contract->title,
+                ])
+                ->log('Ошибка при подтверждении контракта');
+
+            return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $contract->title]));
+        }
+    }
+
+    public function chat(Contract $contract)
+    {
+        $users = User::all();
+        $currentUser = auth()->user();
+
+        $chats = Chat::where('model_type', 'contract')
+            ->where('model_id', $contract->id)
+            ->where(function ($query) use ($currentUser) {
+                $query->where('user_id', $currentUser->id)
+                    ->orWhere('receiver_id', $currentUser->id);
+            })
+            ->with(['messages.media'])
+            ->get();
+
+        return Inertia::render('Contract/Chat', [
+            'title' => __('app.label.contracts'),
+            'users' => $users,
+            'chats' => $chats,
+            'contract' => $contract,
+            'breadcrumbs' => [
+                ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
+                ['label' => $contract->title, 'href' => route('contract.show', $contract->id)],
+                ['label' => __('app.label.contract_chat')],
+            ],
+        ]);
+    }
+
+    public function getAllChats(Request $request, $contract_id)
+    {
+        $currentUser = auth()->user();
+
+        try {
+            $chats = Chat::with(['messages' => function ($query) {
+                $query->latest('created_date')->limit(1)->with('media');
+            }])
+                ->where('model_type', 'contract')
+                ->where('model_id', $contract_id)
+                ->where(function ($query) use ($currentUser) {
+                    $query->where('user_id', $currentUser->id)
+                        ->orWhere('receiver_id', $currentUser->id);
+                })
+                ->get();
+
+            return response()->json(['chats' => $chats]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ошибка при загрузке чатов'], 500);
+        }
+    }
+
+    public function getMessages(Request $request, $chat_id)
+    {
+        $messages = Message::where('chat_id', $chat_id)
+            ->with('media')
+            ->orderBy('created_date', 'asc')
+            ->get();
+
+        return response()->json(['messages' => $messages]);
+    }
+
+    public function sendMessage(Request $request, Contract $contract)
+    {
+        $validated = $request->validate([
+            'message' => 'required|string|max:1000',
+            'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            if (!empty($request['chat_id'])) {
+                $chat = Chat::findOrFail($request['chat_id']);
+            } else {
+                $chat = Chat::create([
+                    'model_type' => 'contract',
+                    'model_id' => $contract->id,
+                    'user_id' => auth()->id(),
+                    'receiver_id' => $request['receiver_id'],
+                    'name' => 'test',
+                ]);
+            }
+
+            $message = Message::create([
+                'chat_id' => $chat->id,
+                'user_id' => auth()->id(),
+                'text' => $validated['message'],
+                'created_date' => now(),
+                'is_notified' => 0,
+            ]);
+
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $message->addMedia($file)
+                        ->toMediaCollection('message file');
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('contract.chat', [
+                'id' => $chat->id,
+                'contract' => $contract->id,
+            ])->with('success', 'Message sent successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return back()->with('error', 'An error occurred. Please try again later.');
+        }
     }
 
     /**
@@ -199,6 +399,7 @@ class ContractController extends Controller
             'title' => __('app.label.contracts'),
             'breadcrumbs' => [
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
+                ['label' => $contract->title, 'href' => route('contract.show', $contract->id)],
                 ['label' => $contract->title]
             ]
         ]);
@@ -212,6 +413,8 @@ class ContractController extends Controller
         DB::beginTransaction();
 
         try {
+            $originalData = $contract->getOriginal();
+
             $contract->update([
                 'contract_number' => $request->contract_number,
                 'title' => $request->title,
@@ -222,6 +425,7 @@ class ContractController extends Controller
                 'budget_sum' => $request->budget_sum,
                 'deadline' => Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
             ]);
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -231,13 +435,35 @@ class ContractController extends Controller
                         ->toMediaCollection("files");
                 }
             }
+
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'before' => $originalData,
+                    'after' => $contract->getChanges(),
+                ])
+                ->log('Контракт обновлен');
+
             DB::commit();
+
             return redirect()->route('contract.index')->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'contract_id' => $contract->id,
+                ])
+                ->log('Ошибка при обновлении контракта');
+
             return back()->with('error', __('app.label.updated_error', ['name' => $contract->title]) . $th->getMessage());
         }
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -245,14 +471,38 @@ class ContractController extends Controller
     public function destroy(Contract $contract)
     {
         DB::beginTransaction();
+
         try {
+            $contractTitle = $contract->title; // Сохраняем имя контракта для логов
             $contract->clearMediaCollection('files');
             $contract->delete();
 
+            // Логирование успешного удаления контракта
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'contract_id' => $contract->id,
+                    'title' => $contractTitle,
+                ])
+                ->log('Контракт удален');
+
             DB::commit();
-            return redirect()->route('contract.index')->with('success', __('app.label.deleted_successfully', ['name' => $contract->title]));
+
+            return redirect()->route('contract.index')->with('success', __('app.label.deleted_successfully', ['name' => $contractTitle]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки удаления контракта
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'contract_id' => $contract->id,
+                ])
+                ->log('Ошибка при удалении контракта');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => $contract->title]) . $th->getMessage());
         }
     }
@@ -261,14 +511,38 @@ class ContractController extends Controller
     {
         try {
             $contracts = Contract::whereIn('id', $request->id)->get();
+            $deletedContracts = [];
+
             foreach ($contracts as $contract) {
+                $deletedContracts[] = [
+                    'contract_id' => $contract->id,
+                    'title' => $contract->title,
+                ];
                 $contract->clearMediaCollection('files');
                 $contract->delete();
             }
+
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'deleted_contracts' => $deletedContracts,
+                ])
+                ->log('Массовое удаление контрактов');
+
             return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.contracts')]));
         } catch (\Throwable $th) {
+
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'contract_ids' => $request->id,
+                ])
+                ->log('Ошибка при массовом удалении контрактов');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.contracts')]) . $th->getMessage());
         }
     }
+
 
 }

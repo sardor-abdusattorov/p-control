@@ -19,57 +19,73 @@ const props = defineProps({
         <Breadcrumb :title="'Dashboard'" :breadcrumbs="[]" />
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
+                <!-- Completed Tasks -->
                 <div
                     class="px-4 py-6 flex justify-between bg-green-600/70 dark:bg-green-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer ripple-effect"
                 >
                     <div class="flex flex-col">
-                        <p class="text-white text-2xl font-semibold">{{lang().label.completed_tasks}}</p>
-                        <p class="text-xl md:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{props.completedTasksCount}}</span> /
-                            <span class="ml-2">{{props.totalTasksCount}}</span>
+                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
+                            {{ lang().label.completed_tasks }}
+                        </p>
+                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
+                            <span class="mr-2">{{ props.completedTasksCount }}</span> /
+                            <span class="ml-2">{{ props.totalTasksCount }}</span>
                         </p>
                     </div>
                     <div>
-                        <CheckCircleIcon class="w-16 h-auto text-white" />
+                        <CheckCircleIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
                 </div>
+
+                <!-- Pending Tasks -->
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-amber-600/70 dark:bg-amber-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
-                        <p class="text-white text-2xl font-semibold">{{lang().label.pending_tasks}}</p>
-                        <p class="text-xl md:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{props.pendingTasksCount}}</span>
+                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
+                            {{ lang().label.pending_tasks }}
+                        </p>
+                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
+                            <span class="mr-2">{{ props.pendingTasksCount }}</span>
                         </p>
                     </div>
                     <div>
-                        <ClockIcon class="w-16 h-auto text-white" />
+                        <ClockIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
                 </div>
+
+                <!-- Contracts -->
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-blue-600/70 dark:bg-blue-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
-                        <p class="text-white text-2xl font-semibold">{{lang().label.contracts}}</p>
-                        <p class="text-xl md:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{props.contractsCount}}</span>
+                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
+                            {{ lang().label.contracts }}
+                        </p>
+                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
+                            <span class="mr-2">{{ props.contractsCount }}</span>
                         </p>
                     </div>
                     <div>
-                        <DocumentTextIcon class="w-16 h-auto text-white" />
+                        <DocumentTextIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
                 </div>
+
+                <!-- Applications -->
                 <div class="ripple-effect px-4 py-6 flex justify-between bg-red-600/70 dark:bg-red-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
                     <div class="flex flex-col">
-                        <p class="text-white text-2xl font-semibold">{{lang().label.applications}}</p>
-                        <p class="text-xl md:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{props.applicationsCount}}</span>
+                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
+                            {{ lang().label.applications }}
+                        </p>
+                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
+                            <span class="mr-2">{{ props.applicationsCount }}</span>
                         </p>
                     </div>
                     <div>
-                        <InboxIcon class="w-16 h-auto text-white" />
+                        <InboxIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
                 </div>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
+
 
 <style>
 

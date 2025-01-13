@@ -7,7 +7,7 @@
             <div class="px-4 sm:px-0">
                 <div class="rounded-lg overflow-hidden w-fit">
                     <div>
-                        <CreateLink :href="route('application.create')"/>
+                        <CreateLink :href="route('application.create')" v-show="can(['create application'])"/>
                     </div>
                     <Delete
                         :show="data.deleteOpen"

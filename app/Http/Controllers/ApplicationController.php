@@ -16,10 +16,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Spatie\Activitylog\Models\Activity;
 
 class ApplicationController extends Controller
 {
-
 
     public function __construct()
     {
@@ -34,6 +34,7 @@ class ApplicationController extends Controller
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
                 'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
+                'approve application' => ['application.approve'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -108,6 +109,8 @@ class ApplicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+
     public function store(ApplicationStoreRequest $request)
     {
         DB::beginTransaction();
@@ -118,6 +121,17 @@ class ApplicationController extends Controller
             $application->user_id = auth()->id();
             $application->status_id = 1;
             $application->save();
+
+            activity('application')
+                ->causedBy(auth()->user())
+                ->performedOn($application)
+                ->withProperties([
+                    'title' => $application->title,
+                    'project_id' => $application->project_id,
+                    'user_id' => $application->user_id,
+                ])
+                ->log('Создана заявка');
+
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -127,9 +141,9 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
+
             if (!empty($request->recipients)) {
                 foreach ($request->recipients as $recipient) {
-
                     $chat = new Chat();
                     $chat->model_type = 'application';
                     $chat->model_id = $application->id;
@@ -157,12 +171,21 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.index')
                 ->with('success', __('app.label.created_successfully', ['name' => $application->title]));
-
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логируем ошибку создания заявки
+            activity('application')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                ])
+                ->log('Ошибка при создании заявки');
+
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.application')]) . ' ' . $th->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -188,6 +211,48 @@ class ApplicationController extends Controller
             ],
         ]);
     }
+
+    public function confirmApplication(Request $request, Application $application)
+    {
+        try {
+            $user = auth()->user();
+
+            if (!$user->hasRole(['accountant', 'lawyer'])) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $application->update([
+                'status_id' => 2, // Указываем статус "Подтверждено"
+            ]);
+
+            // Логируем подтверждение заявки
+            activity('application')
+                ->causedBy($user) // Указываем, кто подтвердил
+                ->performedOn($application) // Указываем объект действия
+                ->withProperties([
+                    'application_id' => $application->id,
+                    'title' => $application->title,
+                    'status_id' => $application->status_id,
+                ])
+                ->log('Подтверждена заявка');
+
+            return redirect()->route('application.show', $application->id)
+                ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
+        } catch (\Exception $e) {
+            // Логируем ошибку
+            activity('application')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $e->getMessage(),
+                    'application_id' => $application->id,
+                ])
+                ->log('Ошибка при подтверждении заявки');
+
+            return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $application->title]));
+        }
+    }
+
+
 
     public function chat(Application $application)
     {
@@ -352,45 +417,107 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
+
+            // Логирование обновления
+            activity('application')
+                ->causedBy(auth()->user())
+                ->performedOn($application)
+                ->withProperties([
+                    'updated_fields' => $request->only(['title', 'project_id']),
+                    'application_id' => $application->id,
+                ])
+                ->log('Обновлена заявка');
+
             DB::commit();
+
             return redirect()->route('application.index')->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки
+            activity('application')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'application_id' => $application->id,
+                ])
+                ->log('Ошибка при обновлении заявки');
+
             return back()->with('error', __('app.label.updated_error', ['name' => $application->title]) . $th->getMessage());
         }
     }
 
 
-
     public function destroy(Application $application)
     {
         DB::beginTransaction();
+
         try {
             $application->clearMediaCollection('documents');
-
             $application->delete();
 
+            // Логирование удаления
+            activity('application')
+                ->causedBy(auth()->user())
+                ->performedOn($application)
+                ->withProperties([
+                    'application_id' => $application->id,
+                    'title' => $application->title,
+                ])
+                ->log('Удалена заявка');
+
             DB::commit();
+
             return redirect()->route('application.index')->with('success', __('app.label.deleted_successfully', ['name' => $application->title]));
         } catch (\Throwable $th) {
             DB::rollback();
+
+            // Логирование ошибки
+            activity('application')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'application_id' => $application->id,
+                ])
+                ->log('Ошибка при удалении заявки');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => $application->title]) . $th->getMessage());
         }
     }
-
 
     public function destroyBulk(Request $request)
     {
         try {
             $applications = Application::whereIn('id', $request->id)->get();
+
             foreach ($applications as $application) {
                 $application->clearMediaCollection('documents');
                 $application->delete();
+
+                // Логирование удаления каждой заявки
+                activity('application')
+                    ->causedBy(auth()->user())
+                    ->performedOn($application)
+                    ->withProperties([
+                        'application_id' => $application->id,
+                        'title' => $application->title,
+                    ])
+                    ->log('Удалена заявка (bulk)');
             }
 
             return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.applications')]));
         } catch (\Throwable $th) {
+            // Логирование ошибки
+            activity('application')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'error' => $th->getMessage(),
+                    'application_ids' => $request->id,
+                ])
+                ->log('Ошибка при массовом удалении заявок');
+
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.applications')]) . $th->getMessage());
         }
     }
+
 }
