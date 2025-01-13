@@ -13,11 +13,13 @@ use App\Models\Recipient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ApplicationController extends Controller
 {
+
 
     public function __construct()
     {
@@ -31,7 +33,7 @@ class ApplicationController extends Controller
                 'update application' => ['application.edit', 'application.update'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
-                'application chat' => ['application.chat', 'application.send-message'],
+                'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -189,17 +191,61 @@ class ApplicationController extends Controller
 
     public function chat(Application $application)
     {
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::all();
+        $currentUser = auth()->user();
+
+        $chats = Chat::where('model_type', 'application')
+            ->where('model_id', $application->id)
+            ->where(function ($query) use ($currentUser) {
+                $query->where('user_id', $currentUser->id)
+                    ->orWhere('receiver_id', $currentUser->id);
+            })
+            ->with(['messages.media'])
+            ->get();
+
         return Inertia::render('Application/Chat', [
             'title' => __('app.label.applications'),
             'users' => $users,
+            'chats' => $chats,
             'application' => $application,
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => $application->title, 'href' => route('application.show', $application->id)],
-                ['label' => __('app.label.application_chat')]
+                ['label' => __('app.label.application_chat')],
             ],
         ]);
+    }
+
+    public function getAllChats(Request $request, $applicationId)
+    {
+        $currentUser = auth()->user();
+
+        try {
+            $chats = Chat::with(['messages' => function ($query) {
+                $query->latest('created_date')->limit(1)->with('media');
+            }])
+                ->where('model_type', 'application')
+                ->where('model_id', $applicationId)
+                ->where(function ($query) use ($currentUser) {
+                    $query->where('user_id', $currentUser->id)
+                        ->orWhere('receiver_id', $currentUser->id);
+                })
+                ->get();
+
+            return response()->json(['chats' => $chats]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ошибка при загрузке чатов'], 500);
+        }
+    }
+
+    public function getMessages(Request $request, $chat_id)
+    {
+        $messages = Message::where('chat_id', $chat_id)
+            ->with('media') // Подгружаем медиафайлы
+            ->orderBy('created_date', 'asc')
+            ->get();
+
+        return response()->json(['messages' => $messages]);
     }
 
     public function sendMessage(Request $request, Application $application)
@@ -208,35 +254,52 @@ class ApplicationController extends Controller
             'message' => 'required|string|max:1000',
             'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
         ]);
+
         DB::beginTransaction();
 
         try {
-            $chat = Chat::firstOrCreate([
-                'model_type' => 'application',
-                'model_id' => $application->id,
-                'user_id' => auth()->id(),
-            ]);
+            if (!empty($request['chat_id'])) {
+                // Найти существующий чат
+                $chat = Chat::findOrFail($request['chat_id']);
+            } else {
+                // Создать новый чат
+                $chat = Chat::create([
+                    'model_type' => 'application',
+                    'model_id' => $application->id,
+                    'user_id' => auth()->id(),
+                    'receiver_id' => $request['receiver_id'],
+                    'name' => 'test',
+                ]);
+            }
+
+            // Создать сообщение
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => auth()->id(),
-                'content' => $validated['message'],
+                'text' => $validated['message'],
+                'created_date' => now(),
+                'is_notified' => 0,
             ]);
+
+            // Добавить прикрепленные файлы
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
-                    // Добавляем файл в медиабиблиотеку
                     $message->addMedia($file)
-                        ->toMediaCollection('files');
+                        ->toMediaCollection('message file');
                 }
             }
 
-            // Завершаем транзакцию
             DB::commit();
 
-            return back()->with('success', 'Message sent successfully!');
+            // Возвращаем Inertia-ответ
+            return redirect()->route('application.chat', [
+                'id' => $chat->id,
+                'application' => $application->id,
+            ])->with('success', 'Message sent successfully!');
         } catch (\Exception $e) {
-            // Откат транзакции в случае ошибки
             DB::rollBack();
 
+            Log::error($e->getMessage());
             return back()->with('error', 'An error occurred. Please try again later.');
         }
     }
