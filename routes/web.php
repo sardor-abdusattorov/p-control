@@ -42,6 +42,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('application.chat');
     Route::post('/application/{application}/send-message', [ApplicationController::class, 'sendMessage'])
         ->name('application.send-message');
+    Route::get('/application/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])
+        ->name('application.get-messages');
+    Route::get('/application/{application}/get-all-chats', [ApplicationController::class, 'getAllChats'])
+        ->name('application.get-all-chats');
 
     Route::resource('status', StatusController::class);
     Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');

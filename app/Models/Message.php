@@ -4,11 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Message extends Model
+class Message extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
+    protected $table = 'messages';
     public $timestamps = false;
 
     protected $fillable = [
@@ -19,19 +24,13 @@ class Message extends Model
         'created_date',
     ];
 
-    /**
-     * Получить чат, к которому принадлежит сообщение.
-     */
-    public function chat()
+    public function chat(): BelongsTo
     {
         return $this->belongsTo(Chat::class);
     }
 
-    /**
-     * Получить пользователя, отправившего сообщение.
-     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id'); // Сообщение связано с пользователем через user_id
     }
 }

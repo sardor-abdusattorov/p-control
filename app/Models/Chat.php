@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Chat extends Model
 {
     use HasFactory;
+
+    protected $table = 'chats';
 
     protected $fillable = [
         'user_id',
@@ -17,35 +20,18 @@ class Chat extends Model
         'model_id',
     ];
 
-    /**
-     * Получить сообщения для чата.
-     */
-    public function messages()
+    public function messages(): HasMany
     {
         return $this->hasMany(Message::class);
     }
 
-    /**
-     * Получить пользователя (инициатора) чата.
-     */
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * Получить получателя чата.
-     */
     public function receiver()
     {
         return $this->belongsTo(User::class, 'receiver_id');
-    }
-
-    /**
-     * Получить модель, с которой связан чат (например, заказ или другой объект).
-     */
-    public function model()
-    {
-        return $this->morphTo();
     }
 }

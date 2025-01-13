@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\SendMessage;
 use App\Http\Requests\Application\ApplicationIndexRequest;
 use App\Http\Requests\Application\ApplicationStoreRequest;
 use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
 use App\Models\Chat;
 use App\Models\Message;
-use App\Models\Notification;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ApplicationController extends Controller
 {
+
 
     public function __construct()
     {
@@ -33,7 +33,7 @@ class ApplicationController extends Controller
                 'update application' => ['application.edit', 'application.update'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
-                'application chat' => ['application.chat', 'application.send-message'],
+                'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -118,7 +118,6 @@ class ApplicationController extends Controller
             $application->user_id = auth()->id();
             $application->status_id = 1;
             $application->save();
-
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -128,9 +127,9 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
-
             if (!empty($request->recipients)) {
                 foreach ($request->recipients as $recipient) {
+
                     $chat = new Chat();
                     $chat->model_type = 'application';
                     $chat->model_id = $application->id;
@@ -146,14 +145,6 @@ class ApplicationController extends Controller
                             'text' => $messageContent,
                             'created_date' => now(),
                             'is_notified' => 0
-                        ]);
-                        Notification::create([
-                            'user_id' => auth()->user()->id,
-                            'receiver_id' => $recipient,
-                            'model' => 'application',
-                            'model_id' => $application->id,
-                            'is_read' => false,
-                            'action' => 'create',
                         ]);
                     } else {
                         DB::rollback();
@@ -200,25 +191,21 @@ class ApplicationController extends Controller
 
     public function chat(Application $application)
     {
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::all();
+        $currentUser = auth()->user();
 
-        $chats = Chat::with(['messages' => function ($query) {
-            $query->orderBy('created_date', 'desc');
-        }])->where('model_type', 'application')
+        $chats = Chat::where('model_type', 'application')
             ->where('model_id', $application->id)
-            ->where(function ($query) {
-                $query->where('user_id', auth()->id())
-                    ->orWhere('receiver_id', auth()->id());
-            })->get();
-
-        $dialogUserIds = $chats->pluck('user_id')->merge($chats->pluck('receiver_id'))->unique()->toArray();
-
-        $dialogsUsers = $users->whereIn('id', $dialogUserIds);
+            ->where(function ($query) use ($currentUser) {
+                $query->where('user_id', $currentUser->id)
+                    ->orWhere('receiver_id', $currentUser->id);
+            })
+            ->with(['messages.media'])
+            ->get();
 
         return Inertia::render('Application/Chat', [
-            'title' => __('app.label.application_chat'),
+            'title' => __('app.label.applications'),
             'users' => $users,
-            'dialogsUsers' => $dialogsUsers,
             'chats' => $chats,
             'application' => $application,
             'breadcrumbs' => [
@@ -229,50 +216,94 @@ class ApplicationController extends Controller
         ]);
     }
 
+    public function getAllChats(Request $request, $applicationId)
+    {
+        $currentUser = auth()->user();
+
+        try {
+            $chats = Chat::with(['messages' => function ($query) {
+                $query->latest('created_date')->limit(1)->with('media');
+            }])
+                ->where('model_type', 'application')
+                ->where('model_id', $applicationId)
+                ->where(function ($query) use ($currentUser) {
+                    $query->where('user_id', $currentUser->id)
+                        ->orWhere('receiver_id', $currentUser->id);
+                })
+                ->get();
+
+            return response()->json(['chats' => $chats]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ошибка при загрузке чатов'], 500);
+        }
+    }
+
+    public function getMessages(Request $request, $chat_id)
+    {
+        $messages = Message::where('chat_id', $chat_id)
+            ->with('media') // Подгружаем медиафайлы
+            ->orderBy('created_date', 'asc')
+            ->get();
+
+        return response()->json(['messages' => $messages]);
+    }
+
     public function sendMessage(Request $request, Application $application)
     {
         $validated = $request->validate([
             'message' => 'required|string|max:1000',
             'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
         ]);
+
         DB::beginTransaction();
 
         try {
-            $chat = Chat::firstOrCreate([
-                'model_type' => 'application',
-                'model_id' => $application->id,
-                'user_id' => auth()->id(),
-            ]);
+            if (!empty($request['chat_id'])) {
+                // Найти существующий чат
+                $chat = Chat::findOrFail($request['chat_id']);
+            } else {
+                // Создать новый чат
+                $chat = Chat::create([
+                    'model_type' => 'application',
+                    'model_id' => $application->id,
+                    'user_id' => auth()->id(),
+                    'receiver_id' => $request['receiver_id'],
+                    'name' => 'test',
+                ]);
+            }
 
-            // Создаем сообщение
+            // Создать сообщение
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => auth()->id(),
-                'content' => $validated['message'],
+                'text' => $validated['message'],
+                'created_date' => now(),
+                'is_notified' => 0,
             ]);
 
-            // Добавляем файлы, если они есть
+            // Добавить прикрепленные файлы
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
-                    // Добавляем файл в медиабиблиотеку
-                    $message->addMedia($file)->toMediaCollection('files');
+                    $message->addMedia($file)
+                        ->toMediaCollection('message file');
                 }
             }
 
-            // Отправляем событие для WebSocket
-            event(new SendMessage($message));
-
-            // Завершаем транзакцию
             DB::commit();
 
-            return back()->with('success', 'Message sent successfully!');
+            // Возвращаем Inertia-ответ
+            return redirect()->route('application.chat', [
+                'id' => $chat->id,
+                'application' => $application->id,
+            ])->with('success', 'Message sent successfully!');
         } catch (\Exception $e) {
-            // Откат транзакции в случае ошибки
             DB::rollBack();
 
+            Log::error($e->getMessage());
             return back()->with('error', 'An error occurred. Please try again later.');
         }
     }
+
     /**
      * Show the form for editing the specified resource.
      */
