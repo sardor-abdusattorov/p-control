@@ -113,54 +113,23 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(TaskStoreRequest $request)
+    public function store(Request $request)
     {
         DB::beginTransaction();
 
         try {
-            // Получение валидированных данных
-            $validated = $request->validated();
-
-            // Создание задачи
-            $task = Task::create([
-                'project_id' => $validated['project_id'],
-                'name' => $validated['name'],
-                'description' => $validated['description'] ?? null,
-                'assigned_user' => $validated['assigned_user'],
-                'status' => 1, // Статус по умолчанию
-                'priority' => $validated['priority'],
-                'user_id' => auth()->id(),
-                'due_date' => Carbon::parse($validated['due_date'])
-                    ->timezone(config('app.timezone'))
-                    ->format('Y-m-d H:i:s'),
+            $request->validate([
+                'name' => 'required|unique:posts|max:255',
+                'due_date' => 'required',
+                'publish_at' => 'nullable|date',
             ]);
 
-            // Сохранение файлов (если есть)
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $name = Str::random(24) . '.' . $file->extension();
-                    $task->addMedia($file)
-                        ->usingFileName($name)
-                        ->toMediaCollection('task files');
-                }
-            }
-
-            // Создание уведомления
-            Notification::create([
-                'user_id' => auth()->id(),
-                'receiver_id' => $validated['assigned_user'],
-                'model' => 'task',
-                'model_id' => $task->id,
-                'is_read' => false,
-                'action' => 'create',
-            ]);
-
-            // Логирование активности
-            activity('task')
-                ->causedBy(auth()->user())
-                ->performedOn($task)
-                ->withProperties($validated)
-                ->log('Создана задача');
+            // Сохраняем данные в базу
+            $task = new Task(); // Используйте вашу модель вместо `Task`
+            $task->name = $request->input('title');
+            $task->body = $request->input('body');
+            $task->publish_at = $request->input('publish_at');
+            $task->save();
 
             DB::commit();
 
@@ -169,17 +138,8 @@ class TaskController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
 
-            // Логирование ошибки
-            activity('task')
-                ->causedBy(auth()->user())
-                ->withProperties([
-                    'error' => $th->getMessage(),
-                    'input' => $validated,
-                ])
-                ->log('Ошибка при создании задачи');
-
             // Ошибка при создании задачи
-            return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
+            return redirect()->back()->withInput()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
         }
     }
 
