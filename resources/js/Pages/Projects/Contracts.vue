@@ -9,7 +9,7 @@
                         <tr>
                             <th>{{ lang().label.currency }}</th>
                             <th>{{ lang().label.contracts_length }}</th>
-                            <th>Общая сумма</th>
+                            <th>{{ lang().label.all_budget }}</th>
                         </tr>
                         </thead>
                         <tbody>

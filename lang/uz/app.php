@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
+        'all_budget' => 'Jami summa',
         'approve_application' => 'Arizani tasdiqlash',
         'approve_application_confirm' => 'Arizani tasdiqlashni xohlaysizmi?',
         'approve_contract' => 'Kontraktni tasdiqlash',

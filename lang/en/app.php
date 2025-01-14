@@ -5,6 +5,7 @@ return [
     'label' => [
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
+        'all_budget' => 'Total Amount',
         'approve_application' => 'Approve Application',
         'approve_application_confirm' => 'Are you sure you want to approve the application',
         'approve_contract' => 'Approve Contract',
