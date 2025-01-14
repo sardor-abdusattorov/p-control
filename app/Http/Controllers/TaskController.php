@@ -118,57 +118,54 @@ class TaskController extends Controller
         DB::beginTransaction();
 
         try {
-            $task = new Task();
-            $task->project_id = $request->project_id;
-            $task->name = $request->name;
-            $task->description = $request->description;
-            $task->assigned_user = $request->assigned_user;
-            $task->status = 1;
-            $task->priority = $request->priority;
-            $task->user_id = auth()->user()->id;
-            $task->due_date = Carbon::parse($request->due_date)
-                ->timezone(config('app.timezone'))
-                ->format('Y-m-d H:i:s');
+            // Получение валидированных данных
+            $validated = $request->validated();
 
-            if ($task->save()) {
-                if ($request->hasFile('files')) {
-                    foreach ($request->file('files') as $file) {
-                        $ext = $file->extension();
-                        $name = Str::random(24) . '.' . $ext;
-                        $task->addMedia($file)
-                            ->usingFileName($name)
-                            ->toMediaCollection("task files");
-                    }
+            // Создание задачи
+            $task = Task::create([
+                'project_id' => $validated['project_id'],
+                'name' => $validated['name'],
+                'description' => $validated['description'] ?? null,
+                'assigned_user' => $validated['assigned_user'],
+                'status' => 1, // Статус по умолчанию
+                'priority' => $validated['priority'],
+                'user_id' => auth()->id(),
+                'due_date' => Carbon::parse($validated['due_date'])
+                    ->timezone(config('app.timezone'))
+                    ->format('Y-m-d H:i:s'),
+            ]);
+
+            // Сохранение файлов (если есть)
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $name = Str::random(24) . '.' . $file->extension();
+                    $task->addMedia($file)
+                        ->usingFileName($name)
+                        ->toMediaCollection('task files');
                 }
-
-                Notification::create([
-                    'user_id' => auth()->user()->id,
-                    'receiver_id' => $task->assigned_user,
-                    'model' => 'task',
-                    'model_id' => $task->id,
-                    'is_read' => false,
-                    'action' => 'create',
-                ]);
-                activity('task')
-                    ->causedBy(auth()->user())
-                    ->performedOn($task)
-                    ->withProperties([
-                        'task_id' => $task->id,
-                        'name' => $task->name,
-                        'project_id' => $task->project_id,
-                        'assigned_user' => $task->assigned_user,
-                        'priority' => $task->priority,
-                        'due_date' => $task->due_date,
-                    ])
-                    ->log('Создана задача');
-
-                DB::commit();
-
-                return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
-            } else {
-                DB::rollback();
-                return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]));
             }
+
+            // Создание уведомления
+            Notification::create([
+                'user_id' => auth()->id(),
+                'receiver_id' => $validated['assigned_user'],
+                'model' => 'task',
+                'model_id' => $task->id,
+                'is_read' => false,
+                'action' => 'create',
+            ]);
+
+            // Логирование активности
+            activity('task')
+                ->causedBy(auth()->user())
+                ->performedOn($task)
+                ->withProperties($validated)
+                ->log('Создана задача');
+
+            DB::commit();
+
+            // Успешное завершение
+            return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {
             DB::rollback();
 
@@ -177,14 +174,15 @@ class TaskController extends Controller
                 ->causedBy(auth()->user())
                 ->withProperties([
                     'error' => $th->getMessage(),
-                    'project_id' => $request->project_id,
-                    'name' => $request->name,
+                    'input' => $validated,
                 ])
                 ->log('Ошибка при создании задачи');
 
+            // Ошибка при создании задачи
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.
