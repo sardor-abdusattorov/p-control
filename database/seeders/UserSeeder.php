@@ -42,27 +42,27 @@ class UserSeeder extends Seeder
             'email_verified_at' => date('Y-m-d H:i')
         ]);
         $superadmin->assignRole('superadmin');
-
-        $manager = User::create([
-            'name'              => 'Manager',
-            'email'             => 'manager@company.com',
-            'department_id'     => $creativeProjectsDepartment->id,
-            'position_id'       => $managerPosition->id,
-            'password'          => bcrypt('manager123'),
-            'email_verified_at' => date('Y-m-d H:i')
-        ]);
-        $manager->assignRole('manager');
-
-        $accountant = User::create([
-            'name'              => 'Accountant',
-            'email'             => 'accountant@company.com',
-            'department_id'     => $accountantDepartment->id,
-            'position_id'       => $staffPosition->id,
-            'password'          => bcrypt('accountant123'),
-            'email_verified_at' => date('Y-m-d H:i')
-        ]);
-        $accountant->assignRole('lawyer');
-
+//
+//        $manager = User::create([
+//            'name'              => 'Manager',
+//            'email'             => 'manager@company.com',
+//            'department_id'     => $creativeProjectsDepartment->id,
+//            'position_id'       => $managerPosition->id,
+//            'password'          => bcrypt('manager123'),
+//            'email_verified_at' => date('Y-m-d H:i')
+//        ]);
+//        $manager->assignRole('manager');
+//
+//        $accountant = User::create([
+//            'name'              => 'Accountant',
+//            'email'             => 'accountant@company.com',
+//            'department_id'     => $accountantDepartment->id,
+//            'position_id'       => $staffPosition->id,
+//            'password'          => bcrypt('accountant123'),
+//            'email_verified_at' => date('Y-m-d H:i')
+//        ]);
+//        $accountant->assignRole('lawyer');
+//
 
     }
 }

@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             UserSeeder::class,
             CurrencySeeder::class,
-            ProjectSeeder::class,
-            TaskSeeder::class,
-            ContractSeeder::class,
-            ApplicationSeeder::class,
+//            ProjectSeeder::class,
+//            TaskSeeder::class,
+//            ContractSeeder::class,
+//            ApplicationSeeder::class,
         ]);
     }
 }

@@ -53,6 +53,7 @@ class RoleSeeder extends Seeder
             'view all contracts',
             'contract chat',
         ]);
+
         $manager = Role::create([
             'name' => 'manager'
         ]);
