@@ -3,6 +3,15 @@
 return [
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'log_name' => 'Log Name',
+        'causer_id' => 'Initiator',
+        'subject_type' => 'Object Type',
+        'event' => 'Event',
+        'subject_id' => 'Object ID',
+        'causer_type' => 'Initiator Type',
+        'properties' => 'Properties',
+        'batch_uuid' => 'Batch Identifier',
+
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',
         'all_budget' => 'Total Amount',

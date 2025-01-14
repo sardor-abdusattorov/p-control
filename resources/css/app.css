@@ -85,11 +85,27 @@ input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
     @apply dark:invert;
 }
-[type=text], input:where(:not([type])), [type=email], [type=url], [type=password], [type=number], [type=date], [type=datetime-local], [type=month], [type=search], [type=tel], [type=time], [type=week], [multiple], textarea, select {
+html.dark [type=text],
+html.dark input:where(:not([type])),
+html.dark [type=email],
+html.dark [type=url],
+html.dark [type=password],
+html.dark [type=number],
+html.dark [type=date],
+html.dark [type=datetime-local],
+html.dark [type=month],
+html.dark [type=search],
+html.dark [type=tel],
+html.dark [type=time],
+html.dark [type=week],
+html.dark [multiple],
+html.dark textarea,
+html.dark select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    border-color: #6b7280;
+    background-color: #09090b;
+    border-color: #52525b;
     border-width: 1px;
     border-radius: 0;
     padding: .5rem .75rem;
@@ -97,3 +113,4 @@ input[type="password"]::-ms-clear {
     line-height: 1.5rem;
     --tw-shadow: 0 0 #0000;
 }
+

@@ -161,7 +161,7 @@ const select = () => {
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 text-center">{{ lang().label.action }}</th>
+                            <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
                         </tr>
                         </thead>
                         <tbody>

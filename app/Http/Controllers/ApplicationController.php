@@ -222,13 +222,12 @@ class ApplicationController extends Controller
             }
 
             $application->update([
-                'status_id' => 2, // Указываем статус "Подтверждено"
+                'status_id' => 2,
             ]);
 
-            // Логируем подтверждение заявки
             activity('application')
-                ->causedBy($user) // Указываем, кто подтвердил
-                ->performedOn($application) // Указываем объект действия
+                ->causedBy($user)
+                ->performedOn($application)
                 ->withProperties([
                     'application_id' => $application->id,
                     'title' => $application->title,
@@ -239,7 +238,7 @@ class ApplicationController extends Controller
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
         } catch (\Exception $e) {
-            // Логируем ошибку
+
             activity('application')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -324,10 +323,10 @@ class ApplicationController extends Controller
 
         try {
             if (!empty($request['chat_id'])) {
-                // Найти существующий чат
+
                 $chat = Chat::findOrFail($request['chat_id']);
             } else {
-                // Создать новый чат
+
                 $chat = Chat::create([
                     'model_type' => 'application',
                     'model_id' => $application->id,
@@ -337,7 +336,7 @@ class ApplicationController extends Controller
                 ]);
             }
 
-            // Создать сообщение
+
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => auth()->id(),
@@ -346,7 +345,6 @@ class ApplicationController extends Controller
                 'is_notified' => 0,
             ]);
 
-            // Добавить прикрепленные файлы
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $message->addMedia($file)
@@ -356,7 +354,6 @@ class ApplicationController extends Controller
 
             DB::commit();
 
-            // Возвращаем Inertia-ответ
             return redirect()->route('application.chat', [
                 'id' => $chat->id,
                 'application' => $application->id,

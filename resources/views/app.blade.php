@@ -4,9 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <meta name="referrer" content="no-referrer">
 
-    <!-- SEO параметры -->
     <meta name="description" content="{{ __('meta.description') }}">
     <meta name="keywords" content="{{ __('meta.keywords') }}">
     <meta name="author" content="{{ __('meta.author') }}">

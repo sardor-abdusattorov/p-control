@@ -22,9 +22,9 @@
 
         <ul class="space-y-2 my-4">
 
-            <li v-show="can(['view task'])"
+            <li
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('task.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('task.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('task.index')" class="flex items-center py-2 px-4">
                     <ClipboardDocumentListIcon class="w-6 h-5" />
@@ -34,7 +34,7 @@
 
             <li
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('application.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('application.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('application.index')" class="flex items-center py-2 px-4">
                     <DocumentIcon class="w-6 h-5" />
@@ -44,17 +44,7 @@
 
             <li
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('projects.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
-            >
-                <Link :href="route('projects.index')" class="flex items-center py-2 px-4">
-                    <FolderIcon class="w-6 h-5" />
-                    <span class="ml-3">{{ lang().label.projects }}</span>
-                </Link>
-            </li>
-
-            <li
-                class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('contract.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('contract.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('contract.index')" class="flex items-center py-2 px-4">
                     <DocumentIcon class="w-6 h-5" />
@@ -62,9 +52,19 @@
                 </Link>
             </li>
 
+            <li
+                class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
+                :class="route().current('projects.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+            >
+                <Link :href="route('projects.index')" class="flex items-center py-2 px-4">
+                    <FolderIcon class="w-6 h-5" />
+                    <span class="ml-3">{{ lang().label.projects }}</span>
+                </Link>
+            </li>
+
             <li v-show="can(['manage department'])"
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('departments.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('departments.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('departments.index')" class="flex items-center py-2 px-4">
                     <UsersIcon class="w-6 h-5" />
@@ -75,7 +75,7 @@
             <li
                 v-show="can(['manage position'])"
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('positions.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('positions.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('positions.index')" class="flex items-center py-2 px-4">
                     <BriefcaseIcon class="w-6 h-5" />
@@ -84,9 +84,9 @@
             </li>
 
             <li
-                v-show="can(['manage status'])"s
+                v-show="can(['manage status'])"
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('status.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('status.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('status.index')" class="flex items-center py-2 px-4">
                     <ExclamationCircleIcon class="w-6 h-5" />
@@ -96,11 +96,21 @@
 
             <li v-show="can(['manage currency'])"
                 class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                :class="route().current('currency.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                :class="route().current('currency.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
             >
                 <Link :href="route('currency.index')" class="flex items-center py-2 px-4">
                     <CurrencyDollarIcon class="w-6 h-5" />
                     <span class="ml-3">{{ lang().label.currency }}</span>
+                </Link>
+            </li>
+
+            <li v-show="can(['view logs'])"
+                class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
+                :class="route().current('logs.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+            >
+                <Link :href="route('logs.index')" class="flex items-center py-2 px-4">
+                    <CurrencyDollarIcon class="w-6 h-5" />
+                    <span class="ml-3">{{ lang().label.logs }}</span>
                 </Link>
             </li>
 
@@ -127,28 +137,28 @@
             >
                 <li
                     class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                    :class="route().current('user.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                    :class="route().current('user.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
                 >
                     <Link :href="route('user.index')" class="flex items-center py-2 px-4">
-                        <UserIcon class="w-6 h-5" />
+                        <UserIcon class="w-6 h-5"/>
                         <span class="ml-3">{{ lang().label.user }}</span>
                     </Link>
                 </li>
                 <li
                     class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                    :class="route().current('role.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                    :class="route().current('role.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
                 >
                     <Link :href="route('role.index')" class="flex items-center py-2 px-4">
-                        <KeyIcon class="w-6 h-5" />
+                        <KeyIcon class="w-6 h-5"/>
                         <span class="ml-3">{{ lang().label.role }}</span>
                     </Link>
                 </li>
                 <li
                     class="text-white rounded-lg hover:bg-primary transition dark:hover:bg-primary"
-                    :class="route().current('permission.index') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
+                    :class="route().current('permission.*') ? 'bg-primary' : 'bg-slate-700/40 dark:bg-slate-800/40'"
                 >
                     <Link :href="route('permission.index')" class="flex items-center py-2 px-4">
-                        <ShieldCheckIcon class="w-6 h-5" />
+                        <ShieldCheckIcon class="w-6 h-5"/>
                         <span class="ml-3">{{ lang().label.permission }}</span>
                     </Link>
                 </li>
@@ -190,4 +200,3 @@ onMounted(() => {
     checkRbacActiveRoutes();
 });
 </script>
-

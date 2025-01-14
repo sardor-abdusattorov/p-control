@@ -3,6 +3,15 @@
 return [
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'log_name' => 'Log nomi',
+        'causer_id' => 'Initsiator',
+        'subject_type' => 'Obyekt turi',
+        'event' => 'Hodisa',
+        'subject_id' => 'Obyekt ID',
+        'causer_type' => 'Initsiatorda turi',
+        'properties' => 'Xususiyatlar',
+        'batch_uuid' => 'Guruh identifikatori',
+
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',
         'all_budget' => 'Jami summa',

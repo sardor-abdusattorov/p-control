@@ -34,34 +34,32 @@
                                 <th class="px-2 py-4">#</th>
                                 <th
                                     class="px-2 py-4 cursor-pointer"
-                                    v-on:click="order('user_id')"
+                                    v-on:click="order('log_name')"
                                 >
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span>{{ lang().label.user_id }}</span>
+                                        <span>{{ lang().label.log_name }}</span>
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
                                 <th
                                     class="px-2 py-4 cursor-pointer"
-                                    v-on:click="order('action')"
                                 >
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span>{{ lang().label.action }}</span>
+                                        <span>{{ lang().label.description }}</span>
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
                                 <th
                                     class="px-2 py-4 cursor-pointer"
-                                    v-on:click="order('model')"
                                 >
                                     <div
                                         class="flex justify-between items-center"
                                     >
-                                        <span>{{ lang().label.model }}</span>
+                                        <span>{{ lang().label.causer_id }}</span>
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
@@ -84,14 +82,14 @@
                                     {{ ++index }}
                                 </td>
                                     <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                    {{ log?.user_id || lang().label.no_available }}
+                                    {{ log.log_name || lang().label.no_available }}
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                    {{ log.action }}
+                                    {{ log.description }}
                                 </td>
 
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                    {{ log.model }}
+                                    {{ log.user?.name }}
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <div class="gap-1 justify-center overflow-hidden flex items-center">
@@ -143,6 +141,7 @@ const props = defineProps({
     breadcrumbs: Object,
     perPage: Number,
 });
+
 const data = reactive({
     params: {
         search: props.filters.search,
@@ -177,17 +176,5 @@ watch(
     }, 150)
 );
 
-const selectAll = (event) => {
-    if (event.target.checked === false) {
-        data.selectedId = [];
-    } else {
-        props.logs?.data.forEach((log) => {
-            data.selectedId.push(log.id);
-        });
-    }
-};
-const select = () => {
-    data.multipleSelect = props.logs?.data.length === data.selectedId.length;
-};
 </script>
 
