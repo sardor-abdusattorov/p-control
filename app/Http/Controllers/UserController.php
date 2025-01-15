@@ -10,6 +10,7 @@ use App\Models\Position;
 use App\Models\Recipient;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -37,34 +38,23 @@ class UserController extends Controller
     public function index(UserIndexRequest $request)
     {
         $users = User::query();
-
-        // Фильтрация по имени и email
         if ($request->has('search')) {
             $users->where('name', 'LIKE', "%" . $request->search . "%")
                 ->orWhere('email', 'LIKE', "%" . $request->search . "%");
         }
-
-        // Сортировка
         if ($request->has(['field', 'order'])) {
             $users->orderBy($request->field, $request->order);
         }
-
-        // Количество элементов на странице
         $perPage = $request->has('perPage') ? $request->perPage : 10;
-
-        // Получаем роль текущего пользователя
         $role = auth()->user()->roles->pluck('name')[0];
         $roles = Role::get();
 
-        // Если роль не 'superadmin', фильтруем пользователей по ролям
         if ($role != 'superadmin') {
             $users->whereHas('roles', function ($query) {
                 $query->where('name', '<>', 'superadmin');
             });
             $roles = Role::where('name', '<>', 'superadmin')->get();
         }
-
-        // Подгружаем данные о ролях и департаменте
         $users = $users->with(['roles', 'department'])->paginate($perPage);
 
         return Inertia::render('User/Index', [
@@ -109,42 +99,34 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @param Request $request
+     * @return RedirectResponse
      */
     public function store(UserStoreRequest $request)
     {
         DB::beginTransaction();
         try {
-            // Создание пользователя
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
 
-            // Проверка роли по ID и назначение
-            $role = Role::find($request->role); // Поиск роли по ID
+            $role = Role::find($request->role);
             if ($role) {
-                $user->assignRole($role); // Назначаем роль
+                $user->assignRole($role);
             } else {
                 DB::rollback();
                 return back()->with('error', 'Роль с таким ID не существует.');
             }
-
-            // Добавление файла изображения
             if ($request->hasFile('image')) {
                 $user->addMediaFromRequest('image')
                     ->toMediaCollection('profile_image');
             }
-
-            // Сохранение дополнительных данных
             $user->department_id = $request->department_id;
             $user->position_id = $request->position_id;
             $user->telegram_id = $request->telegram_id;
             $user->save();
-
-            // Обработка получателей
             if (isset($request->recipients)) {
                 $user->recipients()->delete();
 
@@ -156,13 +138,10 @@ class UserController extends Controller
                 }
             }
 
-            // Завершение транзакции
             DB::commit();
             return redirect()->route('user.index')->with('success', __('app.label.created_successfully', ['name' => $user->name]));
         } catch (\Throwable $th) {
-            // Откат транзакции в случае ошибки
             DB::rollback();
-            return back()->with('error', __('app.label.created_error', ['name' => __('app.label.user')]) . ' ' . $th->getMessage());
             return back()->with('error', __('app.label.created_error', ['name' => __('app.label.user')]) . ' ' . $th->getMessage());
         }
     }
@@ -284,7 +263,7 @@ class UserController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy(User $user)
     {
