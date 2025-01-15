@@ -420,7 +420,6 @@ class ContractController extends Controller
                 'title' => $request->title,
                 'project_id' => $request->project_id,
                 'application_id' => $request->application_id,
-                'user_id' => $request->user_id,
                 'currency_id' => $request->currency_id,
                 'budget_sum' => $request->budget_sum,
                 'deadline' => Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),

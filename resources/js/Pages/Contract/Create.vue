@@ -42,15 +42,21 @@
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            optionLabel="title"
+                            :options="formattedProjects"
+                            optionLabel="display"
                             optionValue="id"
-                            :options="props.projects"
                             filter
                             checkmark
                             :highlightOnSelect="false"
+                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
                             :placeholder="lang().label.project_name"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
@@ -82,6 +88,8 @@
                             :options="props.users"
                             optionLabel="name"
                             filter
+                            checkmark
+                            :highlightOnSelect="false"
                             :placeholder="lang().placeholder.select_recipients"
                             :maxSelectedLabels="8"
                             class="w-full"
@@ -216,7 +224,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {ref, watchEffect} from "vue";
+import {computed, ref, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -296,4 +304,30 @@ watchEffect(() => {
     form.recipients = props.recipients.map(recipient => recipient.recipient_id)
     const newCurrencyId = form.currency_id;
 });
+
+const formattedProjects = computed(() => {
+    return props.projects.map(project => ({
+        id: project.id,
+        project_number: project.project_number,
+        title: project.title,
+        display: `${project.project_number}. ${project.title}`
+    }));
+});
 </script>
+
+
+<style>
+.custom-option{
+    white-space: pre-wrap !important;
+}
+.custom-overlay-class {
+    width: 100%;
+    max-width: 300px;
+}
+
+.parent-wrapper-class{
+    width: 1%;
+    left: 0;
+    right: auto;
+}
+</style>

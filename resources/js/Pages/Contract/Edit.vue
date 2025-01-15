@@ -1,109 +1,3 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {watchEffect} from "vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Select from "primevue/select";
-import DatePicker from "primevue/datepicker";
-import InputText from "primevue/inputtext";
-import InputNumber from "primevue/inputnumber";
-import BackLink from "@/Components/BackLink.vue";
-import FileUpload from 'primevue/fileupload';
-import {Message} from "primevue";
-import Button from "primevue/button";
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    breadcrumbs: Object,
-    contract: Object,
-    users: Array,
-    projects: Array,
-    applications: Array,
-    currency: Array,
-    files: Array
-});
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
-
-const allowedFileTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-];
-
-const form = useForm({
-    contract_number: "",
-    files: [],
-    title: "",
-    project_id: "",
-    application_id: "",
-    currency_id: "",
-    user_id: "",
-    budget_sum: "",
-    deadline: "",
-});
-
-const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        const newFiles = event.files;
-        const invalidFiles = [];
-        newFiles.forEach((file) => {
-            if (!allowedFileTypes.includes(file.type)) {
-                invalidFiles.push(file.name);
-            }
-        });
-        if (invalidFiles.length > 0) {
-        } else {
-            form.files = newFiles;
-        }
-    }
-};
-
-const onClearFiles = () => {
-    form.files = [];
-};
-
-const removeUploadedFile = (index) => {
-    form.files.splice(index, 1);
-};
-
-const update = () => {
-    form.post(route("contract.update", props.contract?.id));
-};
-
-watchEffect(() => {
-    form.contract_number = props.contract.contract_number
-    form.project_id = props.contract.project_id
-    form.application_id = props.contract.application_id
-    form.user_id = props.contract.user_id
-    form.currency_id = props.contract.currency_id
-    form.title = props.contract.title
-    form.budget_sum = props.contract.budget_sum
-    form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
-    form.files = [];
-    form.errors = {};
-});
-
-const getFileIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-        return 'pi pi-file-pdf';
-    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        return 'pi pi-file-word';
-    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        return 'pi pi-file-excel';
-    }
-    return 'pi pi-file';
-};
-
-</script>
-
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
@@ -148,15 +42,21 @@ const getFileIcon = (fileType) => {
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            optionLabel="title"
+                            :options="formattedProjects"
+                            optionLabel="display"
                             optionValue="id"
-                            :options="props.projects"
                             filter
                             checkmark
                             :highlightOnSelect="false"
+                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
                             :placeholder="lang().label.project_name"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.project_id"/>
                     </div>
@@ -332,3 +232,132 @@ const getFileIcon = (fileType) => {
     </AuthenticatedLayout>
 </template>
 
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
+import {computed, watchEffect} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+import {Message} from "primevue";
+import Button from "primevue/button";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    breadcrumbs: Object,
+    contract: Object,
+    users: Array,
+    projects: Array,
+    applications: Array,
+    currency: Array,
+    files: Array
+});
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
+
+const form = useForm({
+    contract_number: "",
+    files: [],
+    title: "",
+    project_id: "",
+    application_id: "",
+    currency_id: "",
+    user_id: "",
+    budget_sum: "",
+    deadline: "",
+});
+
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
+        });
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = newFiles;
+        }
+    }
+};
+
+const onClearFiles = () => {
+    form.files = [];
+};
+
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
+};
+
+const update = () => {
+    form.post(route("contract.update", props.contract?.id));
+};
+
+watchEffect(() => {
+    form.contract_number = props.contract.contract_number
+    form.project_id = props.contract.project_id
+    form.application_id = props.contract.application_id
+    form.user_id = props.contract.user_id
+    form.currency_id = props.contract.currency_id
+    form.title = props.contract.title
+    form.budget_sum = props.contract.budget_sum
+    form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
+    form.files = [];
+    form.errors = {};
+});
+
+const getFileIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+        return 'pi pi-file-pdf';
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return 'pi pi-file-word';
+    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        return 'pi pi-file-excel';
+    }
+    return 'pi pi-file';
+};
+
+const formattedProjects = computed(() => {
+    return props.projects.map(project => ({
+        id: project.id,
+        project_number: project.project_number,
+        title: project.title,
+        display: `${project.project_number}. ${project.title}`
+    }));
+});
+
+</script>
+
+<style>
+.custom-option{
+    white-space: pre-wrap !important;
+}
+.custom-overlay-class {
+    width: 100%;
+    max-width: 300px;
+}
+
+.parent-wrapper-class{
+    width: 1%;
+    left: 0;
+    right: auto;
+}
+</style>
