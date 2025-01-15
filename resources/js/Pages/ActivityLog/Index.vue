@@ -54,6 +54,7 @@
                                     </div>
                                 </th>
                                 <th
+                                    v-on:click="order('causer_id')"
                                     class="px-2 py-4 cursor-pointer"
                                 >
                                     <div
@@ -63,6 +64,19 @@
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
+
+                                <th
+                                    class="px-2 py-4 cursor-pointer"
+                                    v-on:click="order('created_at')"
+                                >
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                        <span>{{ lang().label.created }}</span>
+                                        <ChevronUpDownIcon class="w-4 h-4" />
+                                    </div>
+                                </th>
+
                                 <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
                             </tr>
                         </thead>
@@ -90,6 +104,9 @@
 
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     {{ log.user?.name }}
+                                </td>
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                    {{ log.created_at }}
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <div class="gap-1 justify-center overflow-hidden flex items-center">

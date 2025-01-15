@@ -19,7 +19,7 @@ class ActivityLogIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:log_name,description'],
+            'field' => ['in:log_name,description,causer_id,created_at'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];
