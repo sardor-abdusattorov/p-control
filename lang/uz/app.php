@@ -11,6 +11,7 @@ return [
         'causer_type' => 'Initsiatorda turi',
         'properties' => 'Xususiyatlar',
         'batch_uuid' => 'Guruh identifikatori',
+        'responsible_user' => 'Mas’ul',
 
         'company_name' => 'O‘zbekiston Madaniyat va san’atni rivojlantirish jamg‘armasi.',
         'upload' => 'Yuklash',

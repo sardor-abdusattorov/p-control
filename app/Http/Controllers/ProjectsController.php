@@ -111,7 +111,7 @@ class ProjectsController extends Controller
             'project'       => $project,
             'breadcrumbs'   => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
-                ['label' => $project->title, 'href' => route('projects.show', $project->id)],
+                ['label' => $project->id, 'href' => route('projects.show', $project->id)],
                 ['label' => __('app.label.related_contracts')]
             ]
         ]);
@@ -199,7 +199,7 @@ class ProjectsController extends Controller
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
-                ['label' => $project->title]
+                ['label' => $project->id]
             ]
         ]);
     }
@@ -216,7 +216,7 @@ class ProjectsController extends Controller
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
-                ['label' => $project->title, 'href' => route('projects.show', $project->id)],
+                ['label' => $project->id, 'href' => route('projects.show', $project->id)],
                 ['label' => __('app.label.edit')]
             ]
         ]);
@@ -251,11 +251,10 @@ class ProjectsController extends Controller
 
             DB::commit();
 
-            return redirect()->route('projects.index')->with('success', __('app.label.updated_successfully', ['name' => $project->title]));
+            return redirect()->route('projects.index')->with('success', __('app.label.updated_successfully', ['name' => $project->id]));
         } catch (\Throwable $th) {
             DB::rollback();
 
-            // Логирование ошибки обновления
             activity('project')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -264,7 +263,7 @@ class ProjectsController extends Controller
                 ])
                 ->log('Ошибка при обновлении проекта');
 
-            return back()->with('error', __('app.label.updated_error', ['name' => $project->title]) . $th->getMessage());
+            return back()->with('error', __('app.label.updated_error', ['name' => $project->id]) . $th->getMessage());
         }
     }
 
@@ -276,11 +275,8 @@ class ProjectsController extends Controller
         DB::beginTransaction();
 
         try {
-            $projectName = $project->title; // Сохраняем имя проекта для логов
-
+            $projectName = $project->title;
             $project->delete();
-
-            // Логирование успешного удаления проекта
             activity('project')
                 ->causedBy(auth()->user())
                 ->performedOn($project)
@@ -289,14 +285,11 @@ class ProjectsController extends Controller
                     'title' => $projectName,
                 ])
                 ->log('Проект удален');
-
             DB::commit();
-
             return redirect()->route('projects.index')->with('success', __('app.label.deleted_successfully', ['name' => $projectName]));
         } catch (\Throwable $th) {
             DB::rollback();
 
-            // Логирование ошибки удаления проекта
             activity('project')
                 ->causedBy(auth()->user())
                 ->withProperties([

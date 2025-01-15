@@ -99,7 +99,7 @@
 
                             <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.user_id }}</span>
+                                    <span>{{ lang().label.responsible_user }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
@@ -132,11 +132,15 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ ++index }}
                             </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                <Link :href="route('projects.show', { project: project.id })" class="whitespace-nowrap py-4 px-2 sm:py-3 cursor-pointer text-blue-600 dark:text-blue-400 font-bold underline font-bold">
-                                    {{ project.title ?? lang().label.undefined }}
+                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 max-w-xs">
+                                <Link
+                                    :href="route('projects.show', { project: project.id })"
+                                    class="block text-blue-600 dark:text-blue-400 font-bold underline"
+                                >
+                                    {{ project.title }}
                                 </Link>
                             </td>
+
                             <td
                                 v-tooltip="lang().tooltip.detail"
                                 @click="project.contracts.length > 0 ? (data.contractsOpen = true, data.project = project) : null"

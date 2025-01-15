@@ -11,6 +11,7 @@ import DatePicker from "primevue/datepicker";
 import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import BackLink from "@/Components/BackLink.vue";
+import Textarea from 'primevue/textarea';
 
 const props = defineProps({
     title: String,
@@ -80,10 +81,12 @@ watchEffect(() => {
 
                         <div class="form-group mb-3">
                             <InputLabel for="title" :value="lang().label.title" />
-                            <InputText
+                            <Textarea
                                 id="title"
                                 type="text"
                                 class="mt-1 block w-full"
+                                autoResize
+                                rows="5"
                                 v-model="form.title"
                                 :placeholder="lang().label.title"
                                 :error="form.errors.title"
@@ -126,7 +129,7 @@ watchEffect(() => {
 
                     <div class="w-full xl:w-1/3 px-4">
                         <div class="form-group mb-3">
-                            <InputLabel for="user_id" :value="lang().label.user_id" />
+                            <InputLabel for="user_id" :value="lang().label.responsible_user" />
                             <Select
                                 v-model="form.user_id"
                                 :options="users"

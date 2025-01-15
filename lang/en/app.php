@@ -11,6 +11,7 @@ return [
         'causer_type' => 'Initiator Type',
         'properties' => 'Properties',
         'batch_uuid' => 'Batch Identifier',
+        'responsible_user' => 'Responsible',
 
         'company_name' => 'Uzbekistan Art and Culture Development Foundation.',
         'image' => 'Image',

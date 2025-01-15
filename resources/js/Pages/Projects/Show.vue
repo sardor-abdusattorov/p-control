@@ -88,7 +88,7 @@
                     </tr>
 
                     <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.user_id }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.responsible_user }}</td>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.user ? project.user.name : 'No user assigned' }}</td>
                     </tr>
 
