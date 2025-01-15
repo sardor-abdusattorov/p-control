@@ -338,9 +338,9 @@ const getFileIcon = (fileType) => {
 const formattedProjects = computed(() => {
     return props.projects.map(project => ({
         id: project.id,
-        project_number: project.project_number,
+        project_number: project.project_number || '',
         title: project.title,
-        display: `${project.project_number}. ${project.title}`
+        display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
     }));
 });
 
