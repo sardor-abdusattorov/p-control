@@ -118,10 +118,8 @@ class TaskController extends Controller
         DB::beginTransaction();
 
         try {
-            // Получение валидированных данных
             $validated = $request->validated();
 
-            // Создание задачи
             $task = Task::create([
                 'project_id' => $validated['project_id'],
                 'name' => $validated['name'],
@@ -135,7 +133,6 @@ class TaskController extends Controller
                     ->format('Y-m-d H:i:s'),
             ]);
 
-            // Сохранение файлов (если есть)
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $name = Str::random(24) . '.' . $file->extension();
@@ -145,7 +142,6 @@ class TaskController extends Controller
                 }
             }
 
-            // Создание уведомления
             Notification::create([
                 'user_id' => auth()->id(),
                 'receiver_id' => $validated['assigned_user'],
@@ -155,7 +151,6 @@ class TaskController extends Controller
                 'action' => 'create',
             ]);
 
-            // Логирование активности
             activity('task')
                 ->causedBy(auth()->user())
                 ->performedOn($task)
@@ -164,12 +159,10 @@ class TaskController extends Controller
 
             DB::commit();
 
-            // Успешное завершение
             return redirect()->route('task.index')->with('success', __('app.label.created_successfully', ['name' => $task->name]));
         } catch (\Throwable $th) {
             DB::rollback();
 
-            // Логирование ошибки
             activity('task')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -178,11 +171,9 @@ class TaskController extends Controller
                 ])
                 ->log('Ошибка при создании задачи');
 
-            // Ошибка при создании задачи
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.tasks')]) . ' ' . $th->getMessage());
         }
     }
-
 
     /**
      * Display the specified resource.

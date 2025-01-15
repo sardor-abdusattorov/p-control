@@ -53,7 +53,7 @@ return [
         'application_id' => 'Ariza',
         'preview' => 'Ko\'rish',
         'project_id' => 'Loyiha',
-        'project_name' => 'Project name',
+        'project_name' => 'Loyiha nomi',
         'applications' => 'Arizalar',
         'applications' => 'Ariza',
         'settings' => 'Sozlamalar',

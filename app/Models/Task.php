@@ -28,6 +28,7 @@ class Task extends Model implements HasMedia
         'name',
         'status',
         'priority',
+        'project_id',
         'due_date',
         'user_id',
         'description',

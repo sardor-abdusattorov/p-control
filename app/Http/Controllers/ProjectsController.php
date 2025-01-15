@@ -60,7 +60,8 @@ class ProjectsController extends Controller
             $contractsQuery->where('user_id', $user->id);
         }
         if ($request->has('search')) {
-            $projectsQuery->where('name', 'LIKE', "%" . $request->search . "%");
+            $projectsQuery->where('title', 'LIKE', "%" . $request->search . "%")
+                ->orWhere('project_number', 'LIKE', "%" . $request->search . "%");
         }
         if ($request->has(['field', 'order'])) {
             $projectsQuery->orderBy($request->field, $request->order);
@@ -80,7 +81,6 @@ class ProjectsController extends Controller
             ],
         ]);
     }
-
 
 
     public function relatedContracts(ContractRelatedRequest $request, Project $project)

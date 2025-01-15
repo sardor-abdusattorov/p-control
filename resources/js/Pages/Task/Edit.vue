@@ -1,97 +1,3 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm } from "@inertiajs/vue3";
-import { watchEffect } from "vue";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Select from "primevue/select";
-import DatePicker from "primevue/datepicker";
-import InputText from "primevue/inputtext";
-import BackLink from "@/Components/BackLink.vue";
-import Editor from 'primevue/editor';
-import FileUpload from "primevue/fileupload";
-import Button from "primevue/button";
-import {Message} from "primevue";
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    breadcrumbs: Object,
-    task: Object,
-    users: Array,
-    projects: Array,
-    statuses: Array,
-    priorities: Array,
-    files: Array
-});
-
-const allowedFileTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/plain',
-    'application/zip',
-    'application/x-rar-compressed',
-];
-
-const form = useForm({
-    project_id: "",
-    name: "",
-    description: "",
-    assigned_user: "",
-    status: "",
-    priority: "",
-    files: [],
-    due_date: "",
-});
-
-const update = () => {
-    form.post(route("task.update", props.task?.id));
-};
-
-const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        const newFiles = event.files;
-        const invalidFiles = [];
-        newFiles.forEach((file) => {
-            if (!allowedFileTypes.includes(file.type)) {
-                invalidFiles.push(file.name);
-            }
-        });
-        if (invalidFiles.length > 0) {
-        } else {
-            form.files = newFiles;
-        }
-    }
-};
-
-const onClearFiles = () => {
-    form.files = [];
-};
-
-const removeUploadedFile = (index) => {
-    form.files.splice(index, 1);
-};
-
-watchEffect(() => {
-    form.project_id = props.task.project_id
-    form.name = props.task.name
-    form.description = props.task.description
-    form.assigned_user = props.task.assigned_user
-    form.status = props.task.status
-    form.priority = props.task.priority
-    form.files = [];
-    form.due_date = props.task?.due_date
-        ? new Date(props.task.due_date.split(' ')[0].split('-').reverse().join('-') + 'T' + props.task.due_date.split(' ')[1])
-        : null;
-});
-</script>
-
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
@@ -111,15 +17,21 @@ watchEffect(() => {
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            optionLabel="title"
+                            :options="formattedProjects"
+                            optionLabel="display"
                             optionValue="id"
-                            :options="props.projects"
                             filter
                             checkmark
                             :highlightOnSelect="false"
+                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
-                            :placeholder="lang().label.project_id"
+                            :placeholder="lang().label.project_name"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.project_id"/>
                     </div>
@@ -312,9 +224,126 @@ watchEffect(() => {
     </AuthenticatedLayout>
 </template>
 
-<style scoped>
+
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import { Head, useForm } from "@inertiajs/vue3";
+import {computed, watchEffect} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import BackLink from "@/Components/BackLink.vue";
+import Editor from 'primevue/editor';
+import FileUpload from "primevue/fileupload";
+import Button from "primevue/button";
+import {Message} from "primevue";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    breadcrumbs: Object,
+    task: Object,
+    users: Array,
+    projects: Array,
+    statuses: Array,
+    priorities: Array,
+    files: Array
+});
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain',
+    'application/zip',
+    'application/x-rar-compressed',
+];
+
+const form = useForm({
+    project_id: "",
+    name: "",
+    description: "",
+    assigned_user: "",
+    status: "",
+    priority: "",
+    files: [],
+    due_date: "",
+});
+
+const update = () => {
+    form.post(route("task.update", props.task?.id));
+};
+
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
+        });
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = newFiles;
+        }
+    }
+};
+
+const onClearFiles = () => {
+    form.files = [];
+};
+
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
+};
+
+watchEffect(() => {
+    form.project_id = props.task.project_id
+    form.name = props.task.name
+    form.description = props.task.description
+    form.assigned_user = props.task.assigned_user
+    form.status = props.task.status
+    form.priority = props.task.priority
+    form.files = [];
+    form.due_date = props.task?.due_date
+        ? new Date(props.task.due_date.split(' ')[0].split('-').reverse().join('-') + 'T' + props.task.due_date.split(' ')[1])
+        : null;
+});
+
+const formattedProjects = computed(() => {
+    return props.projects.map(project => ({
+        id: project.id,
+        project_number: project.project_number,
+        title: project.title,
+        display: `${project.project_number}. ${project.title}`
+    }));
+});
+
+</script>
+
+<style>
 .p-inputnumber-input {
     flex: none !important;
     width: 100%;
+}
+.custom-option{
+    white-space: pre-wrap !important;
+}
+.custom-overlay-class {
+    width: 100%;
+    max-width: 300px;
+}
+
+.parent-wrapper-class{
+    width: 1%;
+    left: 0;
+    right: auto;
 }
 </style>

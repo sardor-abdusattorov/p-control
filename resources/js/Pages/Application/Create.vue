@@ -27,13 +27,21 @@
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            optionLabel="title"
+                            :options="formattedProjects"
+                            optionLabel="display"
                             optionValue="id"
-                            :options="props.projects"
                             filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
-                            :placeholder="lang().label.project_id"
+                            :placeholder="lang().label.project_name"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
@@ -129,7 +137,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Select from 'primevue/select';
 import { Head, useForm } from "@inertiajs/vue3";
-import { watchEffect } from "vue";
+import {computed, watchEffect} from "vue";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
@@ -209,5 +217,35 @@ const getFileIcon = (fileType) => {
     }
     return 'pi pi-file';
 };
+
+const formattedProjects = computed(() => {
+    return props.projects.map(project => ({
+        id: project.id,
+        project_number: project.project_number,
+        title: project.title,
+        display: `${project.project_number}. ${project.title}`
+    }));
+});
 </script>
 
+
+
+<style>
+.p-inputnumber-input {
+    flex: none !important;
+    width: 100%;
+}
+.custom-option{
+    white-space: pre-wrap !important;
+}
+.custom-overlay-class {
+    width: 100%;
+    max-width: 300px;
+}
+
+.parent-wrapper-class{
+    width: 1%;
+    left: 0;
+    right: auto;
+}
+</style>

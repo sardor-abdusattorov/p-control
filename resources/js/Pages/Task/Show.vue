@@ -17,7 +17,7 @@ const props = defineProps({
     breadcrumbs: Object,
     task: Object,
     users: Object,
-    projects: Array,
+    project: Object,
     statuses: Array,
     priorities: Array,
     files: Array
@@ -162,6 +162,11 @@ const data = reactive({
                             <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
                                 <div class="text-lg font-semibold text-black dark:text-white">{{ lang().label.due_date }}:</div>
                                 <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50">{{ props.task.due_date }}</div>
+                            </div>
+
+                            <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
+                                <div class="text-lg font-semibold text-black dark:text-white">{{ lang().label.project_name }}:</div>
+                                <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50">{{ props.project.title }}</div>
                             </div>
 
                             <div class="flex flex-col justify-start items-start gap-2 border-t py-3">

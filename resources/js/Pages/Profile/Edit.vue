@@ -91,6 +91,8 @@
                                                 :options="props.users"
                                                 optionLabel="name"
                                                 filter
+                                                checkmark
+                                                :highlightOnSelect="false"
                                                 :placeholder="lang().placeholder.select_recipients"
                                                 :maxSelectedLabels="8"
                                                 class="w-full"
@@ -103,6 +105,8 @@
                                             <Select
                                                 v-model="form.department_id"
                                                 filter
+                                                checkmark
+                                                :highlightOnSelect="false"
                                                 showClear
                                                 :options="departments"
                                                 optionLabel="name"
@@ -124,6 +128,9 @@
                                                 optionValue="id"
                                                 placeholder="Select Position"
                                                 class="w-full"
+                                                filter
+                                                checkmark
+                                                :highlightOnSelect="false"
                                                 :disabled="!form.department_id || !isAdmin"
                                             />
 

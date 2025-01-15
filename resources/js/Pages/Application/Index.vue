@@ -148,8 +148,10 @@
 
                                     </span>
                                 </td>
-                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                    {{ application?.project?.title || lang().label.no_available }}
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 max-w-xs">
+                                    <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline">
+                                        {{ application?.project?.title || lang().label.no_available }}
+                                    </Link>
                                 </td>
 
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">

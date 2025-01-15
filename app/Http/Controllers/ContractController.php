@@ -63,7 +63,7 @@ class ContractController extends Controller
             $contracts->where('user_id', $user->id);
         }
         if ($request->has('search')) {
-            $contracts->where('name', 'LIKE', "%" . $request->search . "%");
+            $contracts->where('title', 'LIKE', "%" . $request->search . "%");
         }
         if ($request->has(['field', 'order'])) {
             $contracts->orderBy($request->field, $request->order);
