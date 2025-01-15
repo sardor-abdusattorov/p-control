@@ -20,7 +20,6 @@ class Project extends Model
         'project_number',
         'title',
         'budget_sum',
-        'budget_balance',
         'project_year',
         'user_id',
         'status_id',

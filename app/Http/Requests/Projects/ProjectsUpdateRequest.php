@@ -26,8 +26,7 @@ class ProjectsUpdateRequest extends FormRequest
         return [
             'project_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
-            'budget_sum' => 'required|numeric|min:0',
-            'budget_balance' => 'nullable|numeric',
+            'budget_sum' => 'nullable|numeric|min:0',
             'user_id' => 'required|exists:users,id',
             'deadline' => 'required|date',
             'project_year' => 'required|date',

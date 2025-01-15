@@ -24,7 +24,6 @@ class ProjectFactory extends Factory
             'project_number' => $this->faker->unique()->numerify('PROJECT-####'),
             'title' => $this->faker->word(),
             'budget_sum' => $this->faker->randomFloat(2, 1000, 100000),
-            'budget_balance' => $this->faker->randomFloat(2, 500, 50000),
             'project_year' => now(),
             'user_id' => 1,
             'status_id' => 1,

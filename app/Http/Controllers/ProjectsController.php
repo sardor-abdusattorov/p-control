@@ -145,8 +145,7 @@ class ProjectsController extends Controller
             $project = new Project();
             $project->title = $request->title;
             $project->project_number = $request->project_number;
-            $project->budget_sum = $request->budget_sum;
-            $project->budget_balance = $request->budget_sum;
+            $project->budget_sum = $request->budget_sum ?? 0;
             $project->user_id = $request->user_id;
             $project->currency_id = 1;
             $project->status_id = 1;
@@ -231,19 +230,16 @@ class ProjectsController extends Controller
         DB::beginTransaction();
 
         try {
-            $originalData = $project->getOriginal(); // Данные до изменений
-
+            $originalData = $project->getOriginal();
             $project->update([
                 'project_number' => $request->project_number,
                 'budget_sum' => $request->budget_sum,
-                'budget_balance' => $request->budget_sum,
                 'title' => $request->title,
                 'user_id' => $request->user_id,
                 'deadline' => Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
                 'project_year' => Carbon::parse($request->project_year)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
             ]);
 
-            // Логирование успешного обновления проекта
             activity('project')
                 ->causedBy(auth()->user())
                 ->performedOn($project)

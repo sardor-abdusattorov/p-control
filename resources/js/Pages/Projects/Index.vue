@@ -97,13 +97,6 @@
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer" @click="order('budget_sum')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.budget_sum }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4"/>
-                                </div>
-                            </th>
-
                             <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.user_id }}</span>
@@ -156,9 +149,6 @@
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.project_number }}
-                            </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ formatNumber(project.budget_sum) }} {{ project.currency?.short_name || '' }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.user?.name || 'Не указано' }}
@@ -277,18 +267,6 @@ const selectAll = (event) => {
 const select = () => {
     data.multipleSelect = props.projects.data.length === data.selectedId.length;
 };
-
-const formatNumber = (amount) => {
-    if (!amount) return '-';
-    const formattedAmount = new Intl.NumberFormat('ru-RU', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-
-    return formattedAmount;
-};
-
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);
     return status ? status.label : '';
@@ -306,7 +284,5 @@ const getStatusSeverity = (statusId) => {
             return 'info';
     }
 };
-
-
 
 </script>

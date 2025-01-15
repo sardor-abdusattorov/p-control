@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('project_number')->nullable();
             $table->string('title')->nullable(false);
-            $table->decimal('budget_sum', 20, 2);
-            $table->decimal('budget_balance', 20, 2);
+            $table->decimal('budget_sum', 20, 2)->nullable();
             $table->dateTime('project_year');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('status_id');
@@ -24,7 +23,6 @@ return new class extends Migration
             $table->dateTime('deadline');
             $table->timestamps();
         });
-
     }
 
     /**

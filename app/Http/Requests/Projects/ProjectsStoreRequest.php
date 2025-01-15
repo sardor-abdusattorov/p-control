@@ -16,8 +16,7 @@ class ProjectsStoreRequest extends FormRequest
         return [
             'project_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
-            'budget_sum' => 'required|numeric|min:0',
-            'budget_balance' => 'nullable|numeric',
+            'budget_sum' => 'nullable|numeric|min:0',
             'user_id' => 'required|exists:users,id',
             'currency_id' => 'nullable|exists:currency,id',
             'deadline' => 'required|date',
