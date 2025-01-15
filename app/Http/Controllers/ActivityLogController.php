@@ -36,7 +36,7 @@ class ActivityLogController extends Controller
         if ($request->has(['field', 'order'])) {
             $logs->orderBy($request->field, $request->order);
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $perPage = $request->has('perPage') ? $request->perPage : 50;
 
         return Inertia::render('ActivityLog/Index', [
             'title'         => __('app.label.logs'),
