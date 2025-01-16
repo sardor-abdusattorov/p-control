@@ -110,7 +110,7 @@
                                 />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
+                                {{ (props.contracts.current_page - 1) * props.contracts.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline">

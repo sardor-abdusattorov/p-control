@@ -90,10 +90,8 @@
                                     class="whitespace-nowrap py-4 px-2 sm:py-3 text-center"
                                 >
                                 </td>
-                                <td
-                                    class="whitespace-nowrap py-4 px-2 sm:py-3"
-                                >
-                                    {{ ++index }}
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                    {{ (props.logs.current_page - 1) * props.logs.per_page + index + 1 }}
                                 </td>
                                     <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     {{ log.log_name || lang().label.no_available }}

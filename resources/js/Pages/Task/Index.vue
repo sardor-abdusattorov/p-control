@@ -118,7 +118,7 @@
                                 />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
+                                {{ (props.tasks.current_page - 1) * props.tasks.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <Link :href="route('task.show', { task: task.id })" class="text-blue-500 hover:underline">

@@ -130,7 +130,7 @@
                                 />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
+                                {{ (props.projects.current_page - 1) * props.projects.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 max-w-xs">
                                 <Link

@@ -135,10 +135,8 @@
                                         v-model="data.selectedId"
                                     />
                                 </td>
-                                <td
-                                    class="whitespace-nowrap py-4 px-2 sm:py-3"
-                                >
-                                    {{ ++index }}
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                    {{ (props.applications.current_page - 1) * props.applications.per_page + index + 1 }}
                                 </td>
                                     <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <span class="flex justify-start items-center">

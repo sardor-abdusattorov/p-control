@@ -180,7 +180,7 @@ const select = () => {
                                 />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
+                                {{ (props.positions.current_page - 1) * props.positions.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
                                 {{ position.name }}

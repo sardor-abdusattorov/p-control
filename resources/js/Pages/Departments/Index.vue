@@ -194,7 +194,7 @@ const getHeadOfDepartmentName = (headOfDepartmentId) => {
                                 />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ ++index }}
+                                {{ (props.departments.current_page - 1) * props.departments.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
                                 {{ department.name }}

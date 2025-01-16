@@ -13,17 +13,22 @@ class PasswordController extends Controller
     /**
      * Update the user's password.
      */
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+            'password' => ['required', 'confirmed', 'min:6'],
         ]);
-
+        if (Hash::check($request->password, $request->user()->password)) {
+            return back()->withErrors([
+                'password' => 'Новый пароль не должен совпадать с текущим.',
+            ]);
+        }
         $request->user()->update([
-            'password' => Hash::make($validated['password']),
+            'password' => Hash::make($request->password),
         ]);
-
-        return back();
+        auth()->logout();
+        return redirect()->route('login')->with('status', 'Пароль успешно изменён. Пожалуйста, войдите снова.');
     }
+
 }
