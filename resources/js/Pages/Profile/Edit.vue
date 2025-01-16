@@ -23,13 +23,27 @@
                                         </p>
                                     </div>
 
-                                    <div class="rounded-md bg-[url('/images/profile_bg.jpg')] bg-cover bg-center bg-no-repeat items-center py-6">
-                                        <div class='user-image relative w-fit mx-auto'>
-                                            <img :src="previewImage" alt="User logo preview" class="rounded-full w-[141px] h-[141px] mx-auto">
-                                            <div class="bg-white/90 rounded-full flex items-center justify-center absolute top-0 right-0">
+                                    <div class="form-group mb-5">
+                                        <InputLabel for="image" :value="lang().label.image" />
+                                        <div class="user-image flex items-start relative w-fit">
+                                            <img
+                                                :src="previewImage"
+                                                alt="User logo preview"
+                                                class="rounded-full w-[160px] h-[160px] border-4 border-gray-300 dark:border-gray-700"
+                                            >
+                                            <div class="bg-white/90 dark:bg-gray-800/80 rounded-full flex items-center justify-center absolute top-0 right-0">
                                                 <input type="file" @input="handleImageChange" name="image" id="image" hidden>
                                                 <label for="image">
-                                                    <svg data-slot="icon" class="w-9 h-9 text-blue-700 p-1" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                    <svg
+                                                        data-slot="icon"
+                                                        class="w-9 h-9 text-blue-700 dark:text-blue-400 p-1"
+                                                        fill="none"
+                                                        stroke-width="1.5"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        aria-hidden="true"
+                                                    >
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"></path>
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"></path>
                                                     </svg>
@@ -40,6 +54,10 @@
                                             {{ form.errors.image }}
                                         </div>
                                     </div>
+
+
+
+
 
                                     <div class="inputs-group">
                                         <div class="form-group mb-3">
