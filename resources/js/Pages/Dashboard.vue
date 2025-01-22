@@ -14,7 +14,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head :title="lang().label.dashboard" />
     <AuthenticatedLayout>
         <Breadcrumb :title="'Dashboard'" :breadcrumbs="[]" />
         <div class="space-y-4">
