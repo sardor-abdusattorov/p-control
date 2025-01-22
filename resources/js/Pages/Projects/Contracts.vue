@@ -2,29 +2,38 @@
     <section class="space-y-6">
         <Modal :show="props.show" @close="emit('close')" :maxWidth="'2xl'">
             <div class="p-6 text-slate-900 dark:text-slate-100">
+                <!-- Заголовок -->
                 <h2 class="text-lg font-medium">{{ title }}</h2>
-                <div class="my-6">
-                    <table class="table-auto w-full text-left">
+                <div class="my-6 overflow-x-auto">
+                    <!-- Таблица -->
+                    <table class="table-auto min-w-full text-left">
                         <thead>
-                        <tr>
-                            <th>{{ lang().label.currency }}</th>
-                            <th>{{ lang().label.contracts_length }}</th>
-                            <th>{{ lang().label.all_budget }}</th>
+                        <tr class="border-b border-gray-300 dark:border-neutral-700">
+                            <th class="py-2 px-4">{{ lang().label.currency }}</th>
+                            <th class="py-2 px-4">{{ lang().label.contracts_length }}</th>
+                            <th class="py-2 px-4">{{ lang().label.all_budget }}</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(group, index) in groupedContracts" :key="index">
-                            <td>{{ group.currency }}</td>
-                            <td>{{ group.count }}</td>
-                            <td>{{ formatNumber(group.total) }} {{ group.short_name }}</td>
+                        <tr
+                            v-for="(group, index) in groupedContracts"
+                            :key="index"
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-2 px-4">{{ group.currency }}</td>
+                            <td class="py-2 px-4">{{ group.count }}</td>
+                            <td class="py-2 px-4">{{ formatNumber(group.total) }} {{ group.short_name }}</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-6 flex justify-end gap-4">
-                    <Link :href="route('projects.related-contracts', { project: project.id })"
-                          class="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                          v-tooltip="lang().tooltip.view_contracts">
+                <!-- Кнопки -->
+                <div class="mt-6 flex flex-wrap justify-end gap-4">
+                    <Link
+                        :href="route('projects.related-contracts', { project: project.id })"
+                        class="inline-flex items-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                        v-tooltip="lang().tooltip.view_contracts"
+                    >
                         {{ lang().label.more }}
                     </Link>
                     <SecondaryButton @click="emit('close')" class="px-4 py-2">
@@ -40,7 +49,7 @@
 import Modal from "@/Components/Modal.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import { computed } from "vue";
-import {Link} from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
 
 const props = defineProps({
     show: Boolean,
@@ -48,6 +57,9 @@ const props = defineProps({
     project: Object,
     currencies: Array,
 });
+
+const emit = defineEmits(["close"]);
+
 const formatNumber = (amount) => {
     if (!amount) return "-";
     return new Intl.NumberFormat("ru-RU", {
@@ -56,7 +68,7 @@ const formatNumber = (amount) => {
         maximumFractionDigits: 2,
     }).format(amount);
 };
-const emit = defineEmits(["close"]);
+
 const groupedContracts = computed(() => {
     if (!props.project?.contracts || props.project.contracts.length === 0) return [];
     const grouped = props.project.contracts.reduce((acc, contract) => {

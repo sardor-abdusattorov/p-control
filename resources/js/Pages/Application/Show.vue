@@ -3,7 +3,8 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-            <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex justify-between items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md">
+            <!-- Header -->
+            <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md gap-4">
                 <div class="flex justify-start gap-4">
                     <Link
                         :href="route('application.show', { application: application.id })"
@@ -19,11 +20,13 @@
                     </Link>
                 </div>
             </div>
-            <div class="mt-0 p-4">
 
-                <div class="block-header mb-5 flex-1 flex items-center justify-between pb-3 border-b border-gray-300 dark:border-neutral-600">
-                    <h1 class="text-2xl font-bold">{{ application.title }}</h1>
-                    <div class="actions flex items-center gap-2">
+            <!-- Content -->
+            <div class="mt-0 p-4">
+                <!-- Block Header -->
+                <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
+                    <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
+                    <div class="actions flex flex-wrap gap-2">
                         <Button
                             v-show="application.status_id === 1 && can(['approve application'])"
                             type="button"
@@ -37,11 +40,12 @@
                         <EditLink
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md uppercase"
-                            v-tooltip="lang().tooltip.edit  "
+                            v-tooltip="lang().tooltip.edit"
                             v-show="can(['update contract'])"
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>
+
                         <DangerButton
                             type="button"
                             @click="(data.deleteOpen = true), (data.application = application)"
@@ -58,91 +62,96 @@
                             :application="data.application"
                             :title="props.title"
                         />
-
-                        <Approve  v-show="can(['approve application']) && application.status === 1"
-                                :show="data.approveOpen"
-                                @close="data.approveOpen = false"
-                                :application="data.application"
-                                :title="props.title"
+                        <Approve
+                            v-show="can(['approve application']) && application.status === 1"
+                            :show="data.approveOpen"
+                            @close="data.approveOpen = false"
+                            :application="data.application"
+                            :title="props.title"
                         />
                     </div>
                 </div>
-                <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
-                    <tbody>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.id }}</td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.title }}</td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_id }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
+                        <tbody>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.id }}</td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.title }}</td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_id }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <span v-if="props.project">
                                     {{ props.project.project_number ?? lang().label.undefined }}
                                 </span>
-                            <span v-else>
+                                <span v-else>
                                     {{ lang().label.undefined }}
                                 </span>
-                        </td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.user_id }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.user.name }}</td>
-                    </tr>
-                    <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.files }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                            <div v-if="props.files.length > 0">
-                                <ul class="list-none p-0 flex flex-col gap-1.5">
-                                    <li v-for="(file, index) in props.files" :key="index" class="flex items-center space-x-2">
-                                        <a v-tooltip="lang().tooltip.download" :href="file.original_url" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                            {{ file.name }}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div v-else>
-                                {{ lang().label.no_files }}
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.user_id }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.user.name }}</td>
+                        </tr>
+                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.files }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <div v-if="props.files.length > 0">
+                                    <ul class="list-none p-0 flex flex-col gap-1.5">
+                                        <li v-for="(file, index) in props.files" :key="index" class="flex items-center space-x-2">
+                                            <a v-tooltip="lang().tooltip.download" :href="file.original_url" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                                {{ file.name }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div v-else>
+                                    {{ lang().label.no_files }}
+                                </div>
+                            </td>
+                        </tr>
 
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                            <Badge :value="getStatusLabel(application.status_id)" :severity="getStatusSeverity(application.status_id)" />
-                        </td>
-                    </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <Badge :value="getStatusLabel(application.status_id)" :severity="getStatusSeverity(application.status_id)" />
+                            </td>
+                        </tr>
 
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.created_at }}</td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.updated_at }}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.created_at }}</td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.updated_at }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
+
     </AuthenticatedLayout>
 </template>
 

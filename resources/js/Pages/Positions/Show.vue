@@ -40,12 +40,12 @@ const data = reactive({
 
             <div class="p-4 sm:p-8">
 
-                <div class="block-header mb-5 border-b-amber-400">
-                    <h1 class="text-2xl font-bold mb-4">{{ position.name }}</h1>
-                    <div class="actions flex items-center gap-2">
+                <div class="block-header pb-3 mb-5 border-b border-gray-300 dark:border-neutral-600 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <h1 class="text-xl md:text-2xl font-bold">{{ position.name }}</h1>
+                    <div class="actions flex flex-wrap gap-4">
                         <EditLink
                             :href="route('positions.edit', { position: position.id })"
-                            class="px-4 py-2 rounded-md"
+                            class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.edit"
                         >
                             {{ lang().tooltip.edit }}
@@ -53,7 +53,7 @@ const data = reactive({
                         <DangerButton
                             type="button"
                             @click="(data.deleteOpen = true), (data.position = position)"
-                            class="px-4 py-2 rounded-md"
+                            class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.delete"
                         >
                             {{ lang().tooltip.delete }}
@@ -68,33 +68,34 @@ const data = reactive({
                         />
                     </div>
                 </div>
-
-                <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
-                    <tbody>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.id }}</td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.name }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.name }}</td>
-                    </tr>
-                    <tr
-                        class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                    >
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.created_at }}</td>
-                    </tr>
-                    <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.updated_at }}</td>
-                    </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
+                        <tbody>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.id }}</td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.name }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.name }}</td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.created_at }}</td>
+                        </tr>
+                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ position.updated_at }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

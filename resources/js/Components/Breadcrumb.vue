@@ -3,7 +3,7 @@
         class="flex items-center justify-between py-4 px-4 sm:px-0 text-slate-500 dark:text-slate-300"
     >
         <p>{{ title }}</p>
-        <div class="hidden sm:flex space-x-2 items-center">
+        <div class="hidden md:flex space-x-2 items-center">
             <Link :href="route('dashboard')" v-show="breadcrumbs.length !== 0">
                 {{lang().label.dashboard}}
             </Link>

@@ -1,77 +1,3 @@
-<script setup>
-import { Head } from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Button from "primevue/button";
-import Badge from "primevue/badge";
-import Delete from "@/Pages/Task/Delete.vue";
-import {reactive} from "vue";
-import EditLink from "@/Components/EditLink.vue";
-import Start from "@/Pages/Task/Start.vue";
-import Complete from "@/Pages/Task/Complete.vue";
-import {Textarea} from "primevue";
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    breadcrumbs: Object,
-    task: Object,
-    users: Object,
-    project: Object,
-    statuses: Array,
-    priorities: Array,
-    files: Array
-});
-
-const getPriorityLabel = (priorityId) => {
-    const priority = props.priorities.find(p => p.id === priorityId);
-    return priority ? priority.label : '';
-};
-
-const getStatusLabel = (statusId) => {
-    const status = props.statuses.find(s => s.id === statusId);
-    return status ? status.label : '';
-};
-
-console.log(getPriorityLabel())
-
-
-const getPrioritySeverity = (priorityId) => {
-    switch (priorityId) {
-        case 1:
-            return 'contrast';
-        case 2:
-            return 'warn';
-        case 3:
-            return 'danger';
-        default:
-            return 'contrast';
-    }
-};
-
-const getStatusSeverity = (statusId) => {
-    switch (statusId) {
-        case 1:
-            return 'info';
-        case 2:
-            return 'info';
-        case 3:
-            return 'success';
-        case 4:
-            return 'danger';
-        default:
-            return 'contrast';
-    }
-};
-
-const data = reactive({
-    deleteOpen: false,
-    startOpen: false,
-    completeOpen: false,
-    task: null,
-});
-
-</script>
 <template>
     <Head :title="props.title" />
     <AuthenticatedLayout>
@@ -79,11 +5,13 @@ const data = reactive({
 
         <section class="space-y-6 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
             <div class="card overflow-hidden rounded-md">
-                <div class="card-header flex justify-between items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md">
+                <div class="card-header flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md gap-4">
+                    <!-- Заголовок -->
                     <div class="flex-1 text-2xl font-semibold text-slate-800 dark:text-slate-100">
                         {{ lang().label.task_details }}
                     </div>
-                    <div class="buttons space-x-2 flex align-middle">
+                    <!-- Кнопки -->
+                    <div class="buttons flex flex-wrap gap-2">
                         <EditLink v-show="can(['update task'])"
                                   :href="route('task.edit', { task: task.id })"
                                   class="px-4 py-2 rounded-md"
@@ -121,31 +49,12 @@ const data = reactive({
                                 class="p-button-sm dark:text-white"
                                 @click="(data.deleteOpen = true), (data.task = task)"
                         />
-
-                        <Delete v-show="can(['delete task'])"
-                                :show="data.deleteOpen"
-                                @close="data.deleteOpen = false"
-                                :task="data.task"
-                                :title="props.title"
-                        />
-                        <Start  v-show="can(['start task']) && task.status === 1"
-                                :show="data.startOpen"
-                                @close="data.startOpen = false"
-                                :task="data.task"
-                                :title="props.title"
-                        />
-                        <Complete
-                            v-show="can(['complete task']) && task.status === 2"
-                            :show="data.completeOpen"
-                            @close="data.completeOpen = false"
-                            :task="data.task"
-                            :title="props.title"
-                        />
                     </div>
                 </div>
 
+
                 <div class="card-body p-4">
-                    <div class="flex items-center gap-2 pb-3 border-b">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 pb-3 border-b">
                         <div class="text-xl font-bold text-black dark:text-white">{{ lang().label.task_name }}: </div>
                         <div class="text-lg font-medium text-slate-800 dark:text-white dark:text-opacity-50">
                             {{ props.task.name }}
@@ -225,6 +134,81 @@ const data = reactive({
         </section>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import { Head } from "@inertiajs/vue3";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Button from "primevue/button";
+import Badge from "primevue/badge";
+import Delete from "@/Pages/Task/Delete.vue";
+import {reactive} from "vue";
+import EditLink from "@/Components/EditLink.vue";
+import Start from "@/Pages/Task/Start.vue";
+import Complete from "@/Pages/Task/Complete.vue";
+import {Textarea} from "primevue";
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    breadcrumbs: Object,
+    task: Object,
+    users: Object,
+    project: Object,
+    statuses: Array,
+    priorities: Array,
+    files: Array
+});
+
+const getPriorityLabel = (priorityId) => {
+    const priority = props.priorities.find(p => p.id === priorityId);
+    return priority ? priority.label : '';
+};
+
+const getStatusLabel = (statusId) => {
+    const status = props.statuses.find(s => s.id === statusId);
+    return status ? status.label : '';
+};
+
+console.log(getPriorityLabel())
+
+
+const getPrioritySeverity = (priorityId) => {
+    switch (priorityId) {
+        case 1:
+            return 'contrast';
+        case 2:
+            return 'warn';
+        case 3:
+            return 'danger';
+        default:
+            return 'contrast';
+    }
+};
+
+const getStatusSeverity = (statusId) => {
+    switch (statusId) {
+        case 1:
+            return 'info';
+        case 2:
+            return 'info';
+        case 3:
+            return 'success';
+        case 4:
+            return 'danger';
+        default:
+            return 'contrast';
+    }
+};
+
+const data = reactive({
+    deleteOpen: false,
+    startOpen: false,
+    completeOpen: false,
+    task: null,
+});
+
+</script>
 
 
 
