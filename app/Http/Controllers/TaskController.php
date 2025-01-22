@@ -93,7 +93,9 @@ class TaskController extends Controller
     {
         $projects = Project::all();
         $user = Auth::user();
-        $users = User::where('id', '!=', $user->id)->get();
+        $users = User::where('id', '!=', $user->id)
+            ->where('status', 1)
+            ->get();
         $statuses = Task::getStatuses();
         $priorities = Task::getPriorities();
 
@@ -210,9 +212,11 @@ class TaskController extends Controller
         $files = $task->getMedia('task files');
         $projects = Project::all();
         if (Auth::user()->hasRole('superadmin')) {
-            $users = User::all();
+            $users = User::where('status', 1)->get();
         } else {
-            $users = User::where('id', '!=', Auth::id())->get();
+            $users = User::where('id', '!=', Auth::id())
+                ->where('status', 1)
+                ->get();
         }
         $statuses = Task::getStatuses();
         $priorities = Task::getPriorities();
@@ -226,7 +230,8 @@ class TaskController extends Controller
             'title' => __('app.label.tasks'),
             'breadcrumbs' => [
                 ['label' => __('app.label.tasks'), 'href' => route('task.index')],
-                ['label' => $task->name]
+                ['label' => $task->name, 'href' => route('task.show', $task->id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }
@@ -314,7 +319,7 @@ class TaskController extends Controller
         DB::beginTransaction();
 
         try {
-            $originalTask = $task->getOriginal(); // Получаем данные до обновления
+            $originalTask = $task->getOriginal();
 
             $task->update([
                 'project_id' => $request->project_id,
@@ -336,13 +341,12 @@ class TaskController extends Controller
                 }
             }
 
-            // Логирование обновления задачи
             activity('task')
                 ->causedBy(auth()->user())
                 ->performedOn($task)
                 ->withProperties([
                     'before' => $originalTask,
-                    'after' => $task->getChanges(), // Данные, которые изменились
+                    'after' => $task->getChanges(),
                 ])
                 ->log('Задача обновлена');
 

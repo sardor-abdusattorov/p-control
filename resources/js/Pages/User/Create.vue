@@ -1,74 +1,3 @@
-<script setup>
-import InputError from "@/Components/InputError.vue";
-import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import Select from 'primevue/select';
-import {Head, useForm} from "@inertiajs/vue3";
-import {computed, watchEffect} from "vue";
-import InputText from "primevue/inputtext";
-import MultiSelect from "primevue/multiselect";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import Breadcrumb from "@/Components/Breadcrumb.vue";
-import BackLink from "@/Components/BackLink.vue";
-import FileUpload from 'primevue/fileupload';
-
-const props = defineProps({
-    show: Boolean,
-    title: String,
-    roles: Object,
-    breadcrumbs: Object,
-    users: Array,
-    departments: Array,
-    positions: Array,
-});
-
-const emit = defineEmits(["close"]);
-
-const form = useForm({
-    name: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    role: "manager",
-    department_id: "",
-    position_id: "",
-    telegram_id: "",
-    recipients: "",
-    image: null,
-});
-
-const create = () => {
-    form.post(route("user.store"), {
-    });
-};
-
-watchEffect(() => {
-    if (props.show) {
-        form.errors = {};
-    }
-});
-
-const filteredPositions = computed(() => {
-    return form.department_id
-        ? props.positions.filter(position => position.department_id === form.department_id)
-        : [];
-});
-
-const onDepartmentChange = () => {
-    form.position_id = null;
-};
-
-const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        form.image = file;
-    } else {
-        form.image = null;
-    }
-};
-
-</script>
-
 <template>
     <Head :title="props.title"/>
     <AuthenticatedLayout>
@@ -225,6 +154,21 @@ const handleImageUpload = (event) => {
                         <InputError class="mt-2" :message="form.errors.telegram_id" />
                     </div>
 
+                    <div class="form-group mb-3">
+                        <InputLabel for="status" :value="lang().label.status" />
+                        <Select
+                            v-model="form.status"
+                            :options="statuses"
+                            optionLabel="label"
+                            optionValue="id"
+                            :placeholder="lang().placeholder.select_status"
+                            class="w-full"
+                            checkmark
+                            :highlightOnSelect="false"
+                        />
+                        <InputError class="mt-2" :message="form.errors.status" />
+                    </div>
+
                     <div class="form-group">
                         <InputLabel for="image" :value="lang().label.image" />
                         <div class="upload-container flex flex-col items-start">
@@ -261,3 +205,77 @@ const handleImageUpload = (event) => {
         </section>
     </AuthenticatedLayout>
 </template>
+
+<script setup>
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import Select from 'primevue/select';
+import {Head, useForm} from "@inertiajs/vue3";
+import {computed, watchEffect} from "vue";
+import InputText from "primevue/inputtext";
+import MultiSelect from "primevue/multiselect";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+
+const props = defineProps({
+    show: Boolean,
+    title: String,
+    roles: Object,
+    breadcrumbs: Object,
+    users: Array,
+    departments: Array,
+    positions: Array,
+    statuses: Array,
+});
+
+const emit = defineEmits(["close"]);
+
+const form = useForm({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    role: "manager",
+    department_id: "",
+    position_id: "",
+    telegram_id: "",
+    recipients: "",
+    image: null,
+    status: 1,
+});
+
+const create = () => {
+    form.post(route("user.store"), {
+    });
+};
+
+watchEffect(() => {
+    if (props.show) {
+        form.errors = {};
+    }
+});
+
+const filteredPositions = computed(() => {
+    return form.department_id
+        ? props.positions.filter(position => position.department_id === form.department_id)
+        : [];
+});
+
+const onDepartmentChange = () => {
+    form.position_id = null;
+};
+
+const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        form.image = file;
+    } else {
+        form.image = null;
+    }
+};
+
+</script>
+

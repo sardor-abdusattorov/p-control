@@ -32,7 +32,7 @@ Route::get('/setLang/{locale}', function ($locale) {
 })->name('setlang');
 
 // Группа маршрутов с аутентификацией
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Профиль
     Route::prefix('profile')->name('profile.')->group(function () {

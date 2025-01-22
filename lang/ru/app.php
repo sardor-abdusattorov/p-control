@@ -260,6 +260,8 @@ return [
         'approved' => 'Одобрен',
         'in_progress' => 'В процессе',
         'completed' => 'Завершено',
+        'active' => 'Активен',
+        'disable' => 'Неактивен',
     ],
     "notification" => [
         "task_assigned" => "Вам была назначена задача.",

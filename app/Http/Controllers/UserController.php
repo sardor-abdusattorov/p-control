@@ -76,7 +76,11 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::get();
-        $users = User::where('id', '!=', auth()->user()->id)->get();
+        $statuses = User::getStatuses();
+        $users = User::where('id', '!=', auth()->user()->id)
+             ->where('status', 1)
+             ->get();
+
         $departments = Department::where('status', 1)->get();
         $positions = Position::select('positions.id', 'positions.name', 'positions_department.department_id')
             ->join('positions_department', 'positions.id', '=', 'positions_department.position_id')
@@ -85,6 +89,7 @@ class UserController extends Controller
         return Inertia::render('User/Create', [
             'roles'         => $roles,
             'users'         => $users,
+            'statuses'         => $statuses,
             'departments'   => $departments,
             'positions'     => $positions,
             'title'         => __('app.label.user'),
@@ -126,6 +131,7 @@ class UserController extends Controller
             $user->department_id = $request->department_id;
             $user->position_id = $request->position_id;
             $user->telegram_id = $request->telegram_id;
+            $user->status = $request->status;
             $user->save();
             if (isset($request->recipients)) {
                 $user->recipients()->delete();
@@ -184,7 +190,11 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::get();
-        $users = User::where('id', '!=', auth()->user()->id)->get();
+        $statuses = User::getStatuses();
+        $users = User::where('id', '!=', auth()->user()->id)
+             ->where('status', 1)
+             ->get();
+
         $departments = Department::where('status', 1)->get();
         $positions = Position::select('positions.id', 'positions.name', 'positions_department.department_id')
             ->join('positions_department', 'positions.id', '=', 'positions_department.position_id')
@@ -196,6 +206,7 @@ class UserController extends Controller
             'roles'         => $roles,
             'users'         => $users,
             'departments'   => $departments,
+            'statuses'         => $statuses,
             'positions'     => $positions,
             'user'         => $user,
             'userRole'         => $userRole,
@@ -203,7 +214,8 @@ class UserController extends Controller
             'title' => __('app.label.user'),
             'breadcrumbs' => [
                 ['label' => __('app.label.user'), 'href' => route('user.index')],
-                ['label' => $user->name]
+                ['label' => $user->id, 'href' => route('user.show', $user->id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }
@@ -220,6 +232,7 @@ class UserController extends Controller
                 'department_id' => $request->department_id,
                 'position_id'   => $request->position_id,
                 'telegram_id'   => $request->telegram_id,
+                'status'   => $request->status,
             ];
             if ($request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);

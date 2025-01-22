@@ -131,7 +131,8 @@ class PositionsController extends Controller
 
             'breadcrumbs' => [
                 ['label' => __('app.label.positions'), 'href' => route('positions.index')],
-                ['label' => $position->name]
+                ['label' => $id, 'href' => route('positions.show', $id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }

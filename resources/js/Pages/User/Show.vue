@@ -75,6 +75,19 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ user.updated_at }}</td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            <span
+                                :class="[
+                                    'inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset',
+                                    user.status === 1 ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'
+                                ]"
+                            >
+                                {{ user.status === 1 ? lang().status.active : lang().status.disable }}
+                            </span>
+                            </td>
+                        </tr>
+                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.image }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <img

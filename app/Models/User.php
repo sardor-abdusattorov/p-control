@@ -16,14 +16,26 @@ class User extends Authenticatable implements HasMedia
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia;
 
+    const STATUS_ACTIVE = 1;
+    const STATUS_DISABLED = 0;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password', 'department_id', 'telegram_id', 'position_id',
+        'name', 'email', 'password', 'department_id', 'telegram_id', 'position_id', 'status',
     ];
+
+    public static function getStatuses(): array
+    {
+        return [
+            ['id' => self::STATUS_DISABLED, 'label' => __('app.status.disable')],
+            ['id' => self::STATUS_ACTIVE, 'label' => __('app.status.active')],
+        ];
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.

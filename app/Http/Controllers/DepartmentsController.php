@@ -38,7 +38,7 @@ class DepartmentsController extends Controller
         }
         $perPage = $request->has('perPage') ? $request->perPage : 10;
 
-        $users = User::all();
+        $users = User::where('status', 1)->get();
 
         return Inertia::render('Departments/Index', [
             'title'         => __('app.label.departments'),
@@ -55,7 +55,7 @@ class DepartmentsController extends Controller
      */
     public function create()
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         return Inertia::render('Departments/Create', [
             'users'         => $users,
             'title'         => __('app.label.departments'),
@@ -116,7 +116,7 @@ class DepartmentsController extends Controller
      */
     public function edit(Department $department)
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         return inertia('Departments/Edit', [
             'users'         => $users,
             'department' => $department,
@@ -124,7 +124,8 @@ class DepartmentsController extends Controller
             'statusOptions' => Department::getStatuses(),
             'breadcrumbs' => [
                 ['label' => __('app.label.departments'), 'href' => route('departments.index')],
-                ['label' => $department->name]
+                ['label' => $department->id, 'href' => route('departments.show', $department->id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }

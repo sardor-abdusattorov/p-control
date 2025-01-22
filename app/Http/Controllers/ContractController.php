@@ -93,7 +93,9 @@ class ContractController extends Controller
         }else {
             $applications = auth()->user()->applications;
         }
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::where('id', '!=', auth()->id())
+            ->where('status', 1)
+            ->get();
 
         return Inertia::render('Contract/Create', [
             'title' => __('app.label.contracts'),
@@ -266,7 +268,7 @@ class ContractController extends Controller
 
     public function chat(Contract $contract)
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         $currentUser = auth()->user();
 
         $chats = Chat::where('model_type', 'contract')
@@ -387,7 +389,7 @@ class ContractController extends Controller
             $applications = auth()->user()->applications;
         }
 
-        $users = User::all();
+        $users = User::where('status', 1)->get();
 
         return inertia('Contract/Edit', [
             'contract' => $contract,
@@ -400,7 +402,7 @@ class ContractController extends Controller
             'breadcrumbs' => [
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
                 ['label' => $contract->title, 'href' => route('contract.show', $contract->id)],
-                ['label' => $contract->title]
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }
@@ -472,11 +474,9 @@ class ContractController extends Controller
         DB::beginTransaction();
 
         try {
-            $contractTitle = $contract->title; // Сохраняем имя контракта для логов
+            $contractTitle = $contract->title;
             $contract->clearMediaCollection('files');
             $contract->delete();
-
-            // Логирование успешного удаления контракта
             activity('contract')
                 ->causedBy(auth()->user())
                 ->performedOn($contract)
@@ -491,8 +491,6 @@ class ContractController extends Controller
             return redirect()->route('contract.index')->with('success', __('app.label.deleted_successfully', ['name' => $contractTitle]));
         } catch (\Throwable $th) {
             DB::rollback();
-
-            // Логирование ошибки удаления контракта
             activity('contract')
                 ->causedBy(auth()->user())
                 ->performedOn($contract)

@@ -136,7 +136,7 @@ class ProjectsController extends Controller
      */
     public function create()
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
 
         return Inertia::render('Projects/Create', [
             'title' => __('app.label.projects'),
@@ -222,7 +222,7 @@ class ProjectsController extends Controller
      */
     public function edit(Project $project)
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         return inertia('Projects/Edit', [
             'project' => $project,
             'users' => $users,

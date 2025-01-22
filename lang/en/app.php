@@ -255,6 +255,8 @@ return [
     ],
     'status' => [
         'new' => 'New',
+        'active' => 'Active',
+        'disable' => 'Disable',
         'send' => 'Send',
         'rejected' => 'Rejected',
         'approved' => 'Approved',
@@ -265,10 +267,6 @@ return [
         "task_assigned"=> "A task has been assigned to you",
         "task_started"=> "A task has been started",
         "task_completed"=> "The task is completed",
-
-
         "application_received"=> "Application received"
-
-
     ]
 ];

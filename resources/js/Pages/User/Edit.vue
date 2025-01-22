@@ -22,6 +22,7 @@ const props = defineProps({
     positions: Array,
     breadcrumbs: Object,
     userRole: Object,
+    statuses: Array,
     recipients: Array,
 });
 
@@ -37,6 +38,7 @@ const form = useForm({
     position_id: "",
     telegram_id: "",
     recipients: "",
+    status: "",
     image: null,
 });
 
@@ -59,6 +61,7 @@ watchEffect(() => {
     form.position_id = props.user?.position_id;
     form.recipients = props.recipients.map(recipient => recipient.recipient_id)
     form.telegram_id = props.user?.telegram_id;
+    form.status = props.user?.status;
 });
 
 const handleImageUpload = (event) => {
@@ -232,6 +235,21 @@ const onDepartmentChange = () => {
                             :placeholder="lang().placeholder.telegram_id"
                         />
                         <InputError class="mt-2" :message="form.errors.telegram_id" />
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <InputLabel for="status" :value="lang().label.status" />
+                        <Select
+                            v-model="form.status"
+                            :options="statuses"
+                            optionLabel="label"
+                            optionValue="id"
+                            :placeholder="lang().placeholder.select_status"
+                            class="w-full"
+                            checkmark
+                            :highlightOnSelect="false"
+                        />
+                        <InputError class="mt-2" :message="form.errors.status" />
                     </div>
 
                     <div class="form-group">

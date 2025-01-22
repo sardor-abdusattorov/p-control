@@ -106,7 +106,8 @@ class CurrencyController extends Controller
             'statusOptions' => Currency::getStatuses(),
             'breadcrumbs' => [
                 ['label' => __('app.label.currency'), 'href' => route('currency.index')],
-                ['label' => $currency->name]
+                ['label' => $currency->id, 'href' => route('currency.show', $currency->id)],
+                ['label' => __('app.label.edit')]
             ]
         ]);
     }

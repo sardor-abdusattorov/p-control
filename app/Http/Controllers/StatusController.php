@@ -109,7 +109,8 @@ class StatusController extends Controller
             'title' => __('app.label.status'),
             'breadcrumbs' => [
                 ['label' => __('app.label.status'), 'href' => route('status.index')],
-                ['label' => $status->name]
+                ['label' => $status->id, 'href' => route('status.show', $status->id)],
+                ['label' => __('app.label.edit')]
             ],
             'statusOptions' => Status::getStatuses(),
         ]);

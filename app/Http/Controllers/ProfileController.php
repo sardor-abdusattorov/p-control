@@ -29,7 +29,9 @@ class ProfileController extends Controller
             ->get();
 
         $user = $request->user();
-        $users = User::where('id', '!=', $user->id)->get();
+        $users = User::where('id', '!=', $user->id)
+            ->where('status', 1)
+            ->get();
 
         $recipients = Recipient::where('user_id', $user->id)->get();
 

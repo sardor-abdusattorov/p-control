@@ -91,7 +91,9 @@ class ApplicationController extends Controller
 
         $recipients = Recipient::where('user_id', auth()->id())->get();
 
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::where('id', '!=', auth()->id())
+            ->where('status', 1)
+            ->get();
 
         return Inertia::render('Application/Create', [
             'title' => __('app.label.applications'),
@@ -255,7 +257,7 @@ class ApplicationController extends Controller
 
     public function chat(Application $application)
     {
-        $users = User::all();
+        $users = User::where('status', 1)->get();
         $currentUser = auth()->user();
 
         $chats = Chat::where('model_type', 'application')
@@ -305,7 +307,7 @@ class ApplicationController extends Controller
     public function getMessages(Request $request, $chat_id)
     {
         $messages = Message::where('chat_id', $chat_id)
-            ->with('media') // Подгружаем медиафайлы
+            ->with('media')
             ->orderBy('created_date', 'asc')
             ->get();
 
@@ -375,7 +377,9 @@ class ApplicationController extends Controller
         $files = $application->getMedia('documents');
         $recipients = Recipient::where('user_id', auth()->id())->get();
 
-        $users = User::where('id', '!=', auth()->id())->get();
+        $users = User::where('id', '!=', auth()->id())
+            ->where('status', 1)
+            ->get();
 
         return Inertia::render('Application/Edit', [
             'title' => $application->title,
@@ -386,7 +390,8 @@ class ApplicationController extends Controller
             'files' => $files,
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
-                ['label' => $application->title]
+                ['label' => $application->id, 'href' => route('application.show', $application->id)],
+                ['label' => __('app.label.edit')]
             ],
         ]);
     }
@@ -490,8 +495,6 @@ class ApplicationController extends Controller
             foreach ($applications as $application) {
                 $application->clearMediaCollection('documents');
                 $application->delete();
-
-                // Логирование удаления каждой заявки
                 activity('application')
                     ->causedBy(auth()->user())
                     ->performedOn($application)
@@ -504,7 +507,6 @@ class ApplicationController extends Controller
 
             return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.applications')]));
         } catch (\Throwable $th) {
-            // Логирование ошибки
             activity('application')
                 ->causedBy(auth()->user())
                 ->withProperties([

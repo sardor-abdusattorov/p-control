@@ -16,5 +16,5 @@ return [
     'failed' => 'Ushbu maʼlumotlar bizning maʼlumotlarimizga mos kelmaydi.',
     'password' => 'Kiritilgan parol noto‘g‘ri.',
     'throttle' => 'Kirish urinishlari juda ko‘p. Iltimos, :seconds soniyadan keyin qayta urinib ko‘ring.',
-
+    'inactive' => 'Hisobingiz o‘chirilgan.',
 ];

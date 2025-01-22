@@ -260,6 +260,8 @@ return [
         'approved' => 'Tasdiqlangan',
         'in_progress' => 'Jarayonda',
         'completed' => 'Tugallangan',
+        'active' => 'Faol',
+        'disable' => 'Nofaol',
     ],
     "notification" => [
         "task_assigned"=> "Sizga vazifa tayinlandi",

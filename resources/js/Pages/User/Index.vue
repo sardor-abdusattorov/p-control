@@ -170,6 +170,9 @@ const select = () => {
                                 <th class="px-2 py-4">
                                     {{ lang().label.role }}
                                 </th>
+                                <th class="px-2 py-4">
+                                    {{ lang().label.status }}
+                                </th>
                                 <th
                                     class="px-2 py-4 cursor-pointer"
                                     v-on:click="order('department_id')"
@@ -229,6 +232,16 @@ const select = () => {
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     {{ user.department ? user.department.name : 'N/A' }}
+                                </td>
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                 <span
+                                     :class="[
+                                        '.inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset',
+                                        user.status === 1 ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'
+                                    ]"
+                                 >
+                                    {{ user.status === 1 ? lang().status.active : lang().status.disable }}
+                                </span>
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <div
