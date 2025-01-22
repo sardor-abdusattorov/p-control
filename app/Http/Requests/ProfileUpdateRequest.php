@@ -20,6 +20,7 @@ class ProfileUpdateRequest extends FormRequest
             'telegram_id' => 'nullable|string|max:255',
             'recipients' => 'nullable|array',
             'recipients.*' => 'integer|exists:users,id',
+            'image' => 'nullable|image|max:2048',
         ];
     }
 }

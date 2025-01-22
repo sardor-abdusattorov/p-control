@@ -245,8 +245,19 @@ const updateProfile = () => {
 const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
+
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!allowedMimeTypes.includes(file.type)) {
+
+            form.image = null;
+            previewImage.value = user.profile_image;
+            form.errors.image = 'Недопустимый тип файла. Загрузите изображение.';
+            return;
+        }
+
         form.image = file;
         previewImage.value = URL.createObjectURL(file);
+        form.errors.image = null;
     }
 };
 
