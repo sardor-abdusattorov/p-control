@@ -78,7 +78,7 @@ class ProjectsController extends Controller
         }
 
         // Пагинация
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $perPage = $request->has('perPage') ? $request->perPage : 100;
         $projects = $projectsQuery->paginate($perPage);
 
         return Inertia::render('Projects/Index', [
