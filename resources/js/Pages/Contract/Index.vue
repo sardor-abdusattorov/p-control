@@ -38,8 +38,8 @@
                             optionValue="value"
                         />
                         <DangerButton
+                            v-show="can(['delete contract']) && data.selectedId.length !== 0"
                             @click="data.deleteBulkOpen = true"
-                            v-show="data.selectedId.length !== 0"
                             class="px-3 py-1.5"
                             v-tooltip="lang().tooltip.delete_selected"
                         >
@@ -58,7 +58,7 @@
                         <thead class="uppercase text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4 text-center">
-                                <Checkbox
+                                <Checkbox v-show="can(['delete contract'])"
                                     v-model:checked="data.multipleSelect"
                                     @change="selectAll"
                                 />
@@ -101,7 +101,7 @@
                             class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20"
                         >
                             <td class="whitespace-nowrap py-4 px-2 text-center">
-                                <input
+                                <input v-show="can(['delete contract'])"
                                     class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
                                     type="checkbox"
                                     @change="select"

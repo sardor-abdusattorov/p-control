@@ -46,6 +46,14 @@ watchEffect(() => {
         <p>{{ lang().label.no_data }}</p>
     </div>
     <div v-if="links.links.length > 3">
+        <!-- <ul
+            class="hidden lg:flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+            <li v-for="(link, index) in links.links" :key="index">
+                <button v-on:click="goto(link.url)" class="px-4 py-2 hover:bg-primary hover:text-white"
+                    :class="{'bg-primary text-white':link.active}" v-html="link.label"
+                    :disabled="link.url == null"></button>
+            </li>
+        </ul> -->
         <ul
             class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
         >
