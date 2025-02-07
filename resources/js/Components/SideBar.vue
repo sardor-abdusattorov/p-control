@@ -9,14 +9,16 @@ import SideBarMenu from "@/Components/SideBarMenu.vue";
 
 const props = defineProps({
     open: Boolean,
+    is_expanded: Boolean,
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "toggleMenu"]);
 </script>
 <template>
-    <div class="hidden lg:flex">
+    <div class="hidden lg:flex transition-all duration-300">
         <aside
-            class="fixed lg:flex flex-col h-screen overflow-hidden w-64 bg-slate-800 dark:bg-slate-900 dark:border-r dark:border-slate-800"
+            class="fixed flex flex-col h-screen overflow-hidden bg-slate-900 border-slate-700 text-slate-300 dark:bg-slate-900 border-b dark:border-slate-800 dark:text-slate-300 transition-all duration-300"
+            :class="is_expanded ? 'w-64' : 'w-0'"
         >
             <div class="flex-1 h-screen overflow-y-auto scrollbar-sidebar px-3">
                 <SideBarMenu />
@@ -65,4 +67,6 @@ const emit = defineEmits(["close"]);
             </TransitionChild>
         </Dialog>
     </TransitionRoot>
+
+
 </template>

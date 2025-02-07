@@ -1,18 +1,12 @@
 <script setup>
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
-import {
-    Bars3CenterLeftIcon,
-    CheckBadgeIcon,
-    ChevronDownIcon,
-    UserIcon,
-    Bars4Icon
-} from "@heroicons/vue/24/solid";
+import {Bars3CenterLeftIcon, CheckBadgeIcon, ChevronDownIcon,UserIcon, Bars4Icon} from "@heroicons/vue/24/solid";
 import SwitchDarkModeNavbar from "@/Components/SwitchDarkModeNavbar.vue";
 import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
 import Notifications from "@/Components/Notifications.vue";
 
-const emit = defineEmits(["open"]);
+const emit = defineEmits(["open", "toggleMenu"]);
 </script>
 
 <template>
@@ -22,6 +16,18 @@ const emit = defineEmits(["open"]);
         <div class="mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
+                    <div class="mr-4 shrink-0 items-center hidden lg:flex">
+                        <button
+                            @click="emit('toggleMenu')"
+                            class="hover:text-slate-400 hover:bg-slate-900 active:bg-transparent
+                           inline-flex items-center justify-center p-2 rounded-md
+                           lg:hover:text-slate-500 dark:hover:text-slate-400
+                           lg:hover:bg-slate-100 dark:hover:bg-slate-900
+                           transition duration-150 ease-in-out"
+                        >
+                            <Bars4Icon class="h-5 w-5" />
+                        </button>
+                    </div>
                     <div class="mr-4 shrink-0 flex items-center lg:hidden">
                         <button
                             v-on:click="emit('open')"

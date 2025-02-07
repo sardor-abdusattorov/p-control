@@ -204,6 +204,7 @@ return [
     ],
     'tooltip' => [
         'show' => 'Show',
+        "toggle_sidebar" => "Toggle sidebar",
         'download' => 'Download',
         'edit' => 'Edit',
         'delete' => 'Delete',

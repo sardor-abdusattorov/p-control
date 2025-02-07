@@ -315,20 +315,3 @@ const formattedProjects = computed(() => {
 });
 
 </script>
-
-
-<style>
-.custom-option{
-    white-space: pre-wrap !important;
-}
-.custom-overlay-class {
-    width: 100%;
-    max-width: 300px;
-}
-
-.parent-wrapper-class{
-    width: 1%;
-    left: 0;
-    right: auto;
-}
-</style>

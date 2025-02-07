@@ -204,6 +204,7 @@ return [
     ],
     'tooltip' => [
         'show' => 'Ko‘rsatish',
+        "toggle_sidebar" => "Yon panelni almashtirish",
         'download' => 'Yuklab olish',
         'edit' => 'Tahrirlash',
         'delete' => 'O‘chirish',
