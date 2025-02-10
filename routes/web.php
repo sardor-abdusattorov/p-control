@@ -44,9 +44,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Заявки (Applications)
     Route::resource('application', ApplicationController::class)->except(['update']);
+    // Bulk-удаление вынесли вне группы с параметром
+    Route::post('application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
     Route::prefix('application/{application}')->name('application.')->group(function () {
-        Route::post('/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('destroy-bulk');
-        Route::post('/update', [ApplicationController::class, 'update'])->name('update');
         Route::get('/chat', [ApplicationController::class, 'chat'])->name('chat');
         Route::post('/send-message', [ApplicationController::class, 'sendMessage'])->name('send-message');
         Route::get('/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('get-messages');
@@ -71,17 +71,14 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::prefix('projects/{project}')->name('projects.')->group(function () {
         Route::get('/related-contracts', [ProjectsController::class, 'relatedContracts'])->name('related-contracts');
     });
-    Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('destroy-bulk');
+    Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
 
     // Контракты
     Route::resource('contract', ContractController::class)->except(['update']);
-
-    Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk'); // Вынесено за пределы prefix!
-
+    Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk'); // Вынесено за пределы группы с параметром
     Route::post('/contract/{contract}/remove-approver', [ContractController::class, 'removeApprover'])
         ->name('contract.remove-approver');
     Route::put('/contract/{contract}/update-approvers', [ContractController::class, 'updateApprovers'])->name('contract.update-approvers');
-
 
     Route::prefix('contract/{contract}')->name('contract.')->group(function () {
         Route::post('/update', [ContractController::class, 'update'])->name('update');
@@ -98,8 +95,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Задачи
     Route::resource('task', TaskController::class)->except(['update']);
+    // Bulk-удаление вынесли вне группы с параметром
+    Route::post('task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
     Route::prefix('task/{task}')->name('task.')->group(function () {
-        Route::post('/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('destroy-bulk');
         Route::post('/update', [TaskController::class, 'update'])->name('update');
         Route::post('/start', [TaskController::class, 'start'])->name('start');
         Route::post('/complete', [TaskController::class, 'complete'])->name('complete');
@@ -107,9 +105,10 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Пользователи
     Route::resource('user', UserController::class)->except(['update']);
+    // Bulk-удаление вынесли вне группы с параметром
+    Route::post('user/destroy-bulk', [UserController::class, 'destroyBulk'])->name('user.destroy-bulk');
     Route::prefix('user/{user}')->name('user.')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('update');
-        Route::post('/destroy-bulk', [UserController::class, 'destroyBulk'])->name('destroy-bulk');
     });
 
     // Роли
