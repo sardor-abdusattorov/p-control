@@ -3,7 +3,6 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-            <!-- Header -->
             <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md gap-4">
                 <div class="flex justify-start gap-4">
                     <Link
@@ -20,15 +19,12 @@
                     </Link>
                 </div>
             </div>
-
-            <!-- Content -->
             <div class="mt-0 p-4">
-                <!-- Block Header -->
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ contract.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
                         <Button
-                            v-show="contract.status === 1 && can(['approve contract'])"
+                            v-show="can_approve"
                             type="button"
                             icon="pi pi-check-circle"
                             :label="lang().button.approve"
@@ -56,12 +52,29 @@
                             {{ lang().tooltip.delete }}
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
+
                         <Delete
                             :show="data.deleteOpen"
                             @close="data.deleteOpen = false"
                             :contract="data.contract"
                             :title="props.title"
                         />
+                        <DeleteUser
+                            :show="data.deleteUserOpen"
+                            @close="data.deleteUserOpen = false"
+                            :contract="data.contract"
+                            :user="data.selectedUser"
+                            :title="props.title"
+                        />
+                        <EditUser
+                            :show="data.editUserOpen"
+                            @close="data.editUserOpen = false"
+                            :contract="props.contract"
+                            :users="props.users"
+                            :approvals="props.approvals"
+                            :title="props.title"
+                        />
+
                         <Approve
                             v-show="can(['approve contract']) && (contract.status === 1 || contract.status === 2)"
                             :show="data.approveOpen"
@@ -72,7 +85,48 @@
                     </div>
                 </div>
 
-                <!-- Table -->
+                <div class="p-6 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
+                    <div class="flex items-center mb-3 justify-between">
+                        <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
+                        <Button
+                            type="button"
+                            icon="pi pi-user-plus"
+                            :label="lang().button.edit"
+                            severity="info"
+                            class="p-button-sm dark:text-white"
+                            @click="data.editUserOpen = true"
+                            v-show="contract.user_id === authUser.id"
+                        />
+                    </div>
+
+                    <div class="space-y-2">
+                        <div v-for="approval in approvals" :key="approval.user_id"
+                             class="p-4 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
+                            <div class="details">
+                                <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
+                                <p v-if="approval.approved" class="text-green-600 font-semibold">
+                                    ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
+                                </p>
+                                <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                            </div>
+                            <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
+                                <form class="p-6">
+                                    <input type="hidden" :value="approval.user_id" />
+                                    <Button
+                                        type="button"
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        class="p-button-sm dark:text-white"
+                                        @click="() => confirmRemoveApprover(approval)"
+                                        :disabled="approval.approved"
+                                    />
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>
@@ -173,7 +227,6 @@
                                 </div>
                             </td>
                         </tr>
-
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -196,8 +249,8 @@
 </template>
 
 <script setup>
-import {Head, Link} from '@inertiajs/vue3';
-import {defineProps, defineEmits, reactive} from 'vue';
+import {Head, Link, usePage} from '@inertiajs/vue3';
+import {defineProps, defineEmits, reactive, computed} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Badge from "primevue/badge";
@@ -206,26 +259,48 @@ import EditLink from "@/Components/EditLink.vue";
 import Approve from "@/Pages/Contract/Approve.vue";
 import Delete from "@/Pages/Contract/Delete.vue";
 import DangerButton from "@/Components/DangerButton.vue";
+import DeleteUser from "@/Pages/Contract/DeleteUser.vue";
 import Button from "primevue/button";
+import { useForm } from "@inertiajs/vue3";
+import EditUser from "@/Pages/Contract/EditUser.vue";
+
+const form = useForm({});
+
+const authUser = usePage().props.auth.user;
 
 const props = defineProps({
     show: Boolean,
     contract: Object,
+    can_approve: Boolean,
     application: Object,
     title: String,
     breadcrumbs: Object,
     statuses: Array,
     project: Object,
+    users: Array,
+    approvals: Object,
     files: Array,
 });
 
 const data = reactive({
     deleteOpen: false,
+    editUserOpen: false,
     approveOpen: false,
+    deleteUserOpen: false,
     project: null,
+    selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
 });
 
 const emit = defineEmits(["close"]);
+
+const confirmRemoveApprover = (user) => {
+    console.log("Запрос на удаление пользователя:", user);
+
+    data.selectedUser = user;
+    data.contract = props.contract;
+    data.deleteUserOpen = true;
+};
+
 
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);
@@ -241,7 +316,6 @@ const formatNumber = (amount) => {
 
     return formattedAmount;
 };
-
 
 const getStatusSeverity = (statusId) => {
     switch (statusId) {

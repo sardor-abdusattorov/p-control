@@ -80,7 +80,7 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <InputLabel for="recipients" :value="lang().label.recipients" />
+                        <InputLabel for="recipients" :value="lang().label.approval_users" />
                         <MultiSelect
                             v-model="form.recipients"
                             display="chip"

@@ -3,6 +3,19 @@
 return [
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'unknown_user' => 'Unknown user',
+        'not_found' => ':attribute not found.',
+
+        'approval_status' => 'Approval status',
+        'approved' => 'Approved',
+        'not_approved' => 'Not approved',
+        'approver' => 'Approver',
+        'approvers_list' => 'List of approvers',
+        'cannot_delete_approved' => ':name has already approved and cannot be deleted.',
+        'cannot_delete_approved_list' => 'Some users cannot be deleted because they have already approved.',
+        'approvers_updated_successfully' => 'Approvers list updated successfully.',
+        'edit_approvers' => 'Editing approvers',
+
         'log_name' => 'Log Name',
         'causer_id' => 'Initiator',
         'subject_type' => 'Object Type',
@@ -159,6 +172,7 @@ return [
         'password_forgot' => 'Forgotten password?',
     ],
     'button' => [
+        'edit' => "Edit",
         'cancel' => 'Cancel',
         'confirm' => 'Confirm',
         'approve' => 'Approve',

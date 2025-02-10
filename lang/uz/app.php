@@ -3,6 +3,20 @@
 return [
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'unknown_user' => 'Noma\'lum foydalanuvchi',
+        'not_found' => ':attribute topilmadi.',
+
+        'approval_status' => 'Tasdiqlash holati',
+        'approved' => 'Tasdiqlandi',
+        'not_approved' => 'Tasdiqlanmagan',
+        'approver' => 'Tasdiqlovchi',
+        'approvers_list' => 'Tasdiqlovchilar ro\'yxati',
+        'cannot_delete_approved' => ':name allaqachon tasdiqlandi va o\'chirib bo\'lmaydi.',
+        'cannot_delete_approved_list' => 'Ba\'zi foydalanuvchilarni o\'chirish mumkin emas, chunki ular allaqachon tasdiqlagan.',
+        'approvers_updated_successfully' => 'Tasdiqlovchilar ro\'yxati muvaffaqiyatli yangilandi.',
+        'edit_approvers' => 'Tasdiqlovchilarni tahrirlash',
+
+
         'log_name' => 'Log nomi',
         'causer_id' => 'Initsiator',
         'subject_type' => 'Obyekt turi',
@@ -55,7 +69,7 @@ return [
         'project_id' => 'Loyiha',
         'project_name' => 'Loyiha nomi',
         'applications' => 'Arizalar',
-        'applications' => 'Ariza',
+        'application' => 'Ariza',
         'settings' => 'Sozlamalar',
         'drag_and_drop' => 'Tortib qo\'yish',
         'project_number' => 'Loyihaning raqami',
@@ -159,6 +173,7 @@ return [
         'password_forgot' => 'Parolni unutdingizmi?',
     ],
     'button' => [
+        'edit' => "O'zgartirish",
         'cancel' => 'Bekor qilish',
         'confirm' => 'Tasdiqlash',
         'start_task' => 'Vazifani boshlash',

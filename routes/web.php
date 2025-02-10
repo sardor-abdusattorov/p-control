@@ -75,8 +75,15 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Контракты
     Route::resource('contract', ContractController::class)->except(['update']);
+
+    Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk'); // Вынесено за пределы prefix!
+
+    Route::post('/contract/{contract}/remove-approver', [ContractController::class, 'removeApprover'])
+        ->name('contract.remove-approver');
+    Route::put('/contract/{contract}/update-approvers', [ContractController::class, 'updateApprovers'])->name('contract.update-approvers');
+
+
     Route::prefix('contract/{contract}')->name('contract.')->group(function () {
-        Route::post('/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('destroy-bulk');
         Route::post('/update', [ContractController::class, 'update'])->name('update');
         Route::get('/chat', [ContractController::class, 'chat'])->name('chat');
         Route::post('/send-message', [ContractController::class, 'sendMessage'])->name('send-message');

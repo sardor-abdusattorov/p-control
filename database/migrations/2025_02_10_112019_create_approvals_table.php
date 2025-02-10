@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('contract_approvals', function (Blueprint $table) {
+        Schema::create('approvals', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable(false);
-            $table->unsignedBigInteger('contract_id')->nullable(false);
-            $table->unsignedBigInteger('status')->nullable(false)->default(1);
+            $table->string('approvable_type');
+            $table->unsignedBigInteger('approvable_id');
+            $table->foreignId('user_id');
+            $table->boolean('approved')->default(false);
+            $table->timestamp('approved_at')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('contract_approvals');
+        Schema::dropIfExists('approvals');
     }
 };

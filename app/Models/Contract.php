@@ -41,6 +41,11 @@ class Contract extends Model implements HasMedia
     {
         return $this->belongsTo(Currency::class);
     }
+    public function approvals()
+    {
+        return $this->morphMany(Approvals::class, 'approvable');
+    }
+
 
     public static function getStatuses(): array
     {

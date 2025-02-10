@@ -22,6 +22,7 @@ class ContractStoreRequest extends FormRequest
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'project_id' => 'required',
+            'recipients' => 'required',
             'application_id' => 'nullable|integer',
             'budget_sum' => 'required|numeric|min:0',
             'currency_id' => 'required|exists:currency,id',

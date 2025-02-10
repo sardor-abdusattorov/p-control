@@ -1,8 +1,8 @@
 <script setup>
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {CheckCircleIcon, ClockIcon, DocumentTextIcon, InboxIcon,} from "@heroicons/vue/24/solid";
-import { Head} from "@inertiajs/vue3";
+import { CheckCircleIcon, ClockIcon, DocumentTextIcon, InboxIcon } from "@heroicons/vue/24/solid";
+import { Head, Link } from "@inertiajs/vue3";
 
 const props = defineProps({
     completedTasksCount: Number,
@@ -19,9 +19,9 @@ const props = defineProps({
         <Breadcrumb :title="'Dashboard'" :breadcrumbs="[]" />
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-                <!-- Completed Tasks -->
-                <div
-                    class="px-4 py-6 flex justify-between bg-green-600/70 dark:bg-green-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer ripple-effect"
+                <Link
+                    :href="route('task.index')"
+                    class="px-4 py-6 flex justify-between bg-green-600/70 dark:bg-green-500/80 items-center overflow-hidden rounded-lg shadow-md ripple-effect"
                 >
                     <div class="flex flex-col">
                         <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
@@ -35,10 +35,12 @@ const props = defineProps({
                     <div>
                         <CheckCircleIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
-                </div>
+                </Link>
 
-                <!-- Pending Tasks -->
-                <div class="ripple-effect px-4 py-6 flex justify-between bg-amber-600/70 dark:bg-amber-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
+                <Link
+                    :href="route('task.index')"
+                    class="ripple-effect px-4 py-6 flex justify-between bg-amber-600/70 dark:bg-amber-500/80 items-center overflow-hidden rounded-lg shadow-md"
+                >
                     <div class="flex flex-col">
                         <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
                             {{ lang().label.pending_tasks }}
@@ -50,10 +52,12 @@ const props = defineProps({
                     <div>
                         <ClockIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
-                </div>
+                </Link>
 
-                <!-- Contracts -->
-                <div class="ripple-effect px-4 py-6 flex justify-between bg-blue-600/70 dark:bg-blue-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
+                <Link
+                    :href="route('contract.index')"
+                    class="ripple-effect px-4 py-6 flex justify-between bg-blue-600/70 dark:bg-blue-500/80 items-center overflow-hidden rounded-lg shadow-md"
+                >
                     <div class="flex flex-col">
                         <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
                             {{ lang().label.contracts }}
@@ -65,10 +69,12 @@ const props = defineProps({
                     <div>
                         <DocumentTextIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
-                </div>
+                </Link>
 
-                <!-- Applications -->
-                <div class="ripple-effect px-4 py-6 flex justify-between bg-red-600/70 dark:bg-red-500/80 items-center overflow-hidden rounded-lg shadow-md cursor-pointer">
+                <Link
+                    :href="route('application.index')"
+                    class="ripple-effect px-4 py-6 flex justify-between bg-red-600/70 dark:bg-red-500/80 items-center overflow-hidden rounded-lg shadow-md"
+                >
                     <div class="flex flex-col">
                         <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
                             {{ lang().label.applications }}
@@ -80,15 +86,13 @@ const props = defineProps({
                     <div>
                         <InboxIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
 
-
 <style>
-
 .ripple-effect {
     position: relative;
     overflow: hidden;

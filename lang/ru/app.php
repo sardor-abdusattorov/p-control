@@ -3,6 +3,19 @@
 return [
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'unknown_user' => 'Неизвестный пользователь',
+        'not_found' => ':attribute не найден.',
+
+        'approval_status' => 'Статус согласования',
+        'approved' => 'Согласовано',
+        'not_approved' => 'Не согласовано',
+        'approver' => 'Согласующий',
+        'approvers_list' => 'Список согласующих',
+        'cannot_delete_approved' => ':name уже согласовал и не может быть удалён.',
+        'cannot_delete_approved_list' => 'Некоторые пользователи не могут быть удалены, так как они уже согласовали.',
+        'approvers_updated_successfully' => 'Список согласующих успешно обновлён.',
+        'edit_approvers' => 'Редактирование согласующих',
+
         'log_name' => 'Имя лога',
         'causer_id' => 'Инициатор',
         'subject_type' => 'Тип объекта',
@@ -159,6 +172,7 @@ return [
         'password_forgot' => 'Забыли пароль?',
     ],
     'button' => [
+        'edit' => 'Изменить',
         'cancel' => 'Отмена',
         'confirm' => 'Подтвердить',
         'start_task' => 'Начать задачу',

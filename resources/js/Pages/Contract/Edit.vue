@@ -190,6 +190,9 @@
                                                     <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
                                                 </div>
                                                 <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                                                <span class="text-xs text-gray-500">
+                                                    {{ formatDate((file.created_at)) }}
+                                                </span>
                                                 <a
                                                     :href="file.original_url"
                                                     target="_blank"
@@ -343,6 +346,12 @@ const formattedProjects = computed(() => {
         display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
     }));
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
+};
 
 </script>
 
