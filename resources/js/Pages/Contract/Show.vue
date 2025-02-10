@@ -85,8 +85,8 @@
                     </div>
                 </div>
 
-                <div class="p-6 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
-                    <div class="flex items-center mb-3 justify-between">
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
+                    <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
                         <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
                             type="button"
@@ -100,29 +100,34 @@
                     </div>
 
                     <div class="space-y-2">
-                        <div v-for="approval in approvals" :key="approval.user_id"
-                             class="p-4 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
-                            <div class="details">
-                                <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
-                                <p v-if="approval.approved" class="text-green-600 font-semibold">
-                                    ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
-                                </p>
-                                <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
-                            </div>
-                            <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
-                                <form class="p-6">
-                                    <input type="hidden" :value="approval.user_id" />
-                                    <Button
-                                        type="button"
-                                        icon="pi pi-trash"
-                                        severity="danger"
-                                        class="p-button-sm dark:text-white"
-                                        @click="() => confirmRemoveApprover(approval)"
-                                        :disabled="approval.approved"
-                                    />
-                                </form>
+                        <div v-if="approvals.length">
+                            <div v-for="approval in approvals" :key="approval.user_id"
+                                 class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
+                                <div class="details">
+                                    <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
+                                    <p v-if="approval.approved" class="text-green-600 font-semibold">
+                                        ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
+                                    </p>
+                                    <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                                </div>
+                                <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
+                                    <form>
+                                        <input type="hidden" :value="approval.user_id" />
+                                        <Button
+                                            type="button"
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            class="p-button-sm dark:text-white"
+                                            @click="() => confirmRemoveApprover(approval)"
+                                            :disabled="approval.approved"
+                                        />
+                                    </form>
+                                </div>
                             </div>
                         </div>
+                        <p v-else class="text-gray-500 dark:text-gray-400 text-center">
+                            {{ lang().label.no_data }}
+                        </p>
                     </div>
 
                 </div>
