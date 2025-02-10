@@ -75,6 +75,11 @@ const update = () => {
                             :placeholder= "lang().label.select_departments"
                             :maxSelectedLabels="6"
                             class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.departments"/>
                     </div>

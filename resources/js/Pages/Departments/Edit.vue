@@ -85,6 +85,11 @@ watchEffect(() => {
                                   :highlightOnSelect="false"
                                   :placeholder="lang().label.select_user"
                                   class="w-full"
+                                  :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                               />
                               <InputError class="mt-2" :message="form.errors.head_of_department" />
                           </div>
@@ -99,6 +104,11 @@ watchEffect(() => {
                                   class="w-full"
                                   checkmark
                                   :highlightOnSelect="false"
+                                  :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                               />
                               <InputError class="mt-2" :message="form.errors.status" />
                           </div>

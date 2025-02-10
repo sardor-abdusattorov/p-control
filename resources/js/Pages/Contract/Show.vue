@@ -299,13 +299,10 @@ const data = reactive({
 const emit = defineEmits(["close"]);
 
 const confirmRemoveApprover = (user) => {
-    console.log("Запрос на удаление пользователя:", user);
-
     data.selectedUser = user;
     data.contract = props.contract;
     data.deleteUserOpen = true;
 };
-
 
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);

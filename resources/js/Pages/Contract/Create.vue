@@ -75,6 +75,11 @@
                             class="w-full"
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
@@ -93,6 +98,11 @@
                             :placeholder="lang().placeholder.select_recipients"
                             :maxSelectedLabels="8"
                             class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.recipients" />
                     </div>
@@ -109,6 +119,11 @@
                             :highlightOnSelect="false"
                             :placeholder="lang().placeholder.select_currency"
                             class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.currency_id" />
                     </div>

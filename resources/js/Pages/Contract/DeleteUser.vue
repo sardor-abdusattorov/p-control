@@ -21,8 +21,6 @@ watchEffect(() => {
 });
 
 const destroy = () => {
-    console.log("Удаление пользователя с ID:", form.user_id);
-
     form.post(route("contract.remove-approver", { contract: props.contract.id }), {
         preserveScroll: true,
         onSuccess: () => {

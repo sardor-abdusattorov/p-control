@@ -137,8 +137,6 @@ const activeTab = ref('tasks');
 
 
 watch(notifications, (newNotifications) => {
-
-    console.log("Уведомления обновлены:", newNotifications);
 }, { deep: true });
 
 const filteredNotifications = computed(() => {

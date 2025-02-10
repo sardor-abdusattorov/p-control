@@ -98,9 +98,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-console.log(props.activityLog)
-
 </script>
 
 

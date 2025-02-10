@@ -170,9 +170,6 @@ const getStatusLabel = (statusId) => {
     return status ? status.label : '';
 };
 
-console.log(getPriorityLabel())
-
-
 const getPrioritySeverity = (priorityId) => {
     switch (priorityId) {
         case 1:

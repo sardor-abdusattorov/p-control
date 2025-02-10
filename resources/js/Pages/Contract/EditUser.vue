@@ -10,8 +10,8 @@ const props = defineProps({
     show: Boolean,
     title: String,
     contract: Object,
-    users: Array,      // Список всех пользователей
-    approvals: Array,  // Список текущих одобряющих
+    users: Array,
+    approvals: Array,
 });
 
 const emit = defineEmits(["close"]);
@@ -20,7 +20,6 @@ const form = useForm({
     user_ids: [],
 });
 
-// Устанавливаем уже выбранных пользователей при загрузке
 watch(
     () => props.approvals,
     (newApprovals) => {
@@ -28,8 +27,6 @@ watch(
     },
     { immediate: true }
 );
-
-// Отправка формы
 const updateApprovers = () => {
     form.put(route("contract.update-approvers", { contract: props.contract.id }), {
         preserveScroll: true,
@@ -63,6 +60,11 @@ const updateApprovers = () => {
                     :placeholder="lang().placeholder.select_recipients"
                     :maxSelectedLabels="8"
                     class="w-full"
+                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                 />
             </div>
 

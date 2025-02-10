@@ -169,6 +169,11 @@ const onDepartmentChange = () => {
                             optionLabel="name"
                             optionValue="id"
                             :placeholder="lang().placeholder.select_role"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         >
                         </Select>
                         <InputError class="mt-2" :message="form.errors.role" />
@@ -187,6 +192,11 @@ const onDepartmentChange = () => {
                             :placeholder="lang().placeholder.select_recipients"
                             :maxSelectedLabels="8"
                             class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.recipients" />
                     </div>
@@ -205,6 +215,11 @@ const onDepartmentChange = () => {
                             :placeholder="lang().label.select_departments"
                             class="w-full"
                             @change="onDepartmentChange"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.department_id" />
                     </div>
@@ -221,6 +236,11 @@ const onDepartmentChange = () => {
                             checkmark
                             :highlightOnSelect="false"
                             :disabled="!form.department_id"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.position_id" />
                     </div>
@@ -248,6 +268,11 @@ const onDepartmentChange = () => {
                             class="w-full"
                             checkmark
                             :highlightOnSelect="false"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.status" />
                     </div>
