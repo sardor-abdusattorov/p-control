@@ -34,6 +34,7 @@ class ContractController extends Controller
             if (!$user) {
                 return redirect()->route('login');
             }
+
             $permissions = [
                 'create contract' => ['contract.create', 'contract.store'],
                 'update contract' => ['contract.edit', 'contract.update', 'contract.remove-approver', 'contract.update-approvers'],
@@ -42,10 +43,17 @@ class ContractController extends Controller
                 'contract chat' => ['contract.chat', 'contract.send-message', 'contract.get-messages', 'contract.get-all-chats'],
                 'approve contract' => ['contract.approve'],
             ];
+
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
+                            if ($permission === 'update contract' && !$user->hasRole('superadmin')) {
+                                $contract = $request->route('contract');
+                                if (!$contract || $contract->user_id !== $user->id) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
+                            }
                             return $next($request);
                         }
                     }
@@ -54,6 +62,7 @@ class ContractController extends Controller
             return redirect()->route('dashboard')->with('error', __('app.deny_access'));
         });
     }
+
 
     public function index(ContractIndexRequest $request)
     {

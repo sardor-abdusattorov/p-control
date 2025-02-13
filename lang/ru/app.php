@@ -5,7 +5,9 @@ return [
     'label' => [
         'unknown_user' => 'Неизвестный пользователь',
         'not_found' => ':attribute не найден.',
+        'not_recipient' => 'вы не получатель',
 
+        'approval_users' => 'Пользователи для утверждения',
         'approval_status' => 'Статус согласования',
         'approved' => 'Согласовано',
         'not_approved' => 'Не согласовано',

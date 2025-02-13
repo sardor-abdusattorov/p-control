@@ -6,17 +6,18 @@ use App\Http\Requests\Application\ApplicationIndexRequest;
 use App\Http\Requests\Application\ApplicationStoreRequest;
 use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
+use App\Models\Approvals;
 use App\Models\Chat;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Spatie\Activitylog\Models\Activity;
 
 class ApplicationController extends Controller
 {
@@ -28,26 +29,37 @@ class ApplicationController extends Controller
             if (!$user) {
                 return redirect()->route('login');
             }
+
             $permissions = [
                 'create application' => ['application.create', 'application.store'],
-                'update application' => ['application.edit', 'application.update'],
+                'update application' => ['application.edit', 'application.update', 'application.remove-approver', 'application.update-approvers'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
                 'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
                 'approve application' => ['application.approve'],
             ];
+
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
+                            if ($permission === 'update application' && !$user->hasRole('superadmin')) {
+                                $application = $request->route('application');
+                                if (!$application || $application->user_id !== $user->id) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
+                            }
+
                             return $next($request);
                         }
                     }
                 }
             }
+
             return redirect()->route('dashboard')->with('error', __('app.deny_access'));
         });
     }
+
 
     /**
      * Display a listing of the resource.
@@ -146,6 +158,15 @@ class ApplicationController extends Controller
 
             if (!empty($request->recipients)) {
                 foreach ($request->recipients as $recipient) {
+
+                    Approvals::create([
+                        'approvable_type' => Application::class,
+                        'approvable_id' => $application->id,
+                        'user_id' => $recipient,
+                        'approved' => false,
+                        'approved_at' => null,
+                    ]);
+
                     $chat = new Chat();
                     $chat->model_type = 'application';
                     $chat->model_id = $application->id;
@@ -175,19 +196,15 @@ class ApplicationController extends Controller
                 ->with('success', __('app.label.created_successfully', ['name' => $application->title]));
         } catch (\Throwable $th) {
             DB::rollback();
-
-            // Логируем ошибку создания заявки
             activity('application')
                 ->causedBy(auth()->user())
                 ->withProperties([
                     'error' => $th->getMessage(),
                 ])
                 ->log('Ошибка при создании заявки');
-
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.application')]) . ' ' . $th->getMessage());
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -200,12 +217,38 @@ class ApplicationController extends Controller
         ])->first();
         $files = $application->getMedia('documents');
         $statuses = Application::getStatuses();
+        $user = auth()->user();
+        $users = User::where('id', '!=', auth()->id())
+            ->where('status', 1)
+            ->get();
+
+        $approvals = Approvals::where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->with('user')
+            ->get()
+            ->map(function ($approval) {
+                return [
+                    'user_id' => $approval->user_id,
+                    'user_name' => optional($approval->user)->name,
+                    'approved' => (bool) $approval->approved,
+                    'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                ];
+            });
+
+        $canApprove = Approvals::where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->where('user_id', $user->id)
+            ->where('approved', false)
+            ->exists();
 
         return Inertia::render('Application/Show', [
             'title' => $application->title,
             'project' => $project,
             'statuses' => $statuses,
             'application' => $application,
+            'users' => $users,
+            'approvals' => $approvals,
+            'can_approve' => $canApprove,
             'files' => $files,
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
@@ -218,41 +261,89 @@ class ApplicationController extends Controller
     {
         try {
             $user = auth()->user();
+            $approval = Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-            if (!$user->hasRole(['accountant', 'lawyer'])) {
-                return response()->json(['error' => 'Unauthorized'], 403);
+            if (!$approval) {
+                return redirect()->back()->with('error', __('app.label.not_recipient'));
             }
 
-            $application->update([
-                'status_id' => 2,
+            if ($approval->approved) {
+                return redirect()->back()->with('error', __('app.label.already_approved'));
+            }
+
+            $approval->update([
+                'approved' => true,
+                'approved_at' => now(),
             ]);
 
             activity('application')
                 ->causedBy($user)
                 ->performedOn($application)
                 ->withProperties([
-                    'application_id' => $application->id,
+                    'contract_id' => $application->id,
                     'title' => $application->title,
-                    'status_id' => $application->status_id,
+                    'approved_by' => $user->id,
+                    'approved_at' => now()->format('d.m.Y H:i'),
                 ])
-                ->log('Подтверждена заявка');
+                ->log('Пользователь подтвердил заявку');
+
+            $totalApprovals = Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->where('approved', true)
+                ->count();
+
+            $totalRecipients = Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->count();
+
+            if ($application->status_id == 1) {
+                $application->update(['status_id' => 2]);
+
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($application)
+                    ->withProperties([
+                        'application_id' => $application->id,
+                        'previous_status' => 1,
+                        'new_status' => 2,
+                    ])
+                    ->log('Статус заявки изменен на "в процессе"');
+            }
+
+            if ($totalApprovals >= $totalRecipients) {
+                $application->update(['status_id' => 3]);
+
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($application)
+                    ->withProperties([
+                        'application_id' => $application->id,
+                        'previous_status' => 2,
+                        'new_status' => 3,
+                    ])
+                    ->log('Заявка полностью одобрен');
+            }
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
-        } catch (\Exception $e) {
 
+        } catch (\Exception $e) {
             activity('application')
                 ->causedBy(auth()->user())
+                ->performedOn($application)
                 ->withProperties([
                     'error' => $e->getMessage(),
                     'application_id' => $application->id,
+                    'title' => $application->title,
                 ])
                 ->log('Ошибка при подтверждении заявки');
 
             return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $application->title]));
         }
     }
-
 
 
     public function chat(Application $application)
@@ -338,7 +429,6 @@ class ApplicationController extends Controller
                 ]);
             }
 
-
             $message = Message::create([
                 'chat_id' => $chat->id,
                 'user_id' => auth()->id(),
@@ -420,7 +510,6 @@ class ApplicationController extends Controller
                 }
             }
 
-            // Логирование обновления
             activity('application')
                 ->causedBy(auth()->user())
                 ->performedOn($application)
@@ -517,6 +606,80 @@ class ApplicationController extends Controller
 
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.applications')]) . $th->getMessage());
         }
+    }
+
+    public function removeApprover(Request $request, Application $application)
+    {
+        if (!$request->has('user_id')) {
+            return redirect()->back()->with('error', __('app.label.deleted_error', [
+                'name' => __('app.label.unknown_user')
+            ]));
+        }
+        $userId = $request->user_id;
+        $user = User::find($userId);
+
+        $approval = Approvals::where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$approval) {
+            return redirect()->back()->with('error', __('app.label.not_found', [
+                'name' => __('app.label.approver')
+            ]));
+        }
+
+        if ($approval->approved) {
+            return redirect()->back()->with('warning', __('app.label.cannot_delete_approved', [
+                'name' => $user ? $user->name : __('app.label.unknown_user')
+            ]));
+        }
+
+        $approval->delete();
+        $application->update(['status_id' => 1]);
+
+        return redirect()->route('application.show', ['application' => $application->id])
+            ->with('success', __('app.label.deleted_successfully', [
+                'name' => $user ? $user->name : __('app.label.unknown_user')
+            ]));
+    }
+
+    public function updateApprovers(Request $request, Application $application)
+    {
+        $existingApprovals = Approvals::where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->get()
+            ->keyBy('user_id');
+
+        $newUserIds = collect($request->user_ids);
+        $usersToAdd = $newUserIds->diff($existingApprovals->keys());
+        $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
+        foreach ($usersToAdd as $userId) {
+            Approvals::create([
+                'approvable_type' => Application::class,
+                'approvable_id' => $application->id,
+                'user_id' => $userId,
+                'approved' => false,
+            ]);
+        }
+        $confirmedUsers = Approvals::whereIn('user_id', $usersToRemove)
+            ->where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->where('approved', true)
+            ->exists();
+
+        if ($confirmedUsers) {
+            return redirect()->route('application.show', ['application' => $application->id])
+                ->with('warning', __('app.label.cannot_delete_approved_list'));
+        }
+        Approvals::whereIn('user_id', $usersToRemove)
+            ->where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->where('approved', false)
+            ->delete();
+
+        return redirect()->route('application.show', ['application' => $application->id])
+            ->with('success', __('app.label.approvers_updated_successfully'));
     }
 
 }

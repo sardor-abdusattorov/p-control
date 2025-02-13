@@ -9,9 +9,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Application extends Model implements HasMedia
 {
-    const STATUS_SEND = 1;
-    const STATUS_APPROVED = 2;
-    const STATUS_REJECTED = 3;
+    const STATUS_NEW = 1;
+    const STATUS_IN_PROGRESS = 2;
+    const STATUS_APPROVED = 3;
+    const STATUS_REJECTED = -1;
+
 
     use InteractsWithMedia;
     use HasFactory;
@@ -33,7 +35,8 @@ class Application extends Model implements HasMedia
     public static function getStatuses(): array
     {
         return [
-            ['id' => self::STATUS_SEND, 'label' => __('app.status.send')],
+            ['id' => self::STATUS_NEW, 'label' => __('app.status.new')],
+            ['id' => self::STATUS_IN_PROGRESS, 'label' => __('app.status.in_progress')],
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
         ];

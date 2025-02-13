@@ -5,8 +5,10 @@ return [
     'label' => [
         'unknown_user' => 'Unknown user',
         'not_found' => ':attribute not found.',
+        'not_recipient' => "you're not a recipient",
 
         'approval_status' => 'Approval status',
+        'approval_users' => 'Approval users',
         'approved' => 'Approved',
         'not_approved' => 'Not approved',
         'approver' => 'Approver',

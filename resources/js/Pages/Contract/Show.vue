@@ -96,6 +96,7 @@
                             class="p-button-sm dark:text-white"
                             @click="data.editUserOpen = true"
                             v-show="contract.user_id === authUser.id"
+                            :disabled="contract.status === 3"
                         />
                     </div>
 

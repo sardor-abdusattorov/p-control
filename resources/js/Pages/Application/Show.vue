@@ -28,7 +28,7 @@
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
                         <Button
-                            v-show="application.status_id === 1 && can(['approve application'])"
+                            v-show="can_approve"
                             type="button"
                             icon="pi pi-check-circle"
                             :label="lang().button.approve"
@@ -41,7 +41,7 @@
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md uppercase"
                             v-tooltip="lang().tooltip.edit"
-                            v-show="can(['update contract'])"
+                            v-show="can(['update application'])"
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>
@@ -62,14 +62,80 @@
                             :application="data.application"
                             :title="props.title"
                         />
+                        <DeleteUser
+                            :show="data.deleteUserOpen"
+                            @close="data.deleteUserOpen = false"
+                            :application="data.application"
+                            :user="data.selectedUser"
+                            :title="props.title"
+                        />
+
+                        <EditUser
+                            :show="data.editUserOpen"
+                            @close="data.editUserOpen = false"
+                            :application="props.application"
+                            :users="props.users"
+                            :approvals="props.approvals"
+                            :title="props.title"
+                        />
+
                         <Approve
-                            v-show="can(['approve application']) && application.status === 1"
+                            v-show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2)"
                             :show="data.approveOpen"
                             @close="data.approveOpen = false"
                             :application="data.application"
                             :title="props.title"
                         />
                     </div>
+                </div>
+
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
+                    <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
+                        <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
+                        <Button
+                            type="button"
+                            icon="pi pi-user-plus"
+                            :label="lang().button.edit"
+                            severity="info"
+                            class="p-button-sm dark:text-white"
+                            :disabled="application.status_id === 3"
+                            @click="data.editUserOpen = true"
+                            v-show="application.user_id === authUser.id"
+                        />
+
+                    </div>
+
+                    <div class="space-y-2">
+                        <div v-if="approvals.length">
+                            <div v-for="approval in approvals" :key="approval.user_id"
+                                 class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
+                                <div class="details">
+                                    <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
+                                    <p v-if="approval.approved" class="text-green-600 font-semibold">
+                                        ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
+                                    </p>
+                                    <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                                </div>
+                                <div class="flex gap-2 items-center" v-show="application.user_id === authUser.id">
+                                    <form>
+                                        <input type="hidden" :value="approval.user_id" />
+                                        <Button
+                                            type="button"
+                                            icon="pi pi-trash"
+                                            severity="danger"
+                                            class="p-button-sm dark:text-white"
+                                            @click="() => confirmRemoveApprover(approval)"
+                                            :disabled="approval.approved"
+                                        />
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <p v-else class="text-gray-500 dark:text-gray-400 text-center">
+                            {{ lang().label.no_data }}
+                        </p>
+                    </div>
+
                 </div>
 
                 <!-- Table -->
@@ -156,8 +222,8 @@
 </template>
 
 <script setup>
-import {Head, Link, useForm} from '@inertiajs/vue3';
-import {defineProps, defineEmits, reactive} from 'vue';
+import {Head, Link, useForm, usePage} from '@inertiajs/vue3';
+import {defineProps, defineEmits, reactive, computed} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Badge from "primevue/badge";
@@ -167,31 +233,43 @@ import Delete from "@/Pages/Application/Delete.vue";
 import Approve from "@/Pages/Application/Approve.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import Button from "primevue/button";
+import DeleteUser from "@/Pages/Application/DeleteUser.vue";
+import EditUser from "@/Pages/Application/EditUser.vue";
 
 const props = defineProps({
     show: Boolean,
     application: Object,
     title: String,
     breadcrumbs: Object,
+    users: Object,
     statuses: Array,
     project: Object,
     files: Array,
+    can_approve: Boolean,
+    approvals: Object,
 });
+
+const form = useForm({});
+
+const authUser = usePage().props.auth.user;
 
 const data = reactive({
     deleteOpen: false,
-    approveOpen: false,
     project: null,
+    editUserOpen: false,
+    approveOpen: false,
+    deleteUserOpen: false,
+    selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
 });
 
 const emit = defineEmits(["close"]);
 
-const form = useForm({
-    title: "",
-    project_id: "",
-    recipients: [],
-    files: [],
-});
+
+const confirmRemoveApprover = (user) => {
+    data.selectedUser = user;
+    data.application = props.application;
+    data.deleteUserOpen = true;
+};
 
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);
@@ -203,11 +281,14 @@ const getStatusSeverity = (statusId) => {
         case 1:
             return 'info';
         case 2:
-            return 'success';
+            return 'info';
         case 3:
+            return 'success';
+        case -1:
             return 'danger';
         default:
-            return 'info';
+            return 'contrast';
     }
 };
+
 </script>

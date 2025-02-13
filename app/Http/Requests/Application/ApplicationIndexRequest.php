@@ -19,7 +19,7 @@ class ApplicationIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,user_id,project_id'],
+            'field' => ['in:title,user_id,project_id,status_id'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];

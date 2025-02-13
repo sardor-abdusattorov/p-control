@@ -12,7 +12,7 @@
                     </div>
                     <!-- Кнопки -->
                     <div class="buttons flex flex-wrap gap-2">
-                        <EditLink v-show="can(['update task'])"
+                        <EditLink v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update task']) && task.user_id === user.id)"
                                   :href="route('task.edit', { task: task.id })"
                                   class="px-4 py-2 rounded-md"
                                   v-tooltip="lang().tooltip.edit"
@@ -21,7 +21,7 @@
                         </EditLink>
 
                         <Button
-                            v-show="can(['start task']) && task.status === 1"
+                            v-show="can(['start task']) && task.status === 1 && task.assigned_user === authUser.id"
                             type="button"
                             icon="pi pi-check"
                             :label="lang().button.start_task"
@@ -31,7 +31,7 @@
                         />
 
                         <Button
-                            v-show="task.status === 2 && can(['complete task'])"
+                            v-show="task.status === 2 && can(['complete task']) && task.assigned_user === authUser.id"
                             type="button"
                             icon="pi pi-check-circle"
                             :label="lang().button.complete_task"
@@ -49,6 +49,27 @@
                                 class="p-button-sm dark:text-white"
                                 @click="(data.deleteOpen = true), (data.task = task)"
                         />
+                        <Delete
+                            :show="data.deleteOpen"
+                            @close="data.deleteOpen = false"
+                            :task="data.task"
+                            :title="props.title"
+                        />
+
+                        <Start
+                            :show="data.startOpen"
+                            @close="data.startOpen = false"
+                            :task="data.task"
+                            :title="props.title"
+                        />
+
+                        <Complete
+                            :show="data.completeOpen"
+                            @close="data.completeOpen = false"
+                            :task="data.task"
+                            :title="props.title"
+                        />
+
                     </div>
                 </div>
 
@@ -136,7 +157,7 @@
 </template>
 
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import {Head, usePage} from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Button from "primevue/button";
@@ -147,6 +168,8 @@ import EditLink from "@/Components/EditLink.vue";
 import Start from "@/Pages/Task/Start.vue";
 import Complete from "@/Pages/Task/Complete.vue";
 import {Textarea} from "primevue";
+
+const authUser = usePage().props.auth.user;
 
 const props = defineProps({
     show: Boolean,

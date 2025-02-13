@@ -46,6 +46,11 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::resource('application', ApplicationController::class)->except(['update']);
     // Bulk-удаление вынесли вне группы с параметром
     Route::post('application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
+
+    Route::post('/application/{application}/remove-approver', [ApplicationController::class, 'removeApprover'])
+        ->name('application.remove-approver');
+    Route::put('/application/{application}/update-approvers', [ApplicationController::class, 'updateApprovers'])->name('application.update-approvers');
+
     Route::prefix('application/{application}')->name('application.')->group(function () {
         Route::get('/chat', [ApplicationController::class, 'chat'])->name('chat');
         Route::post('/send-message', [ApplicationController::class, 'sendMessage'])->name('send-message');
@@ -95,7 +100,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Задачи
     Route::resource('task', TaskController::class)->except(['update']);
-    // Bulk-удаление вынесли вне группы с параметром
     Route::post('task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
     Route::prefix('task/{task}')->name('task.')->group(function () {
         Route::post('/update', [TaskController::class, 'update'])->name('update');
@@ -105,7 +109,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Пользователи
     Route::resource('user', UserController::class)->except(['update']);
-    // Bulk-удаление вынесли вне группы с параметром
     Route::post('user/destroy-bulk', [UserController::class, 'destroyBulk'])->name('user.destroy-bulk');
     Route::prefix('user/{user}')->name('user.')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('update');

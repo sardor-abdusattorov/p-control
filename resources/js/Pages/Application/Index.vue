@@ -280,11 +280,13 @@ const getStatusSeverity = (statusId) => {
         case 1:
             return 'info';
         case 2:
-            return 'success';
+            return 'info';
         case 3:
+            return 'success';
+        case -1:
             return 'danger';
         default:
-            return 'info';
+            return 'contrast';
     }
 };
 

@@ -5,6 +5,7 @@ return [
     'label' => [
         'unknown_user' => 'Noma\'lum foydalanuvchi',
         'not_found' => ':attribute topilmadi.',
+        'not_recipient' => 'siz tasdiqlovchi emassiz',
 
         'approval_status' => 'Tasdiqlash holati',
         'approved' => 'Tasdiqlandi',
@@ -16,7 +17,7 @@ return [
         'approvers_updated_successfully' => 'Tasdiqlovchilar ro\'yxati muvaffaqiyatli yangilandi.',
         'edit_approvers' => 'Tasdiqlovchilarni tahrirlash',
 
-
+        'approval_users' => 'Tasdiqlash foydalanuvchilari',
         'log_name' => 'Log nomi',
         'causer_id' => 'Initsiator',
         'subject_type' => 'Obyekt turi',

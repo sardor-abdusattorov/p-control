@@ -41,14 +41,22 @@ class TaskController extends Controller
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
+                            if ($permission === 'update task' && !$user->hasRole('superadmin')) {
+                                $task = $request->route('task');
+                                if (!$task || $task->user_id !== $user->id) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
+                            }
                             return $next($request);
                         }
                     }
                 }
             }
+
             return redirect()->route('dashboard')->with('error', __('app.deny_access'));
         });
     }
+
 
     /**
      * Display a listing of the resource.
@@ -57,10 +65,16 @@ class TaskController extends Controller
     {
         $user = auth()->user();
         $users = User::all()->pluck('name', 'id')->toArray();
-        if ($user->can('view all tasks')) {
-            $tasks = Task::query();
-        } else {
-            $tasks = Task::query()->where('assigned_user', $user->id);
+
+        $tasks = Task::query();
+
+        if (!$user->can('view all tasks')) {
+            $tasks->where(function ($query) use ($user) {
+                $query->where('assigned_user', $user->id);
+                if ($user->can('create task') || $user->can('update task')) {
+                    $query->orWhere('user_id', $user->id);
+                }
+            });
         }
         if ($request->has('search')) {
             $tasks->where('name', 'LIKE', "%" . $request->search . "%");
@@ -68,20 +82,20 @@ class TaskController extends Controller
         if ($request->has(['field', 'order'])) {
             $tasks->orderBy($request->field, $request->order);
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $perPage = $request->get('perPage', 10);
         $tasks = $tasks->paginate($perPage);
         $statuses = Task::getStatuses();
         $priorities = Task::getPriorities();
 
         return Inertia::render('Task/Index', [
-            'title'         => __('app.label.tasks'),
-            'statuses'      => $statuses,
-            'users'      => $users,
-            'priorities'    => $priorities,
-            'filters'       => $request->all(['search', 'field', 'order']),
-            'perPage'       => (int) $perPage,
-            'tasks'         => $tasks,
-            'breadcrumbs'   => [['label' => __('app.label.tasks'), 'href' => route('task.index')]],
+            'title'        => __('app.label.tasks'),
+            'statuses'     => $statuses,
+            'users'        => $users,
+            'priorities'   => $priorities,
+            'filters'      => $request->only(['search', 'field', 'order']),
+            'perPage'      => (int) $perPage,
+            'tasks'        => $tasks,
+            'breadcrumbs'  => [['label' => __('app.label.tasks'), 'href' => route('task.index')]],
         ]);
     }
 

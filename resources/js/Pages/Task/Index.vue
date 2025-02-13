@@ -143,10 +143,11 @@
                                         :href="route('task.show', { task: task.id })"
                                         v-tooltip="lang().tooltip.show"
                                     />
-                                    <EditLink v-show="can(['update task'])"
-                                        :href="route('task.edit', { task: task.id })"
-                                        v-tooltip="lang().tooltip.edit"
+                                    <EditLink v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update task']) && task.user_id === user.id)"
+                                              :href="route('task.edit', { task: task.id })"
+                                              v-tooltip="lang().tooltip.edit"
                                     />
+
                                     <DangerButton v-show="can(['delete task'])"
                                         type="button"
                                         @click="(data.deleteOpen = true), (data.task = task)"
@@ -192,6 +193,7 @@ import Badge from 'primevue/badge';
 import {Link} from "@inertiajs/vue3";
 
 const { _, debounce, pickBy } = pkg;
+const user = usePage().props.auth.user;
 
 const props = defineProps({
     title: String,

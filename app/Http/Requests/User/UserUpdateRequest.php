@@ -27,9 +27,14 @@ class UserUpdateRequest extends FormRequest
         return [
             'name'                  => ['required', 'string', 'max:255'],
             'email'                 => 'required|unique:users,email,' . $this->user,
-            'password' => ['required', 'confirmed', 'min:6'],
+            'password' => [
+                'nullable', // Пароль не обязателен
+                'confirmed', // Если есть, то должно быть подтверждение
+                'min:6', // Минимум 6 символов, если задан
+            ],
             'password_confirmation' => 'sometimes|required_with:password|same:password',
             'role'                  => ['required'],
         ];
     }
+
 }
