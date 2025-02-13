@@ -164,10 +164,12 @@
                                             :href="route('application.show', { application: application.id })"
                                             v-tooltip="lang().tooltip.show"
                                         />
-                                        <EditLink v-show="can(['update application'])"
-                                                  :href="route('application.edit', { application: application.id })"
-                                                  v-tooltip="lang().tooltip.edit"
+                                        <EditLink
+                                            v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update application']) && application.user_id === user.id && application.status_id !== 3)"
+                                            :href="route('application.edit', { application: application.id })"
+                                            v-tooltip="lang().tooltip.edit"
                                         />
+
                                         <DangerButton v-show="can(['delete application'])"
                                                       type="button"
                                                       @click="
@@ -218,6 +220,7 @@ import ViewLink from "@/Components/ViewLink.vue";
 import Badge from "primevue/badge";
 
 const { _, debounce, pickBy } = pkg;
+const user = usePage().props.auth.user;
 const props = defineProps({
     title: String,
     filters: Object,

@@ -43,9 +43,15 @@ class ApplicationController extends Controller
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
-                            if ($permission === 'update application' && !$user->hasRole('superadmin')) {
+                            if ($permission === 'update application') {
                                 $application = $request->route('application');
+                                if ($user->hasRole('superadmin')) {
+                                    return $next($request);
+                                }
                                 if (!$application || $application->user_id !== $user->id) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
+                                if ($application->status_id == 3) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
                             }

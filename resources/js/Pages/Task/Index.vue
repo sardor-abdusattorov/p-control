@@ -143,9 +143,10 @@
                                         :href="route('task.show', { task: task.id })"
                                         v-tooltip="lang().tooltip.show"
                                     />
-                                    <EditLink v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update task']) && task.user_id === user.id)"
-                                              :href="route('task.edit', { task: task.id })"
-                                              v-tooltip="lang().tooltip.edit"
+                                    <EditLink
+                                        v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update task']) && task.user_id === user.id && task.status !== 3)"
+                                        :href="route('task.edit', { task: task.id })"
+                                        v-tooltip="lang().tooltip.edit"
                                     />
 
                                     <DangerButton v-show="can(['delete task'])"

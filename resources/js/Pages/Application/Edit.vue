@@ -48,27 +48,6 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <InputLabel for="recipients" :value="lang().label.recipients" />
-                        <MultiSelect
-                            v-model="form.recipients"
-                            display="chip"
-                            optionValue="id"
-                            :options="props.users"
-                            optionLabel="name"
-                            filter
-                            :placeholder="lang().placeholder.select_recipients"
-                            :maxSelectedLabels="8"
-                            class="w-full"
-                            :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
-                        />
-                        <InputError class="mt-2" :message="form.errors.recipients" />
-                    </div>
-
-                    <div class="form-group mb-3">
                         <InputLabel for="files" :value="lang().label.files" />
                         <FileUpload
                             name="files[]"
@@ -109,6 +88,9 @@
                                                     <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
                                                 </div>
                                                 <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+                                                <span class="text-xs text-gray-500">
+                                                    {{ formatDate((file.created_at)) }}
+                                                </span>
                                                 <a
                                                     :href="file.original_url"
                                                     target="_blank"
@@ -170,7 +152,6 @@ const props = defineProps({
     title: String,
     application: Object,
     breadcrumbs: Object,
-    recipients: Array,
     projects: Array,
     users: Array,
     files: Array
@@ -181,14 +162,12 @@ const emit = defineEmits(["close"]);
 const form = useForm({
     title: "",
     project_id: "",
-    recipients: [],
     files: [],
     old_files: []
 });
 
 watchEffect(() => {
     form.errors = {};
-    form.recipients = props.recipients.map(recipient => recipient.recipient_id);
     form.title = props.application.title;
     form.project_id = props.application.project_id;
     form.files = [];
@@ -252,6 +231,12 @@ const formattedProjects = computed(() => {
         display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
     }));
 });
+
+const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
+};
 
 </script>
 

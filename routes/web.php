@@ -44,12 +44,14 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Заявки (Applications)
     Route::resource('application', ApplicationController::class)->except(['update']);
-    // Bulk-удаление вынесли вне группы с параметром
+
     Route::post('application/destroy-bulk', [ApplicationController::class, 'destroyBulk'])->name('application.destroy-bulk');
 
     Route::post('/application/{application}/remove-approver', [ApplicationController::class, 'removeApprover'])
         ->name('application.remove-approver');
     Route::put('/application/{application}/update-approvers', [ApplicationController::class, 'updateApprovers'])->name('application.update-approvers');
+
+    Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
 
     Route::prefix('application/{application}')->name('application.')->group(function () {
         Route::get('/chat', [ApplicationController::class, 'chat'])->name('chat');
@@ -85,11 +87,12 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
         ->name('contract.remove-approver');
     Route::put('/contract/{contract}/update-approvers', [ContractController::class, 'updateApprovers'])->name('contract.update-approvers');
 
+    Route::get('/contract/chat-messages/{chat_id}', [ContractController::class, 'getMessages'])->name('contract.get-messages');
+
     Route::prefix('contract/{contract}')->name('contract.')->group(function () {
         Route::post('/update', [ContractController::class, 'update'])->name('update');
         Route::get('/chat', [ContractController::class, 'chat'])->name('chat');
         Route::post('/send-message', [ContractController::class, 'sendMessage'])->name('send-message');
-        Route::get('/chat-messages/{chat_id}', [ContractController::class, 'getMessages'])->name('get-messages');
         Route::get('/get-all-chats', [ContractController::class, 'getAllChats'])->name('get-all-chats');
         Route::post('/approve', [ContractController::class, 'confirmContract'])->name('approve');
     });

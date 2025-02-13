@@ -12,13 +12,17 @@
                     </div>
                     <!-- Кнопки -->
                     <div class="buttons flex flex-wrap gap-2">
-                        <EditLink v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update task']) && task.user_id === user.id)"
-                                  :href="route('task.edit', { task: task.id })"
-                                  class="px-4 py-2 rounded-md"
-                                  v-tooltip="lang().tooltip.edit"
+                        <EditLink
+                            v-if="authUser && authUser.roles && authUser.roles.length > 0 &&
+          (authUser.roles[0].name === 'superadmin' ||
+          (can(['update task']) && task.user_id === authUser.id && task.status !== 3))"
+                            :href="route('task.edit', { task: task.id })"
+                            class="px-4 py-2 rounded-md"
+                            v-tooltip="lang().tooltip.edit"
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>
+
 
                         <Button
                             v-show="can(['start task']) && task.status === 1 && task.assigned_user === authUser.id"
@@ -101,7 +105,9 @@
 
                             <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
                                 <div class="text-lg font-semibold text-black dark:text-white">{{ lang().label.assigned_user }}:</div>
-                                <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50"> {{ props.users[task.assigned_user] ?? lang().label.undefined }}</div>
+                                <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50">
+                                    {{ props.users[task.assigned_user] ?? lang().label.undefined }}
+                                </div>
                             </div>
                         </div>
 
@@ -138,18 +144,36 @@
                                 </div>
                             </div>
 
-                            <div class="flex flex-col justify-start items-start gap-2 border-t py-3" v-if="props.task.task_completion && props.task.task_completion.completion_note">
-                                <div class="mb-4 text-lg font-semibold text-black dark:text-white">{{ lang().label.completion_note }}</div>
+                            <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
+                                <div class="text-lg font-semibold text-black dark:text-white">{{ lang().label.created }}:</div>
+                                <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50">
+                                    {{ props.task.created_at }}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
+                                <div class="text-lg font-semibold text-black dark:text-white">{{ lang().label.updated }}:</div>
+                                <div class="text-base font-medium text-slate-800 dark:text-white dark:text-opacity-50">
+                                    {{ props.task.updated_at }}
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col justify-start items-start gap-2 border-t py-3">
+                                <div class="mb-4 text-lg font-semibold text-black dark:text-white">
+                                    {{ lang().label.completion_note }}
+                                </div>
                                 <Textarea
                                     :readonly="true"
-                                    :value="props.task.task_completion.completion_note"
+                                    :value="props.task.task_completion ? props.task.task_completion.completion_note : ''"
                                     rows="5"
                                     style="resize: none"
                                     class="w-full"
                                 />
                             </div>
+
                         </div>
                     </div>
+
                 </div>
             </div>
         </section>

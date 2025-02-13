@@ -48,12 +48,19 @@ class ContractController extends Controller
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
-                            if ($permission === 'update contract' && !$user->hasRole('superadmin')) {
+                            if ($permission === 'update contract') {
                                 $contract = $request->route('contract');
+                                if ($user->hasRole('superadmin')) {
+                                    return $next($request);
+                                }
                                 if (!$contract || $contract->user_id !== $user->id) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
+                                if ($contract->status == 3) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
                             }
+
                             return $next($request);
                         }
                     }
@@ -422,8 +429,9 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'message' => 'required|string|max:1000',
-            'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
+            'files.*' => 'file|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z,txt,csv,mp3,mp4,mov,avi|max:20480',
         ]);
+
 
         DB::beginTransaction();
 
@@ -450,8 +458,11 @@ class ContractController extends Controller
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
+                    $ext = $file->extension();
+                    $name = Str::random(24) . '.' . $ext;
                     $message->addMedia($file)
-                        ->toMediaCollection('message file');
+                        ->usingFileName($name)
+                        ->toMediaCollection("message file");
                 }
             }
 
@@ -476,7 +487,7 @@ class ContractController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
-        if (auth()->user()->can('get all application')) {
+        if (auth()->user()->role('superadmin')) {
             $applications = Application::all();
         }else {
             $applications = auth()->user()->applications;

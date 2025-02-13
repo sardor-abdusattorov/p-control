@@ -317,7 +317,6 @@ const create = () => {
 watchEffect(() => {
     form.errors = {};
     form.recipients = props.recipients.map(recipient => recipient.recipient_id)
-    const newCurrencyId = form.currency_id;
 });
 
 const formattedProjects = computed(() => {

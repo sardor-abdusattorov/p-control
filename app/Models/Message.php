@@ -31,6 +31,6 @@ class Message extends Model implements HasMedia
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id'); // Сообщение связано с пользователем через user_id
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

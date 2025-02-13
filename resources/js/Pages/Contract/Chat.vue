@@ -143,6 +143,7 @@
                                     >
                                         <div class="message-content flex items-end mb-3" :class="message.user_id === currentUserId ? 'justify-end' : ''">
                                             <div class="flex flex-col space-y-2 text-sm max-w-xs mx-2" :class="message.user_id === currentUserId ? 'order-1 items-end' : 'order-2 items-start'">
+
                                                 <div
                                                     class="px-4 py-2 rounded-lg inline-block"
                                                     :class="message.user_id === currentUserId ? 'rounded-br-none bg-blue-600 text-white' : 'rounded-bl-none bg-gray-300 text-gray-600'"
@@ -156,7 +157,7 @@
                                                             :key="file.id"
                                                             class="text-sm text-blue-600 hover:underline"
                                                         >
-                                                            <a :href="file.original_url" target="_blank" download>{{ file.file_name }}</a>
+                                                            <a :href="file.original_url" target="_blank" download>{{ file.name }}</a>
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -175,8 +176,8 @@
                                 </div>
                             </ScrollPanel>
                             <div class="p-4 bg-gray-100 dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 rounded-md rounded-tl-none rounded-tr-none">
-                                <form class="flex items-stretch" @submit.prevent="send" enctype="multipart/form-data">
-                                    <!-- Скрытое поле для передачи chat_id -->
+                                <form class="flex flex-wrap items-stretch" @submit.prevent="send" enctype="multipart/form-data">
+
                                     <input type="hidden" v-model="form.receiver_id" name="receiver_id" />
                                     <input type="hidden" v-model="form.chat_id" name="chat_id" />
 
@@ -211,10 +212,13 @@
                                             {{lang().button.send}}
                                         </button>
                                     </div>
+
+                                    <InputError class="mt-2" :message="form.errors['files.0'] || ''" />
+
                                 </form>
 
                                 <div v-if="selectedFiles.length > 0" class="mt-4 p-2 bg-gray-200 dark:bg-slate-700 rounded-md">
-                                    <h4 class="text-sm font-semibold dark:text-white"> {{ message.selected_files }}</h4>
+                                    <h4 class="text-sm font-semibold dark:text-white"> {{ form.selectedFiles }}</h4>
                                     <ul>
                                         <li
                                             v-for="(file, index) in selectedFiles"
@@ -243,13 +247,16 @@
 </template>
 
 <script setup>
-import {nextTick, onMounted, onUnmounted, ref} from 'vue';
+import {nextTick, onMounted, onUnmounted, ref, computed, watchEffect} from 'vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import Breadcrumb from '@/Components/Breadcrumb.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ScrollPanel from 'primevue/scrollpanel';
+import axios from 'axios';
+import InputError from "@/Components/InputError.vue";
 
 const activeTab = ref('dialogs');
+
 const props = defineProps({
     contract: Object,
     title: String,
@@ -258,8 +265,12 @@ const props = defineProps({
     users: Array,
 });
 
+
+const chats = ref([...props.chats]);
+
+// Форма для отправки сообщения
 const form = useForm({
-    message: '',
+    message: '',  // Добавлено
     files: [],
     receiver_id: '',
     chat_id: '',
@@ -267,24 +278,26 @@ const form = useForm({
 
 const activeChat = ref(null);
 const messages = ref([]);
-const selectedFiles = ref([]);
+const selectedFiles = ref([]); // Добавлено
 
 const currentUserId = usePage().props.auth.user.id;
 
+// Очистка формы
 const clearForm = () => {
     form.message = '';
     form.files = [];
-    selectedFiles.value = [];
+    selectedFiles.value = []; // Очистка выбранных файлов
 };
 
-
+// Функция для обновления сообщений в чате
 const updateChatMessages = (chatId, newMessages) => {
-    const chatIndex = props.chats.findIndex((chat) => chat.id === chatId);
+    const chatIndex = chats.value.findIndex((chat) => chat.id === chatId);
     if (chatIndex !== -1) {
-        props.chats[chatIndex].messages = newMessages;
+        chats.value[chatIndex].messages = newMessages;
     }
 };
 
+// Загрузка сообщений для активного чата
 const fetchMessages = async () => {
     if (!activeChat.value?.id) return;
 
@@ -299,17 +312,19 @@ const fetchMessages = async () => {
     }
 };
 
+// Загрузка всех чатов
 const fetchAllChats = async () => {
     try {
         const response = await axios.get(route('contract.get-all-chats', { contract: props.contract.id }));
         if (response.data?.chats) {
-            props.chats.splice(0, props.chats.length, ...response.data.chats);
+            chats.value = response.data.chats;
         }
     } catch (error) {
         console.error('Ошибка при загрузке чатов:', error);
     }
 };
 
+// Открытие чата
 const loadChat = (chat) => {
     activeChat.value = chat;
     messages.value = chat.messages || [];
@@ -318,17 +333,21 @@ const loadChat = (chat) => {
     clearForm();
 };
 
+// Отправка сообщения
 const send = async () => {
+    console.log("Отправляем данные:", form);
+
     try {
         await form.post(route('contract.send-message', props.contract?.id), {
             preserveScroll: true,
             onSuccess: (response) => {
+                console.log("Ответ сервера:", response);
+
                 clearForm();
                 if (response?.data?.message) {
                     messages.value.push(response.data.message);
 
                     if (!activeChat.value.id && response.data.chat) {
-                        // Если чат был создан, обновляем его ID
                         activeChat.value.id = response.data.chat.id;
                         form.chat_id = response.data.chat.id;
                     }
@@ -346,14 +365,18 @@ const send = async () => {
             },
         });
     } catch (error) {
-        console.error('Ошибка при отправке сообщения:', error);
+        console.error("Ошибка при отправке сообщения:", error);
     }
 };
 
+watchEffect(() => {
+    form.errors = {};
+});
 
+// Обработчик загрузки файлов
 const triggerFileInput = () => {
     const fileInput = document.querySelector('input[type="file"]');
-    fileInput.click();
+    if (fileInput) fileInput.click();
 };
 
 const handleFileChange = (event) => {
@@ -369,27 +392,31 @@ const removeFile = (index) => {
     form.files = selectedFiles.value;
 };
 
-const getReceiverName = (receiverId) => {
+// Получение имени получателя
+const getReceiverName = computed(() => (receiverId) => {
     const user = props.users.find((u) => u.id === receiverId);
-    return user?.name || null;
-};
+    return user?.name || 'Неизвестный';
+});
 
+// Получение изображения пользователя
 const getUserImage = (userId) => {
     const user = props.users.find((u) => u.id === userId);
     return user?.profile_image || '/default-avatar.jpg';
 };
 
-const getLastMessage = (userId) => {
-    const chat = props.chats.find(
+// Получение последнего сообщения
+const getLastMessage = computed(() => (userId) => {
+    const chat = chats.value.find(
         (c) =>
             (c.user_id === currentUserId && c.receiver_id === userId) ||
             (c.receiver_id === currentUserId && c.user_id === userId)
     );
-    return chat?.messages?.[chat.messages.length - 1] || null;
-};
+    return chat?.messages?.length ? chat.messages[chat.messages.length - 1] : null;
+});
 
+// Открытие чата с пользователем
 const openChatWithUser = async (user) => {
-    const existingChat = props.chats.find(
+    const existingChat = chats.value.find(
         (c) =>
             (c.user_id === currentUserId && c.receiver_id === user.id) ||
             (c.receiver_id === currentUserId && c.user_id === user.id)
@@ -398,19 +425,19 @@ const openChatWithUser = async (user) => {
     if (existingChat) {
         loadChat(existingChat);
     } else {
-        // Создаем временный "активный" чат и сразу открываем для отправки сообщения
         activeChat.value = {
-            id: null, // ID пока нет, так как чат еще не создан на сервере
+            id: null,
             receiver_id: user.id,
             user_id: currentUserId,
             messages: [],
         };
         form.receiver_id = user.id;
-        form.chat_id = null; // ID чата пока не существует
+        form.chat_id = null;
         messages.value = [];
     }
 };
 
+// Интервалы для обновления чатов и сообщений
 let chatUpdateInterval, messageUpdateInterval;
 
 onMounted(() => {
@@ -422,5 +449,6 @@ onUnmounted(() => {
     clearInterval(chatUpdateInterval);
     clearInterval(messageUpdateInterval);
 });
-</script>
 
+
+</script>

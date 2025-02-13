@@ -38,10 +38,12 @@
                         />
 
                         <EditLink
+                            v-if="authUser && authUser.roles && authUser.roles.length > 0 &&
+                                  (authUser.roles[0].name === 'superadmin' ||
+                                  (can(['update application']) && application.user_id === authUser.id && application.status_id !== 3))"
                             :href="route('application.edit', { application: application.id })"
-                            class="px-4 py-2 rounded-md uppercase"
+                            class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
-                            v-show="can(['update application'])"
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>

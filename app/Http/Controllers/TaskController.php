@@ -41,12 +41,19 @@ class TaskController extends Controller
                 if ($user->can($permission)) {
                     foreach ($routes as $route) {
                         if ($request->routeIs($route)) {
-                            if ($permission === 'update task' && !$user->hasRole('superadmin')) {
+                            if ($permission === 'update task') {
                                 $task = $request->route('task');
+                                if ($user->hasRole('superadmin')) {
+                                    return $next($request);
+                                }
                                 if (!$task || $task->user_id !== $user->id) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
+                                if ($task->status == 3) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
                             }
+
                             return $next($request);
                         }
                     }
@@ -56,7 +63,6 @@ class TaskController extends Controller
             return redirect()->route('dashboard')->with('error', __('app.deny_access'));
         });
     }
-
 
     /**
      * Display a listing of the resource.
