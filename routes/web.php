@@ -53,10 +53,12 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
 
+    Route::get('/application/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('application.get-messages');
+
     Route::prefix('application/{application}')->name('application.')->group(function () {
         Route::get('/chat', [ApplicationController::class, 'chat'])->name('chat');
         Route::post('/send-message', [ApplicationController::class, 'sendMessage'])->name('send-message');
-        Route::get('/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('get-messages');
+
         Route::get('/get-all-chats', [ApplicationController::class, 'getAllChats'])->name('get-all-chats');
         Route::post('/approve', [ApplicationController::class, 'confirmApplication'])->name('approve');
     });
