@@ -251,184 +251,123 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, computed } from 'vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import Breadcrumb from '@/Components/Breadcrumb.vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import ScrollPanel from 'primevue/scrollpanel';
-import axios from 'axios';
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import {Head, useForm, usePage} from "@inertiajs/vue3";
+import {computed, watchEffect} from "vue";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Breadcrumb from "@/Components/Breadcrumb.vue";
+import Select from "primevue/select";
+import DatePicker from "primevue/datepicker";
+import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import BackLink from "@/Components/BackLink.vue";
+import FileUpload from 'primevue/fileupload';
+import {Message} from "primevue";
+import Button from "primevue/button";
 
-const activeTab = ref('dialogs');
 const props = defineProps({
-    contract: Object,
+    show: Boolean,
     title: String,
     breadcrumbs: Object,
-    chats: Array,
+    contract: Object,
     users: Array,
+    projects: Array,
+    applications: Array,
+    currency: Array,
+    files: Array
 });
 
-const chats = ref([...props.chats]);
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+const allowedFileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+];
 
 const form = useForm({
-    message: '',
+    contract_number: "",
     files: [],
-    receiver_id: '',
-    chat_id: '',
+    title: "",
+    project_id: "",
+    application_id: "",
+    currency_id: "",
+    user_id: "",
+    budget_sum: "",
+    deadline: "",
 });
 
-const activeChat = ref(null);
-const messages = ref([]);
-const selectedFiles = ref([]);
-
-const currentUserId = usePage().props.auth.user.id;
-
-const clearForm = () => {
-    form.message = '';
-    form.files = [];
-    selectedFiles.value = [];
-};
-
-const updateChatMessages = (chatId, newMessages) => {
-    const chatIndex = chats.value.findIndex((chat) => chat.id === chatId);
-    if (chatIndex !== -1) {
-        chats.value[chatIndex].messages = newMessages;
-    }
-};
-
-const fetchMessages = async () => {
-    if (!activeChat.value?.id) return;
-
-    try {
-        const response = await axios.get(route('contract.get-messages', { chat_id: activeChat.value.id }));
-        if (response.data?.messages) {
-            messages.value = response.data.messages;
-            updateChatMessages(activeChat.value.id, response.data.messages);
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке сообщений:', error);
-    }
-};
-
-const fetchAllChats = async () => {
-    try {
-        const response = await axios.get(route('contract.get-all-chats', { contract: props.contract.id }));
-        if (response.data?.chats) {
-            chats.value = response.data.chats;
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке чатов:', error);
-    }
-};
-
-const loadChat = (chat) => {
-    activeChat.value = chat;
-    messages.value = chat.messages || [];
-    form.receiver_id = chat.receiver_id;
-    form.chat_id = chat.id;
-    clearForm();
-};
-
-const send = async () => {
-    try {
-        await form.post(route('contract.send-message', props.contract?.id), {
-            preserveScroll: true,
-            onSuccess: (response) => {
-                clearForm();
-                if (response?.data?.message) {
-                    messages.value.push(response.data.message);
-
-                    if (!activeChat.value.id && response.data.chat) {
-                        activeChat.value.id = response.data.chat.id;
-                        form.chat_id = response.data.chat.id;
-                    }
-
-                    fetchAllChats();
-
-                    nextTick(() => {
-                        const messagesContainer = document.getElementById('messages');
-                        if (messagesContainer) {
-                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                        }
-                    });
-                }
-                fetchMessages();
-            },
+const onFileChange = (event) => {
+    if (event.files && event.files.length > 0) {
+        const newFiles = event.files;
+        const invalidFiles = [];
+        newFiles.forEach((file) => {
+            if (!allowedFileTypes.includes(file.type)) {
+                invalidFiles.push(file.name);
+            }
         });
-    } catch (error) {
-        console.error('Ошибка при отправке сообщения:', error);
+        if (invalidFiles.length > 0) {
+        } else {
+            form.files = newFiles;
+        }
     }
 };
 
-const triggerFileInput = () => {
-    const fileInput = document.querySelector('input[type="file"]');
-    if (fileInput) fileInput.click();
+const onClearFiles = () => {
+    form.files = [];
 };
 
-const handleFileChange = (event) => {
-    const files = event.target.files;
-    if (files.length > 0) {
-        selectedFiles.value = Array.from(files);
-        form.files = selectedFiles.value;
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
+};
+
+const update = () => {
+    form.post(route("contract.update", props.contract?.id));
+};
+
+watchEffect(() => {
+    form.contract_number = props.contract.contract_number
+    form.project_id = props.contract.project_id
+    form.application_id = props.contract.application_id
+    form.user_id = props.contract.user_id
+    form.currency_id = props.contract.currency_id
+    form.title = props.contract.title
+    form.budget_sum = props.contract.budget_sum
+    form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
+    form.files = [];
+    form.errors = {};
+});
+
+const getFileIcon = (fileType) => {
+    if (fileType === 'application/pdf') {
+        return 'pi pi-file-pdf';
+    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return 'pi pi-file-word';
+    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        return 'pi pi-file-excel';
     }
+    return 'pi pi-file';
 };
 
-const removeFile = (index) => {
-    selectedFiles.value.splice(index, 1);
-    form.files = selectedFiles.value;
+const formattedProjects = computed(() => {
+    return props.projects.map(project => ({
+        id: project.id,
+        project_number: project.project_number || '',
+        title: project.title,
+        display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
+    }));
+});
+
+const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
 
-const getReceiverName = computed(() => (receiverId) => {
-    const user = props.users.find((u) => u.id === receiverId);
-    return user?.name || 'Неизвестный';
-});
-
-const getUserImage = (userId) => {
-    const user = props.users.find((u) => u.id === userId);
-    return user?.profile_image || '/default-avatar.jpg';
-};
-
-const getLastMessage = computed(() => (userId) => {
-    const chat = chats.value.find(
-        (c) =>
-            (c.user_id === currentUserId && c.receiver_id === userId) ||
-            (c.receiver_id === currentUserId && c.user_id === userId)
-    );
-    return chat?.messages?.length ? chat.messages[chat.messages.length - 1] : null;
-});
-
-const openChatWithUser = async (user) => {
-    const existingChat = chats.value.find(
-        (c) =>
-            (c.user_id === currentUserId && c.receiver_id === user.id) ||
-            (c.receiver_id === currentUserId && c.user_id === user.id)
-    );
-
-    if (existingChat) {
-        loadChat(existingChat);
-    } else {
-        activeChat.value = {
-            id: null,
-            receiver_id: user.id,
-            user_id: currentUserId,
-            messages: [],
-        };
-        form.receiver_id = user.id;
-        form.chat_id = null;
-        messages.value = [];
-    }
-};
-
-let chatUpdateInterval, messageUpdateInterval;
-
-onMounted(() => {
-    chatUpdateInterval = setInterval(fetchAllChats, 10000);
-    messageUpdateInterval = setInterval(fetchMessages, 10000);
-});
-
-onUnmounted(() => {
-    clearInterval(chatUpdateInterval);
-    clearInterval(messageUpdateInterval);
-});
 </script>
 
 <style>
