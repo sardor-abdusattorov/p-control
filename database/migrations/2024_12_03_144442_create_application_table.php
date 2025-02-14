@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('project_id')->unsigned()->nullable(false);
             $table->integer('user_id')->unsigned()->nullable(false);
             $table->integer('status_id')->unsigned();
+            $table->tinyInteger('type')->unsigned()->default(1);
             $table->timestamps();
         });
     }

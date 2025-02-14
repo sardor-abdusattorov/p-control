@@ -1,8 +1,13 @@
 <?php
 
 return [
+    'type' => [
+        'request' => 'Заявка',
+        'memo' => 'Служебная записка',
+    ],
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        "type"=> "Основание для заключения контракта",
         'unknown_user' => 'Неизвестный пользователь',
         'not_found' => ':attribute не найден.',
         'not_recipient' => 'вы не получатель',
@@ -65,12 +70,12 @@ return [
         'complete_task' => 'Завершить задачу',
         'start_task_confirm' => 'Вы уверены, что хотите начать задачу?',
         'undefined' => 'Неопределено',
-        'application_id' => 'Заявка',
+        'application_id' => 'Заявка/Служебная записка',
         'preview' => 'Предпросмотр',
         'project_id' => 'Проект',
         'project_name' => 'Название проекта',
-        'applications' => 'Заявки',
-        'application' => 'Заявка',
+        'applications' => 'Основания',
+        'application' => 'Основание',
         'settings' => 'Настройки',
         'drag_and_drop' => 'Перетащить',
         'project_number' => 'Номер проекта',
@@ -209,6 +214,7 @@ return [
         'select_application' => 'Выберите заявку',
         'priority' => 'Выберите приоритет...',
         'telegram_id' => 'Telegram ID',
+        'select_type' => "Выберите тип заявки",
         'search' => 'Поиск...',
         'email' => 'email@email.com',
         'password' => 'Пароль',

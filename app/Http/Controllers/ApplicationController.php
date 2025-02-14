@@ -54,6 +54,9 @@ class ApplicationController extends Controller
                                 if ($application->status_id == 3) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
+                                if ($application->type == 2) {
+                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
+                                }
                             }
 
                             return $next($request);
@@ -106,25 +109,22 @@ class ApplicationController extends Controller
     public function create()
     {
         $projects = Project::all();
-
         $recipients = Recipient::where('user_id', auth()->id())->get();
-
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->get();
+        $users = User::where('id', '!=', auth()->id())->where('status', 1)->get();
+        $types = Application::getTypes();
 
         return Inertia::render('Application/Create', [
             'title' => __('app.label.applications'),
             'projects' => $projects,
             'recipients' => $recipients,
             'users' => $users,
+            'types' => $types,
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => __('app.label.create')]
             ],
         ]);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -140,6 +140,7 @@ class ApplicationController extends Controller
             $application->project_id = $request->project_id;
             $application->user_id = auth()->id();
             $application->status_id = 1;
+            $application->type = $request->type;
             $application->save();
 
             activity('application')
@@ -227,6 +228,7 @@ class ApplicationController extends Controller
         $users = User::where('id', '!=', auth()->id())
             ->where('status', 1)
             ->get();
+        $types = Application::getTypes();
 
         $approvals = Approvals::where('approvable_type', Application::class)
             ->where('approvable_id', $application->id)
@@ -253,6 +255,7 @@ class ApplicationController extends Controller
             'statuses' => $statuses,
             'application' => $application,
             'users' => $users,
+            'types' => $types,
             'approvals' => $approvals,
             'can_approve' => $canApprove,
             'files' => $files,
@@ -469,6 +472,7 @@ class ApplicationController extends Controller
      */
     public function edit(Application $application)
     {
+        $types = Application::getTypes();
         $projects = Project::all();
         $files = $application->getMedia('documents');
         $recipients = Recipient::where('user_id', auth()->id())->get();
@@ -482,6 +486,7 @@ class ApplicationController extends Controller
             'projects' => $projects,
             'recipients' => $recipients,
             'users' => $users,
+            'types' => $types,
             'application' => $application,
             'files' => $files,
             'breadcrumbs' => [
@@ -504,6 +509,7 @@ class ApplicationController extends Controller
             $application->update([
                 'title' => $request->input('title'),
                 'project_id' => $request->input('project_id'),
+                'type' => $request->input('type'),
             ]);
 
             if ($request->hasFile('files')) {

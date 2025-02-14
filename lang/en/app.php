@@ -1,11 +1,16 @@
 <?php
 
 return [
+    'type' => [
+        'request' => 'Application',
+        'memo' => 'Internal memo',
+    ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
         'unknown_user' => 'Unknown user',
         'not_found' => ':attribute not found.',
         'not_recipient' => "you're not a recipient",
+        'type' => "Type of application",
 
         'approval_status' => 'Approval status',
         'approval_users' => 'Approval users',
@@ -207,6 +212,7 @@ return [
         'select_user' => 'Select User...',
         'select_status' => 'Select Status...',
         'select_application' => 'Select Application',
+        'select_type' => 'Select Type',
         'priority' => 'Select Priority...',
         'telegram_id' => 'Telegram ID',
         'search' => 'Search...',

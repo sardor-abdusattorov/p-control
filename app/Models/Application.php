@@ -14,6 +14,9 @@ class Application extends Model implements HasMedia
     const STATUS_APPROVED = 3;
     const STATUS_REJECTED = -1;
 
+        const TYPE_REQUEST = 1;
+        const TYPE_MEMO = 2;
+
 
     use InteractsWithMedia;
     use HasFactory;
@@ -39,6 +42,14 @@ class Application extends Model implements HasMedia
             ['id' => self::STATUS_IN_PROGRESS, 'label' => __('app.status.in_progress')],
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
+        ];
+    }
+
+    public static function getTypes(): array
+    {
+        return [
+            ['id' => self::TYPE_REQUEST, 'label' => __('app.type.request')],
+            ['id' => self::TYPE_MEMO, 'label' => __('app.type.memo')],
         ];
     }
 

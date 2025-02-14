@@ -4,10 +4,29 @@
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
             <form class="p-6" @submit.prevent="create" enctype="multipart/form-data">
-                <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
-                    {{ lang().label.add }} {{ props.title }}
-                </h2>
                 <div class="my-6 space-y-4">
+                    <div class="form-group mb-3">
+                        <InputLabel for="type" :value="lang().label.type" />
+                        <Select
+                            id="type"
+                            v-model="form.type"
+                            :options="types"
+                            optionLabel="label"
+                            optionValue="id"
+                            class="w-full"
+                            filter
+                            checkmark
+                            :placeholder="lang().placeholder.select_type"
+                            :highlightOnSelect="false"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.type" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="title" :value="lang().label.title" />
                         <InputText
@@ -46,7 +65,7 @@
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" v-if="form.type !== 2">
                         <InputLabel for="recipients" :value="lang().label.approval_users" />
                         <MultiSelect
                             v-model="form.recipients"
@@ -135,7 +154,6 @@
     </AuthenticatedLayout>
 </template>
 
-
 <script setup>
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -158,7 +176,8 @@ const props = defineProps({
     breadcrumbs: Object,
     recipients: Array,
     projects: Array,
-    users: Array
+    users: Array,
+    types: Array,
 });
 
 const emit = defineEmits(["close"]);
@@ -168,6 +187,7 @@ const form = useForm({
     project_id: "",
     recipients: [],
     files: [],
+    type: 1,
 });
 
 const allowedFileTypes = [
@@ -185,7 +205,12 @@ const create = () => {
 
 watchEffect(() => {
     form.errors = {};
-    form.recipients = props.recipients.map(recipient => recipient.recipient_id)
+
+    if (form.type === 2) {
+        form.recipients = []; // Очистка, если служебка
+    } else {
+        form.recipients = props.recipients.map(recipient => recipient.recipient_id);
+    }
 });
 
 const onFileChange = (event) => {

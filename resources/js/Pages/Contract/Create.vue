@@ -61,6 +61,28 @@
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
+                    <div class="form-group mb-3">
+                        <InputLabel for="type" :value="lang().label.type" />
+                        <Select
+                            id="type"
+                            v-model="form.application_type"
+                            :options="application_types"
+                            optionLabel="label"
+                            optionValue="id"
+                            class="w-full"
+                            filter
+                            checkmark
+                            :placeholder="lang().placeholder.select_type"
+                            :highlightOnSelect="false"
+                            :pt="{
+                option: { class: 'custom-option' },
+                dropdown: { style: { maxWidth: '300px' } },
+                overlay: { class: 'parent-wrapper-class' }
+            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.type" />
+                    </div>
+
                     <div class="form-group mb-5">
                         <InputLabel for="application_id" :value="lang().label.application_id" />
                         <Select
@@ -68,23 +90,24 @@
                             v-model="form.application_id"
                             optionLabel="title"
                             optionValue="id"
-                            :options="props.applications"
+                            :options="filteredApplications"
                             filter
                             checkmark
                             :highlightOnSelect="false"
                             class="w-full"
+                            :disabled="!form.application_type"
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+                option: { class: 'custom-option' },
+                dropdown: { style: { maxWidth: '300px' } },
+                overlay: { class: 'parent-wrapper-class' }
+            }"
                         />
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div class="form-group mb-3" v-if="form.application_type !== 2">
                         <InputLabel for="recipients" :value="lang().label.approval_users" />
                         <MultiSelect
                             v-model="form.recipients"
@@ -239,7 +262,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {computed, ref, watchEffect} from "vue";
+import {computed, ref, watch, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -261,6 +284,7 @@ const props = defineProps({
     applications: Array,
     currency: Array,
     recipients: Array,
+    application_types: Object,
 });
 
 // const user = usePage().props.auth.user;
@@ -282,9 +306,19 @@ const form = useForm({
     title: "",
     project_id: "",
     application_id: "",
+    application_type: 2,
     currency_id: 1,
     budget_sum: null,
     deadline: new Date(new Date().getFullYear(), 11, 31),
+});
+
+const filteredApplications = computed(() => {
+    if (!form.application_type) return [];
+    return props.applications.filter(app => app.type === form.application_type);
+});
+
+watch(() => form.application_type, () => {
+    form.application_id = "";
 });
 
 const onFileChange = (event) => {
@@ -316,7 +350,11 @@ const create = () => {
 
 watchEffect(() => {
     form.errors = {};
-    form.recipients = props.recipients.map(recipient => recipient.recipient_id)
+    if (form.application_type === 2) {
+        form.recipients = [];
+    } else {
+        form.recipients = props.recipients.map(recipient => recipient.recipient_id);
+    }
 });
 
 const formattedProjects = computed(() => {

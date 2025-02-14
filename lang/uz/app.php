@@ -1,8 +1,13 @@
 <?php
 
 return [
+    'type' => [
+        'request' => 'Ariza',
+        'memo' => 'Xizmat yozuvi',
+    ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'type' => "Ariza turi",
         'unknown_user' => 'Noma\'lum foydalanuvchi',
         'not_found' => ':attribute topilmadi.',
         'not_recipient' => 'siz tasdiqlovchi emassiz',
@@ -211,6 +216,7 @@ return [
         'telegram_id' => 'Telegram ID',
         'search' => 'Qidirish...',
         'email' => 'email@email.com',
+        'select_type' => "Ariza turini tanlang",
         'password' => 'Parol',
         'password_confirmation' => 'Parolni tasdiqlash',
         'name' => 'Ism',

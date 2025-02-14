@@ -105,7 +105,7 @@ class ContractController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
-        if (auth()->user()->can('get all application')) {
+        if (auth()->user()->can('view all applications')) {
             $applications = Application::all();
         }else {
             $applications = auth()->user()->applications;
@@ -113,6 +113,8 @@ class ContractController extends Controller
         $users = User::where('id', '!=', auth()->id())
             ->where('status', 1)
             ->get();
+
+        $types = Application::getTypes();
 
         return Inertia::render('Contract/Create', [
             'title' => __('app.label.contracts'),
@@ -124,6 +126,7 @@ class ContractController extends Controller
             'projects' => $projects,
             'applications' => $applications,
             'users' => $users,
+            'application_types' => $types,
             'recipients' => $recipients
         ]);
     }

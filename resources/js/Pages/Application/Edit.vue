@@ -10,6 +10,28 @@
                 </h2>
                 <div class="my-6 space-y-4">
                     <div class="form-group mb-3">
+                        <InputLabel for="type" :value="lang().label.type" />
+                        <Select
+                            id="type"
+                            v-model="form.type"
+                            :options="types"
+                            optionLabel="label"
+                            optionValue="id"
+                            class="w-full"
+                            filter
+                            checkmark
+                            :placeholder="lang().placeholder.select_type"
+                            :highlightOnSelect="false"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.type" />
+                    </div>
+
+                    <div class="form-group mb-3">
                         <InputLabel for="title" :value="lang().label.title" />
                         <InputText
                             id="title"
@@ -154,6 +176,7 @@ const props = defineProps({
     breadcrumbs: Object,
     projects: Array,
     users: Array,
+    types: Array,
     files: Array
 });
 
@@ -162,6 +185,7 @@ const emit = defineEmits(["close"]);
 const form = useForm({
     title: "",
     project_id: "",
+    type: "",
     files: [],
     old_files: []
 });
@@ -172,6 +196,7 @@ watchEffect(() => {
     form.project_id = props.application.project_id;
     form.files = [];
     form.old_files = props.files;
+    form.type = props.application.type;
 });
 
 const allowedFileTypes = [

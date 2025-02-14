@@ -21,26 +21,51 @@
                 </div>
             </div>
 
-            <!-- Content -->
             <div class="mt-0 p-4">
-                <!-- Block Header -->
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
-                        <Button
-                            v-show="can_approve"
-                            type="button"
-                            icon="pi pi-check-circle"
-                            :label="lang().button.approve"
-                            severity="success"
-                            class="p-button-sm dark:text-white"
-                            @click="(data.approveOpen = true), (data.application = application)"
-                        />
+                        <template v-if="application.type === 1">
+                            <Button
+                                v-show="can_approve"
+                                type="button"
+                                icon="pi pi-check-circle"
+                                :label="lang().button.approve"
+                                severity="success"
+                                class="p-button-sm dark:text-white"
+                                @click="(data.approveOpen = true), (data.application = application)"
+                            />
+
+                            <DeleteUser
+                                :show="data.deleteUserOpen"
+                                @close="data.deleteUserOpen = false"
+                                :application="data.application"
+                                :user="data.selectedUser"
+                                :title="props.title"
+                            />
+
+                            <EditUser
+                                :show="data.editUserOpen"
+                                @close="data.editUserOpen = false"
+                                :application="props.application"
+                                :users="props.users"
+                                :approvals="props.approvals"
+                                :title="props.title"
+                            />
+
+                            <Approve
+                                v-show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2)"
+                                :show="data.approveOpen"
+                                @close="data.approveOpen = false"
+                                :application="data.application"
+                                :title="props.title"
+                            />
+                        </template>
 
                         <EditLink
-                            v-if="authUser && authUser.roles && authUser.roles.length > 0 &&
-                                  (authUser.roles[0].name === 'superadmin' ||
-                                  (can(['update application']) && application.user_id === authUser.id && application.status_id !== 3))"
+                            v-if="application.type === 1 && authUser?.roles?.length > 0 &&
+          (authUser.roles[0].name === 'superadmin' ||
+          (can(['update application']) && application.user_id === authUser.id && application.status_id !== 3))"
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
@@ -58,40 +83,17 @@
                             {{ lang().tooltip.delete }}
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
+
                         <Delete
                             :show="data.deleteOpen"
                             @close="data.deleteOpen = false"
                             :application="data.application"
                             :title="props.title"
                         />
-                        <DeleteUser
-                            :show="data.deleteUserOpen"
-                            @close="data.deleteUserOpen = false"
-                            :application="data.application"
-                            :user="data.selectedUser"
-                            :title="props.title"
-                        />
-
-                        <EditUser
-                            :show="data.editUserOpen"
-                            @close="data.editUserOpen = false"
-                            :application="props.application"
-                            :users="props.users"
-                            :approvals="props.approvals"
-                            :title="props.title"
-                        />
-
-                        <Approve
-                            v-show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2)"
-                            :show="data.approveOpen"
-                            @close="data.approveOpen = false"
-                            :application="data.application"
-                            :title="props.title"
-                        />
                     </div>
                 </div>
 
-                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application.type === 1">
                     <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
                         <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
@@ -156,6 +158,15 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.title }}</td>
                         </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.type }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                {{ types.find(t => t.id === application.type)?.label || application.type }}
+                            </td>
+                        </tr>
+
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -249,6 +260,7 @@ const props = defineProps({
     files: Array,
     can_approve: Boolean,
     approvals: Object,
+    types: Object,
 });
 
 const form = useForm({});
