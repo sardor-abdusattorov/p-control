@@ -23,8 +23,8 @@
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ contract.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
-                        <template v-if="application.type === 1">
-                            <Button
+                        <template v-if="application && application.type === 1">
+                        <Button
                                 v-show="can_approve"
                                 type="button"
                                 icon="pi pi-check-circle"
@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application.type === 1">
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application && application.type === 1">
                     <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
                         <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
