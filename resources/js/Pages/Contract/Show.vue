@@ -145,7 +145,7 @@
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.contract_number }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contract.contract_number }}</td>
                         </tr>
                         <tr
@@ -167,14 +167,14 @@
                                 </span>
                             </td>
                         </tr>
-                        <tr
-                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                        >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.application_id }}</td>
+                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                                <span v-if="props.application">
-                                    {{ props.application.title ?? lang().label.undefined }}
-                                </span>
+                                {{ lang().label.application_id }}
+                            </td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <Button v-if="application" @click="showModal = true" label="Help">
+                                    {{ application.title ?? lang().label.undefined }}
+                                </Button>
                                 <span v-else>
                                     {{ lang().label.undefined }}
                                 </span>
@@ -251,6 +251,20 @@
             </div>
         </section>
 
+
+        <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" :style="{ width: '50vw' }">
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
+                    <tbody>
+                    <tr v-for="(value, key) in applicationData" :key="key" class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label[key] ?? key }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600" v-html="value"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </Dialog>
+
     </AuthenticatedLayout>
 </template>
 
@@ -269,8 +283,27 @@ import DeleteUser from "@/Pages/Contract/DeleteUser.vue";
 import Button from "primevue/button";
 import { useForm } from "@inertiajs/vue3";
 import EditUser from "@/Pages/Contract/EditUser.vue";
+import { ref } from "vue";
+import Dialog from "primevue/dialog";
 
 const form = useForm({});
+
+const showModal = ref(false);
+const applicationData = computed(() => ({
+    id: props.application?.id ?? '-',
+    title: props.application?.title ?? '-',
+    type: props.types.find(t => t.id === props.application?.type)?.label ?? props.application?.type ?? '-',
+    project_id: props.project
+        ? (props.project.project_number ?? (typeof lang === 'function' ? lang().label.undefined : 'Не указан'))
+        : (typeof lang === 'function' ? lang().label.undefined : 'Не указан'),
+    user_id: props.application?.user?.name ?? (typeof lang === 'function' ? lang().label.undefined : 'Не указан'),
+    files: props.files.length > 0
+        ? props.files.map(file => `<a href='${file.original_url}' target='_blank' class='text-blue-600 hover:text-blue-800'>${file.name}</a>`).join('<br>')
+        : (typeof lang === 'function' ? lang().label.no_files : 'Нет файлов'),
+    status: `<span class='badge'>${getStatusLabel(props.application?.status_id)}</span>`,
+    created: props.application?.created_at ?? '-',
+    updated: props.application?.updated_at ?? '-',
+}));
 
 const authUser = usePage().props.auth.user;
 
@@ -285,6 +318,7 @@ const props = defineProps({
     project: Object,
     users: Array,
     approvals: Object,
+    types: Object,
     files: Array,
 });
 

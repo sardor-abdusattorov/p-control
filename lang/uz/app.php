@@ -11,6 +11,8 @@ return [
         'unknown_user' => 'Noma\'lum foydalanuvchi',
         'not_found' => ':attribute topilmadi.',
         'not_recipient' => 'siz tasdiqlovchi emassiz',
+        'type_shorten' => 'Shartnoma asosi',
+        'application_details' => 'Ariza tafsilotlari',
 
         'approval_status' => 'Tasdiqlash holati',
         'approved' => 'Tasdiqlandi',

@@ -235,13 +235,18 @@ class ContractController extends Controller
      */
     public function show(Contract $contract)
     {
+        $types = Application::getTypes();
         $statuses = Contract::getStatuses();
         $users = User::where('id', '!=', auth()->id())
             ->where('status', 1)
             ->get();
+
         $files = $contract->getMedia('files');
         $project = Project::find($contract->project_id);
-        $application = Application::find($contract->application_id);
+
+        $application = Application::with('media')->find($contract->application_id);
+        $application->load(['user']);
+
         $user = auth()->user();
 
         $approvals = Approvals::where('approvable_type', Contract::class)
@@ -268,6 +273,7 @@ class ContractController extends Controller
             'files' => $files,
             'users' => $users,
             'statuses' => $statuses,
+            'types' => $types, //
             'project' => $project,
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
@@ -279,6 +285,7 @@ class ContractController extends Controller
             ],
         ]);
     }
+
 
     public function confirmContract(Request $request, Contract $contract)
     {

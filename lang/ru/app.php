@@ -11,6 +11,8 @@ return [
         'unknown_user' => 'Неизвестный пользователь',
         'not_found' => ':attribute не найден.',
         'not_recipient' => 'вы не получатель',
+        'type_shorten' => 'Основание контракта',
+        'application_details' => 'Детали заявки',
 
         'approval_users' => 'Пользователи для утверждения',
         'approval_status' => 'Статус согласования',

@@ -11,6 +11,8 @@ return [
         'not_found' => ':attribute not found.',
         'not_recipient' => "you're not a recipient",
         'type' => "Type of application",
+        'type_shorten' => 'Contract basis',
+        'application_details' => 'Application details',
 
         'approval_status' => 'Approval status',
         'approval_users' => 'Approval users',

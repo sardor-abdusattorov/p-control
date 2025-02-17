@@ -114,6 +114,17 @@
                                         <ChevronUpDownIcon class="w-4 h-4" />
                                     </div>
                                 </th>
+                                <th
+                                    class="px-2 py-4 cursor-pointer"
+                                    v-on:click="order('type')"
+                                >
+                                    <div
+                                        class="flex justify-between items-center"
+                                    >
+                                            <span>{{ lang().label.type_shorten }}</span>
+                                        <ChevronUpDownIcon class="w-4 h-4" />
+                                    </div>
+                                </th>
                                 <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
                             </tr>
                         </thead>
@@ -158,6 +169,10 @@
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <Badge :value="getStatusLabel(application.status_id)" :severity="getStatusSeverity(application.status_id)" />
                                 </td>
+                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                    <Badge :value="getTypeLabel(application.type)" :severity="getTypeSeverity(application.type)" />
+                                </td>
+
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <div class="gap-1 justify-center overflow-hidden flex items-center">
                                         <ViewLink
@@ -230,7 +245,22 @@ const props = defineProps({
     breadcrumbs: Object,
     perPage: Number,
     statuses: Object,
+    types: Object,
 });
+
+const getTypeLabel = (type) => {
+    const typeData = props.types.find(t => t.id === type);
+    return typeData ? typeData.label : 'Неизвестно';
+};
+
+// Функция для получения стиля (цвета)
+const getTypeSeverity = (type) => {
+    const severities = {
+        1: 'success',
+        2: 'warning'
+    };
+    return severities[type] || 'info';
+};
 const data = reactive({
     params: {
         search: props.filters.search,

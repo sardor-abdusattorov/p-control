@@ -76,6 +76,7 @@ class ApplicationController extends Controller
     public function index(ApplicationIndexRequest $request)
     {
         $user = auth()->user();
+        $types = Application::getTypes();
         $statuses = Application::getStatuses();
         if ($user->can('view all applications')) {
             $applications = Application::query()->with(['user', 'project']);
@@ -99,6 +100,7 @@ class ApplicationController extends Controller
             'perPage'       => (int) $perPage,
             'applications'      => $applications->paginate($perPage),
             'statuses'      => $statuses,
+            'types'      => $types,
             'breadcrumbs'   => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
         ]);
     }
