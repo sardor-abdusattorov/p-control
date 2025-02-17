@@ -264,19 +264,22 @@ class ContractController extends Controller
                 ];
             });
 
-        $applicationApprovals = Approvals::where('approvable_type', Application::class)
-            ->where('approvable_id', $application->id)
-            ->with('user')
-            ->get()
-            ->map(function ($approval) {
-                return [
-                    'user_id' => $approval->user_id,
-                    'user_name' => optional($approval->user)->name,
-                    'approved' => (bool) $approval->approved,
-                    'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
-                ];
-            });
+        $applicationApprovals = collect();
 
+        if ($application) {
+            $applicationApprovals = Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->with('user')
+                ->get()
+                ->map(function ($approval) {
+                    return [
+                        'user_id' => $approval->user_id,
+                        'user_name' => optional($approval->user)->name,
+                        'approved' => (bool) $approval->approved,
+                        'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                    ];
+                });
+        }
 
         $canApprove = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
