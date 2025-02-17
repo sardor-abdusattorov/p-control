@@ -511,6 +511,7 @@ class ContractController extends Controller
      */
     public function edit(Contract $contract)
     {
+        $types = Application::getTypes();
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
@@ -527,6 +528,7 @@ class ContractController extends Controller
             'currency' => $currency,
             'projects' => $projects,
             'applications' => $applications,
+            'application_types' => $types,
             'users' => $users,
             'files' => $files,
             'title' => __('app.label.contracts'),

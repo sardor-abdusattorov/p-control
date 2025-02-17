@@ -61,26 +61,51 @@
                         <InputError class="mt-2" :message="form.errors.project_id"/>
                     </div>
 
-                    <div class="form-group mb-5">
-                        <InputLabel for="application_id" :value="lang().label.application_id"/>
+                    <div class="form-group mb-3">
+                        <InputLabel for="type" :value="lang().label.type" />
                         <Select
-                            id="application_id"
-                            v-model="form.application_id"
-                            optionLabel="title"
+                            id="type"
+                            v-model="form.application_type"
+                            :options="application_types"
+                            optionLabel="label"
                             optionValue="id"
-                            :options="props.applications"
+                            class="w-full"
                             filter
                             checkmark
+                            :placeholder="lang().placeholder.select_type"
                             :highlightOnSelect="false"
-                            class="w-full"
-                            :placeholder="lang().placeholder.select_application"
                             :pt="{
                                 option: { class: 'custom-option' },
                                 dropdown: { style: { maxWidth: '300px' } },
                                 overlay: { class: 'parent-wrapper-class' }
                             }"
                         />
-                        <InputError class="mt-2" :message="form.errors.application_id"/>
+                        <InputError class="mt-2" :message="form.errors.type" />
+                    </div>
+
+
+                    <div class="form-group mb-5">
+                        <InputLabel for="application_id" :value="lang().label.application_id" />
+                        <Select
+                            id="application_id"
+                            v-model="form.application_id"
+                            optionLabel="title"
+                            optionValue="id"
+                            :options="filteredApplications"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            class="w-full"
+                            :disabled="!form.application_type"
+                            :placeholder="lang().label.application_id"
+                            :filterPlaceholder="lang().placeholder.select_application"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
 
@@ -255,7 +280,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {computed, watchEffect} from "vue";
+import {computed, watch, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -276,7 +301,8 @@ const props = defineProps({
     projects: Array,
     applications: Array,
     currency: Array,
-    files: Array
+    files: Array,
+    application_types: Object,
 });
 
 const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
@@ -299,6 +325,12 @@ const form = useForm({
     user_id: "",
     budget_sum: "",
     deadline: "",
+    application_type: "",
+});
+
+const filteredApplications = computed(() => {
+    if (!form.application_type) return [];
+    return props.applications.filter(app => app.type === form.application_type);
 });
 
 const onFileChange = (event) => {
@@ -330,18 +362,20 @@ const update = () => {
 };
 
 watchEffect(() => {
-    form.contract_number = props.contract.contract_number
-    form.project_id = props.contract.project_id
-    form.application_id = props.contract.application_id
-    form.user_id = props.contract.user_id
-    form.currency_id = props.contract.currency_id
-    form.title = props.contract.title
-    form.budget_sum = props.contract.budget_sum
+    form.contract_number = props.contract.contract_number;
+    form.project_id = props.contract.project_id;
+    form.application_id = props.contract.application_id;
+    form.user_id = props.contract.user_id;
+    form.currency_id = props.contract.currency_id;
+    form.title = props.contract.title;
+    form.budget_sum = props.contract.budget_sum;
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
     form.files = [];
     form.errors = {};
-});
 
+    const application = props.applications.find(app => app.id === props.contract.application_id);
+    form.application_type = application ? application.type : "";
+});
 const getFileIcon = (fileType) => {
     if (fileType === 'application/pdf') {
         return 'pi pi-file-pdf';
