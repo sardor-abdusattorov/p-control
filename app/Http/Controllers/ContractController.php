@@ -245,7 +245,9 @@ class ContractController extends Controller
         $project = Project::find($contract->project_id);
 
         $application = Application::with('media')->find($contract->application_id);
-        $application->load(['user']);
+        if ($application) {
+            $application->load(['user']);
+        }
 
         $user = auth()->user();
 
