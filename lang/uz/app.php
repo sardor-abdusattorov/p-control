@@ -13,6 +13,7 @@ return [
         'not_recipient' => 'siz tasdiqlovchi emassiz',
         'type_shorten' => 'Shartnoma asosi',
         'application_details' => 'Ariza tafsilotlari',
+        'show_application' => 'Arizani ko‘rsatish',
 
         'approval_status' => 'Tasdiqlash holati',
         'approved' => 'Tasdiqlandi',

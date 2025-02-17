@@ -23,24 +23,52 @@
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ contract.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
-                        <Button
-                            v-show="can_approve"
-                            type="button"
-                            icon="pi pi-check-circle"
-                            :label="lang().button.approve"
-                            severity="success"
-                            class="p-button-sm dark:text-white"
-                            @click="(data.approveOpen = true), (data.contract = contract)"
-                        />
+                        <template v-if="application.type === 1">
+                            <Button
+                                v-show="can_approve"
+                                type="button"
+                                icon="pi pi-check-circle"
+                                :label="lang().button.approve"
+                                severity="success"
+                                class="p-button-sm dark:text-white"
+                                @click="(data.approveOpen = true), (data.contract = contract)"
+                            />
+
+                            <DeleteUser
+                                :show="data.deleteUserOpen"
+                                @close="data.deleteUserOpen = false"
+                                :contract="data.contract"
+                                :user="data.selectedUser"
+                                :title="props.title"
+                            />
+                            <EditUser
+                                :show="data.editUserOpen"
+                                @close="data.editUserOpen = false"
+                                :contract="props.contract"
+                                :users="props.users"
+                                :approvals="props.approvals"
+                                :title="props.title"
+                            />
+
+                            <Approve
+                                v-show="can(['approve contract']) && (contract.status === 1 || contract.status === 2)"
+                                :show="data.approveOpen"
+                                @close="data.approveOpen = false"
+                                :contract="data.contract"
+                                :title="props.title"
+                            />
+                        </template>
+
 
                         <EditLink
+                            v-if="(contract.status !== 3 || authUser.roles[0].name === 'superadmin') && can(['update contract'])"
                             :href="route('contract.edit', { contract: contract.id })"
                             class="px-4 py-2 rounded-md uppercase"
                             v-tooltip="lang().tooltip.edit"
-                            v-show="can(['update contract'])"
                         >
                             {{ lang().tooltip.edit }}
                         </EditLink>
+
 
                         <DangerButton
                             type="button"
@@ -59,33 +87,10 @@
                             :contract="data.contract"
                             :title="props.title"
                         />
-                        <DeleteUser
-                            :show="data.deleteUserOpen"
-                            @close="data.deleteUserOpen = false"
-                            :contract="data.contract"
-                            :user="data.selectedUser"
-                            :title="props.title"
-                        />
-                        <EditUser
-                            :show="data.editUserOpen"
-                            @close="data.editUserOpen = false"
-                            :contract="props.contract"
-                            :users="props.users"
-                            :approvals="props.approvals"
-                            :title="props.title"
-                        />
-
-                        <Approve
-                            v-show="can(['approve contract']) && (contract.status === 1 || contract.status === 2)"
-                            :show="data.approveOpen"
-                            @close="data.approveOpen = false"
-                            :contract="data.contract"
-                            :title="props.title"
-                        />
                     </div>
                 </div>
 
-                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4">
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application.type === 1">
                     <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
                         <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
@@ -173,11 +178,8 @@
                             </td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <Button v-if="application" @click="showModal = true" label="Help">
-                                    {{ application.title ?? lang().label.undefined }}
+                                    {{ lang().label.show_application }}
                                 </Button>
-                                <span v-else>
-                                    {{ lang().label.undefined }}
-                                </span>
                             </td>
                         </tr>
                         <tr
@@ -252,7 +254,34 @@
         </section>
 
 
-        <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" :style="{ width: '50vw' }">
+        <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" class="w-[90vw] sm:w-2/3 md:w-1/2 lg:w-2/3">
+            <div class="space-y-2 my-4">
+                <div v-if="application_approvals.length">
+                    <div v-for="approval in application_approvals" :key="approval.user_id"
+                         class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
+                        <div class="details">
+                            <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
+                            <p v-if="approval.approved" class="text-green-600 font-semibold">
+                                ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
+                            </p>
+                            <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                        </div>
+                        <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
+                            <form>
+                                <input type="hidden" :value="approval.user_id" />
+                                <Button
+                                    type="button"
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    class="p-button-sm dark:text-white"
+                                    @click="() => confirmRemoveApprover(approval)"
+                                    :disabled="approval.approved"
+                                />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                     <tbody>
@@ -264,6 +293,8 @@
                 </table>
             </div>
         </Dialog>
+
+
 
     </AuthenticatedLayout>
 </template>
@@ -314,6 +345,7 @@ const props = defineProps({
     application: Object,
     title: String,
     breadcrumbs: Object,
+    application_approvals: Array,
     statuses: Array,
     project: Object,
     users: Array,

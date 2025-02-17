@@ -181,7 +181,7 @@
                                         />
                                         <EditLink
                                             v-if="user.roles.some(role => role.name === 'superadmin') ||
-          (application.type !== 2 && can(['update application']) && application.user_id === user.id && application.status_id !== 3)"
+                                             (application.type !== 2 && can(['update application']) && application.user_id === user.id && application.status_id !== 3)"
                                             :href="route('application.edit', { application: application.id })"
                                             v-tooltip="lang().tooltip.edit"
                                         >

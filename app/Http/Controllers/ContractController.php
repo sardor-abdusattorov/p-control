@@ -262,6 +262,20 @@ class ContractController extends Controller
                 ];
             });
 
+        $applicationApprovals = Approvals::where('approvable_type', Application::class)
+            ->where('approvable_id', $application->id)
+            ->with('user')
+            ->get()
+            ->map(function ($approval) {
+                return [
+                    'user_id' => $approval->user_id,
+                    'user_name' => optional($approval->user)->name,
+                    'approved' => (bool) $approval->approved,
+                    'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                ];
+            });
+
+
         $canApprove = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $user->id)
@@ -278,6 +292,7 @@ class ContractController extends Controller
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
             'approvals' => $approvals,
+            'application_approvals' => $applicationApprovals,
             'can_approve' => $canApprove,
             'breadcrumbs' => [
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],

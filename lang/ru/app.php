@@ -13,6 +13,7 @@ return [
         'not_recipient' => 'вы не получатель',
         'type_shorten' => 'Основание контракта',
         'application_details' => 'Детали заявки',
+        'show_application' => 'Показать заявку',
 
         'approval_users' => 'Пользователи для утверждения',
         'approval_status' => 'Статус согласования',

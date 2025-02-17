@@ -132,10 +132,13 @@
                                         :href="route('contract.show', { contract: contract.id })"
                                         v-tooltip="lang().tooltip.show"
                                     />
-                                    <EditLink v-show="can(['update contract'])"
+                                    <EditLink
+                                        v-if="(contract.status !== 3 || user.roles.some(role => role.name === 'superadmin')) && can(['update contract'])"
                                         :href="route('contract.edit', { contract: contract.id })"
                                         v-tooltip="lang().tooltip.edit"
-                                    />
+                                    >
+                                    </EditLink>
+
                                     <DangerButton v-show="can(['delete contract'])"
                                         type="button"
                                         @click="(data.deleteOpen = true), (data.contract = contract)"
@@ -180,6 +183,7 @@ import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 
 const { _, debounce, pickBy } = pkg;
+const user = usePage().props.auth.user;
 
 const props = defineProps({
     title: String,

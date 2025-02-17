@@ -13,6 +13,7 @@ return [
         'type' => "Type of application",
         'type_shorten' => 'Contract basis',
         'application_details' => 'Application details',
+        'show_application' => 'Show application',
 
         'approval_status' => 'Approval status',
         'approval_users' => 'Approval users',
