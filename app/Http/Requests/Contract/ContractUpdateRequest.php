@@ -22,7 +22,7 @@ class ContractUpdateRequest extends FormRequest
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'project_id' => 'required',
-            'application_id' => 'nullable|integer',
+            'application_id' => 'required|integer',
             'budget_sum' => 'required|numeric|min:0',
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',

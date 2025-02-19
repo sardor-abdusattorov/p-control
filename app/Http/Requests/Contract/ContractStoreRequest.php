@@ -17,12 +17,12 @@ class ContractStoreRequest extends FormRequest
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'project_id' => 'required|integer',
-            'recipients' => 'nullable|array', // По умолчанию делаем nullable
-            'application_id' => 'nullable|integer',
+            'recipients' => 'nullable|array',
+            'application_id' => 'required|integer',
             'budget_sum' => 'required|numeric|min:0',
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',
-            'application_type' => 'required|integer', // Добавляем проверку типа заявки
+            'application_type' => 'required|integer',
         ];
     }
 
@@ -32,12 +32,10 @@ class ContractStoreRequest extends FormRequest
             $applicationType = $this->input('application_type');
 
             if ($applicationType == 2) {
-                // Если type = 2 (служебная записка), recipients должны быть пустыми
                 if (!empty($this->input('recipients'))) {
                     $validator->errors()->add('recipients', 'Для служебной записки не требуется список получателей.');
                 }
             } else {
-                // Если type ≠ 2, recipients должны быть обязательными
                 if (empty($this->input('recipients'))) {
                     $validator->errors()->add('recipients', 'Необходимо выбрать получателей.');
                 }
