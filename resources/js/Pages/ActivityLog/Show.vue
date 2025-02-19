@@ -48,9 +48,7 @@
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.properties }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                            <pre class="text-sm font-mono bg-gray-50 dark:bg-neutral-800 p-2 rounded">
                                 {{ activityLog.properties }}
-                            </pre>
                             </td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
