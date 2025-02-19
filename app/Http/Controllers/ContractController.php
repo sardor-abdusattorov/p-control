@@ -518,7 +518,7 @@ class ContractController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
-        if (auth()->user()->role('superadmin')) {
+        if (auth()->user()->can('view all applications')) {
             $applications = Application::all();
         }else {
             $applications = auth()->user()->applications;
