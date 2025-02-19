@@ -48,7 +48,11 @@
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.properties }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                                {{ activityLog.properties }}
+                                <ul>
+                                    <li v-for="(value, key) in parsedProperties" :key="key">
+                                        <strong>{{ key }}:</strong> {{ value }}
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
@@ -73,15 +77,16 @@
 </template>
 
 <script setup>
-import {defineProps, reactive} from 'vue';
+import { defineProps, computed } from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head} from "@inertiajs/vue3";
+import { Head } from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import DangerButton from "@/Components/DangerButton.vue";
-import {TrashIcon} from "@heroicons/vue/24/solid";
+import { TrashIcon } from "@heroicons/vue/24/solid";
 import EditLink from "@/Components/EditLink.vue";
 import Delete from "@/Pages/Status/Delete.vue";
 
+// Получаем пропсы
 const props = defineProps({
     activityLog: {
         type: Object,
@@ -96,6 +101,15 @@ const props = defineProps({
         required: true,
     },
 });
-</script>
 
+const parsedProperties = computed(() => {
+    try {
+        return typeof props.activityLog.properties === 'string'
+            ? JSON.parse(props.activityLog.properties)
+            : props.activityLog.properties;
+    } catch (error) {
+        return {};
+    }
+});
+</script>
 
