@@ -16,7 +16,7 @@ const props = defineProps({
 <template>
     <Head :title="lang().label.dashboard" />
     <AuthenticatedLayout>
-        <Breadcrumb :title="'Dashboard'" :breadcrumbs="[]" />
+        <Breadcrumb :title="lang().label.dashboard" :breadcrumbs="[]" />
         <div class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
                 <Link

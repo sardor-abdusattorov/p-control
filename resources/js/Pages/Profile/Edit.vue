@@ -2,7 +2,7 @@
         <Head :title="lang().label.profile" />
 
         <AuthenticatedLayout>
-            <Breadcrumb :title="'Profile'" :breadcrumbs="[]" />
+            <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
 
             <div class="space-y-4">
                 <div class="font-std mb-10 w-full rounded-2xl bg-white dark:bg-gray-900 font-normal leading-relaxed text-gray-900 shadow-xl">
@@ -231,7 +231,9 @@ import MultiSelect from 'primevue/multiselect';
 const props = defineProps({
     mustVerifyEmail: Boolean,
     status: String,
+    title: String,
     departments: Array,
+    breadcrumbs: Object,
     positions: Array,
     users: Array,
     recipients: Array,

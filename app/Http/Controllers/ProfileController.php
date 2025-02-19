@@ -42,6 +42,7 @@ class ProfileController extends Controller
             'positions' => $positions,
             'users' => $users,
             'recipients' => $recipients,
+            'breadcrumbs'   => [['label' => __('app.label.profile'), 'href' => route('profile.edit')]],
         ]);
     }
 

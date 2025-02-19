@@ -1,7 +1,8 @@
 <template>
     <Head :title="props.title" />
     <AuthenticatedLayout>
-        <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
+        <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
+
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
             <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md gap-4">
                 <div class="flex justify-start gap-4">
