@@ -207,7 +207,7 @@ watchEffect(() => {
     form.errors = {};
 
     if (form.type === 2) {
-        form.recipients = []; // Очистка, если служебка
+        form.recipients = [];
     } else {
         form.recipients = props.recipients.map(recipient => recipient.recipient_id);
     }
