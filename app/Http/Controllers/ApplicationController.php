@@ -324,7 +324,12 @@ class ApplicationController extends Controller
                     ->log('Статус заявки изменен на "в процессе"');
             }
 
+            // 🛑 Проверяем, чтобы минимум 2 человека одобрили
             if ($totalApprovals >= $totalRecipients) {
+                if ($totalApprovals < 2) {
+                    return redirect()->back()->with('warning', __('app.label.minimum_two_approvals_required'));
+                }
+
                 $application->update(['status_id' => 3]);
 
                 activity('application')
@@ -335,7 +340,7 @@ class ApplicationController extends Controller
                         'previous_status' => 2,
                         'new_status' => 3,
                     ])
-                    ->log('Заявка полностью одобрен');
+                    ->log('Заявка полностью одобрена');
             }
 
             return redirect()->route('application.show', $application->id)
@@ -355,6 +360,7 @@ class ApplicationController extends Controller
             return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $application->title]));
         }
     }
+
 
 
     public function chat(Application $application)

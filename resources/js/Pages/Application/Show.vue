@@ -36,6 +36,16 @@
                                 @click="(data.approveOpen = true), (data.application = application)"
                             />
 
+                            <Button
+                                v-show="can_approve"
+                                type="button"
+                                icon="pi pi-times"
+                                severity="danger"
+                                :label="lang().label.cancel_approval"
+                                class="p-button-sm bg-yellow-500 text-white dark:text-white"
+                                @click="(data.cancelApproval = true), (data.application = application)"
+                            />
+
                             <DeleteUser
                                 :show="data.deleteUserOpen"
                                 @close="data.deleteUserOpen = false"
@@ -60,6 +70,15 @@
                                 :application="data.application"
                                 :title="props.title"
                             />
+
+                            <CancelApproval
+                                v-show="can(['approve application'])"
+                                :show="data.approveOpen"
+                                @close="data.approveOpen = false"
+                                :application="data.application"
+                                :title="props.title"
+                            />
+
                         </template>
 
                         <EditLink
@@ -110,6 +129,14 @@
                     </div>
 
                     <div class="space-y-2">
+                        <div
+                            v-if="approvals.length < 2 && application.user_id === authUser.id"
+                            class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                        >
+                            ⚠ {{ lang().label.min_approvers_warning }}
+                        </div>
+
+
                         <div v-if="approvals.length">
                             <div v-for="approval in approvals" :key="approval.user_id"
                                  class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
@@ -118,7 +145,9 @@
                                     <p v-if="approval.approved" class="text-green-600 font-semibold">
                                         ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
                                     </p>
-                                    <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                                    <p v-else class="text-orange-500 font-semibold">
+                                        ✖ {{ lang().label.not_approved }}
+                                    </p>
                                 </div>
                                 <div class="flex gap-2 items-center" v-show="application.user_id === authUser.id">
                                     <form>
@@ -135,9 +164,11 @@
                                 </div>
                             </div>
                         </div>
+
                         <p v-else class="text-gray-500 dark:text-gray-400 text-center">
                             {{ lang().label.no_data }}
                         </p>
+
                     </div>
 
                 </div>
@@ -244,6 +275,7 @@ import {TrashIcon} from "@heroicons/vue/24/solid";
 import EditLink from "@/Components/EditLink.vue";
 import Delete from "@/Pages/Application/Delete.vue";
 import Approve from "@/Pages/Application/Approve.vue";
+import CancelApproval from "@/Pages/Application/CancelApproval.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import Button from "primevue/button";
 import DeleteUser from "@/Pages/Application/DeleteUser.vue";
@@ -272,6 +304,7 @@ const data = reactive({
     project: null,
     editUserOpen: false,
     approveOpen: false,
+    cancelApproval: false,
     deleteUserOpen: false,
     selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
 });
