@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             StatusSeeder::class,
             UserSeeder::class,
             CurrencySeeder::class,
+            LanguageSeeder::class,
 //            ProjectSeeder::class,
 //            TaskSeeder::class,
 //            ContractSeeder::class,
