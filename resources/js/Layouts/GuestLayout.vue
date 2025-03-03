@@ -1,11 +1,3 @@
-<script setup>
-import { Link, usePage } from "@inertiajs/vue3";
-import SwitchDarkMode from "@/Components/SwitchDarkMode.vue";
-import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
-
-const currentLang = usePage().props.locale;
-</script>
-
 <template>
     <div
         class="min-h-screen flex flex-col-2 sm:justify-center items-center pt-6 sm:pt-0 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-300"
@@ -34,17 +26,17 @@ const currentLang = usePage().props.locale;
                 >
                     <img
                         v-if="currentLang === 'ru'"
-                        src="images/logo_ru.png"
+                        src="/images/logo_ru.png"
                         alt="Логотип на русском"
                     />
                     <img
                         v-else-if="currentLang === 'uz'"
-                        src="images/logo_uz.png"
+                        src="/images/logo_uz.png"
                         alt="Логотип на узбекском"
                     />
                     <img
                         v-else-if="currentLang === 'en'"
-                        src="images/logo_en.png"
+                        src="/images/logo_en.png"
                         alt="Logo"
                     />
                 </div>
@@ -52,3 +44,12 @@ const currentLang = usePage().props.locale;
         </div>
     </div>
 </template>
+
+<script setup>
+import { Link, usePage } from "@inertiajs/vue3";
+import SwitchDarkMode from "@/Components/SwitchDarkMode.vue";
+import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
+
+const currentLang = usePage().props.locale;
+</script>
+

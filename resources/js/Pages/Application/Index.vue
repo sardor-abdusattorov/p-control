@@ -134,9 +134,7 @@
                                 :key="index"
                                 class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20"
                             >
-                                <td
-                                    class="whitespace-nowrap py-4 px-2 sm:py-3 text-center"
-                                >
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 text-center">
                                     <input
                                         v-show="can(['delete application'])"
                                         class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
@@ -146,10 +144,10 @@
                                         v-model="data.selectedId"
                                     />
                                 </td>
-                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                     {{ (props.applications.current_page - 1) * props.applications.per_page + index + 1 }}
                                 </td>
-                                    <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                     <span class="flex justify-start items-center">
                                           <Link :href="route('application.show', { application: application.id })" class="text-blue-500 hover:underline">
                                              {{ application?.title || lang().label.no_available }}
@@ -157,13 +155,12 @@
 
                                     </span>
                                 </td>
-                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 max-w-xs">
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                     <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline">
                                         {{ application?.project?.title || lang().label.no_available }}
                                     </Link>
                                 </td>
-
-                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                     {{ application.user.name }}
                                 </td>
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
@@ -172,8 +169,7 @@
                                 <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                     <Badge :value="getTypeLabel(application.type)" :severity="getTypeSeverity(application.type)" />
                                 </td>
-
-                                <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                     <div class="gap-1 justify-center overflow-hidden flex items-center">
                                         <ViewLink
                                             :href="route('application.show', { application: application.id })"
