@@ -51,12 +51,6 @@ class ApplicationController extends Controller
                                 if (!$application || $application->user_id !== $user->id) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
-                                if ($application->status_id == 3) {
-                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-                                }
-                                if ($application->type == 2) {
-                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-                                }
                             }
 
                             return $next($request);
@@ -76,34 +70,56 @@ class ApplicationController extends Controller
     public function index(ApplicationIndexRequest $request)
     {
         $user = auth()->user();
+
         $types = Application::getTypes();
         $statuses = Application::getStatuses();
-        if ($user->can('view all applications')) {
-            $applications = Application::query()->with(['user', 'project']);
+        $projects = Project::all();
+
+        $applications = Application::query()->with(['user', 'project']);
+
+        if (!$user->can('view all applications')) {
+            $applications->where('user_id', $user->id);
+            $users = User::where('id', $user->id)->get();
         } else {
-            $applications = Application::query()->where('user_id', $user->id)->with(['user', 'project']);
+            $users = User::where('status', 1)->get();
         }
 
-        if ($request->has('search')) {
-            $applications->where('title', 'LIKE', "%" . $request->search . "%");
+        if ($request->filled('title')) {
+            $applications->where('title', 'LIKE', "%" . $request->title . "%");
+        }
+        if ($request->filled('project_id')) {
+            $applications->where('project_id', $request->project_id);
+        }
+        if ($request->filled('user_id')) {
+            $applications->where('user_id', $request->user_id);
+        }
+        if ($request->filled('status_id')) {
+            $applications->whereIn('status_id', (array) $request->status_id);
+        }
+        if ($request->filled('type')) {
+            $applications->whereIn('type', (array) $request->type);
         }
 
-        if ($request->has(['field', 'order'])) {
+        $sortableFields = ['title', 'user_id', 'project_id', 'status_id', 'type'];
+        if ($request->filled('field') && in_array($request->field, $sortableFields) && in_array($request->order, ['asc', 'desc'])) {
             $applications->orderBy($request->field, $request->order);
         }
 
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $perPage = $request->input('perPage', 10);
 
         return Inertia::render('Application/Index', [
-            'title'         => __('app.label.applications'),
-            'filters'       => $request->all(['search', 'field', 'order']),
-            'perPage'       => (int) $perPage,
-            'applications'      => $applications->paginate($perPage),
-            'statuses'      => $statuses,
-            'types'      => $types,
-            'breadcrumbs'   => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
+            'title'        => __('app.label.applications'),
+            'filters'      => $request->only(['title', 'field', 'order', 'project_id', 'user_id', 'status_id', 'type']),
+            'perPage'      => (int) $perPage,
+            'applications' => $applications->paginate($perPage),
+            'statuses'     => $statuses,
+            'types'        => $types,
+            'users'        => $users,
+            'projects'     => $projects,
+            'breadcrumbs'  => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

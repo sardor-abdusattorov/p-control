@@ -21,6 +21,7 @@
                             filter
                             checkmark
                             :placeholder="lang().placeholder.select_type"
+                            :disabled=true
                             :highlightOnSelect="false"
                             :pt="{
                                 option: { class: 'custom-option' },
@@ -55,6 +56,7 @@
                             optionValue="id"
                             filter
                             checkmark
+                            :disabled="[2, 3].includes(props.application.status_id)"
                             :highlightOnSelect="false"
                             :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
@@ -66,6 +68,7 @@
                                 overlay: { class: 'parent-wrapper-class' }
                             }"
                         />
+
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 

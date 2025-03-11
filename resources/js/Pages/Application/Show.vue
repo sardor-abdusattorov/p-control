@@ -36,15 +36,15 @@
                                 @click="(data.approveOpen = true), (data.application = application)"
                             />
 
-                            <Button
-                                v-show="can_approve"
-                                type="button"
-                                icon="pi pi-times"
-                                severity="danger"
-                                :label="lang().label.cancel_approval"
-                                class="p-button-sm bg-yellow-500 text-white dark:text-white"
-                                @click="(data.cancelApproval = true), (data.application = application)"
-                            />
+<!--                            <Button-->
+<!--                                v-show="can_approve"-->
+<!--                                type="button"-->
+<!--                                icon="pi pi-times"-->
+<!--                                severity="danger"-->
+<!--                                :label="lang().label.cancel_approval"-->
+<!--                                class="p-button-sm bg-yellow-500 text-white dark:text-white"-->
+<!--                                @click="(data.cancelApproval = true), (data.application = application)"-->
+<!--                            />-->
 
                             <DeleteUser
                                 :show="data.deleteUserOpen"
@@ -71,20 +71,20 @@
                                 :title="props.title"
                             />
 
-                            <CancelApproval
-                                v-show="can(['approve application'])"
-                                :show="data.approveOpen"
-                                @close="data.approveOpen = false"
-                                :application="data.application"
-                                :title="props.title"
-                            />
+<!--                            <CancelApproval-->
+<!--                                v-show="can(['approve application'])"-->
+<!--                                :show="data.approveOpen"-->
+<!--                                @close="data.approveOpen = false"-->
+<!--                                :application="data.application"-->
+<!--                                :title="props.title"-->
+<!--                            />-->
 
                         </template>
 
                         <EditLink
                             v-if="application.type === 1 && authUser?.roles?.length > 0 &&
-          (authUser.roles[0].name === 'superadmin' ||
-          (can(['update application']) && application.user_id === authUser.id && application.status_id !== 3))"
+                              (authUser.roles[0].name === 'superadmin' ||
+                              (can(['update application']) && application.user_id === authUser.id))"
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
@@ -204,7 +204,7 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_id }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <span v-if="props.project">
-                                    {{ props.project.project_number ?? lang().label.undefined }}
+                                    {{ props.project.title ?? lang().label.undefined }}
                                 </span>
                                 <span v-else>
                                     {{ lang().label.undefined }}

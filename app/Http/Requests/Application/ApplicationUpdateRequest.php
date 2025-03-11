@@ -16,7 +16,7 @@ class ApplicationUpdateRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'project_id' => ['required', 'integer'],
-            'files.*' => 'file|max:51200',s
+            'files.*' => 'file|max:51200',
         ];
     }
 }

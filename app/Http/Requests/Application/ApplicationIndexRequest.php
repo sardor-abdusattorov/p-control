@@ -19,9 +19,15 @@ class ApplicationIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,user_id,project_id,status_id,type'],
-            'order' => ['in:asc,desc'],
-            'perPage' => ['numeric'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'field' => ['nullable', 'in:title,user_id,project_id,status_id,type'],
+            'order' => ['nullable', 'in:asc,desc'],
+            'perPage' => ['nullable', 'numeric'],
+            'project_id' => ['sometimes', 'nullable', 'integer', 'exists:projects,id'],
+            'user_id' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
+            'status_id' => ['sometimes', 'nullable', 'integer'],
+            'type' => ['sometimes', 'nullable', 'integer'],
         ];
     }
+
 }
