@@ -57,42 +57,48 @@
                     <table class="w-full">
                         <thead class="uppercase text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left">
-                            <th class="px-2 py-4 text-center">
+                            <th class="px-2 py-4 text-center w-5">
                                 <Checkbox v-show="can(['delete contract'])"
-                                    v-model:checked="data.multipleSelect"
-                                    @change="selectAll"
+                                          v-model:checked="data.multipleSelect"
+                                          @change="selectAll"
                                 />
                             </th>
-                            <th class="px-2 py-4">#</th>
+                            <th class="px-2 py-4 cursor-pointer w-32" @click="order('contract_number')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.contract_number }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4"/>
+                                </div>
+                            </th>
 
-                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
+                            <th class="px-2 py-4 cursor-pointer w-50" @click="order('title')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.title }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer" @click="order('budget_sum')">
+                            <th class="px-2 py-4 cursor-pointer w-36" @click="order('budget_sum')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_sum }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
+                            <th class="px-2 py-4 cursor-pointer w-30" v-on:click="order('user_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.user_id }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('status')">
+                            <th class="px-2 py-4 cursor-pointer w-28" v-on:click="order('status')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.status }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
+                            <th class="px-2 py-4 text-center w-24">{{ lang().label.actions }}</th>
                         </tr>
+
                         </thead>
                         <tbody>
                         <tr
@@ -109,8 +115,8 @@
                                     v-model="data.selectedId"
                                 />
                             </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ (props.contracts.current_page - 1) * props.contracts.per_page + index + 1 }}
+                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
+                                {{ contract.contract_number || lang().label.undefined }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                 <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline">

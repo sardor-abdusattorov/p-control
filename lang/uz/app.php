@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        "contract_description" => 'Shartnoma tavsifi',
         'type' => "Ariza turi",
         'unknown_user' => 'Noma\'lum foydalanuvchi',
         'not_found' => ':attribute topilmadi.',

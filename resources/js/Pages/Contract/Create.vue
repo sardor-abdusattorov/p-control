@@ -25,13 +25,13 @@
                     </div>
 
                     <div class="form-group mb-5">
-                        <InputLabel for="title" :value="lang().label.title" />
+                        <InputLabel for="title" :value="lang().label.contract_description" />
                         <InputText
                             id="title"
                             type="text"
                             class="mt-1 block w-full"
                             v-model="form.title"
-                            :placeholder="lang().label.title"
+                            :placeholder="lang().label.contract_description"
                             :error="form.errors.title"
                         />
                         <InputError class="mt-2" :message="form.errors.title" />
@@ -107,7 +107,7 @@
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
-                    <div class="form-group mb-3" v-if="form.application_type !== 2">
+                    <div class="form-group mb-3">
                         <InputLabel for="recipients" :value="lang().label.approval_users" />
                         <MultiSelect
                             v-model="form.recipients"
@@ -306,7 +306,7 @@ const form = useForm({
     title: "",
     project_id: "",
     application_id: "",
-    application_type: 2,
+    application_type: 1,
     currency_id: 1,
     budget_sum: null,
     deadline: new Date(new Date().getFullYear(), 11, 31),
