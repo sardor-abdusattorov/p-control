@@ -46,57 +46,137 @@
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
-                    <InputText
-                        v-model="data.params.search"
-                        type="text"
-                        class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"
-                        :placeholder="lang().placeholder.search"
-                    />
+<!--                    <InputText-->
+<!--                        v-model="data.params.search"-->
+<!--                        type="text"-->
+<!--                        class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"-->
+<!--                        :placeholder="lang().placeholder.search"-->
+<!--                    />-->
                 </div>
                 <div class="overflow-x-auto scrollbar-table">
-                    <table class="w-full">
-                        <thead class="uppercase text-sm border-t border-slate-200 dark:border-slate-700">
-                        <tr class="dark:bg-slate-900/50 text-left">
-                            <th class="px-2 py-4 text-center w-5">
+                    <table class="w-full select-width">
+                        <thead class="text-sm border-t border-slate-200 dark:border-slate-700">
+                        <tr class="dark:bg-slate-900/50 text-left border-b border-slate-300 dark:border-slate-600">
+                            <th class="px-2 py-4 text-center">
                                 <Checkbox v-show="can(['delete contract'])"
                                           v-model:checked="data.multipleSelect"
                                           @change="selectAll"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer w-32" @click="order('contract_number')">
+                            <th class="px-2 py-4 cursor-pointer " @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_number }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer w-50" @click="order('title')">
+                            <th class="px-2 py-4 cursor-pointer " @click="order('title')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.title }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer w-36" @click="order('budget_sum')">
+                            <th class="px-2 py-4 cursor-pointer " @click="order('currency_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_sum }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer w-30" v-on:click="order('user_id')">
+                            <th class="px-2 py-4 cursor-pointer " v-on:click="order('user_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.user_id }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer w-28" v-on:click="order('status')">
+                            <th class="px-2 py-4 cursor-pointer" @click="order('status')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.status }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 text-center w-24">{{ lang().label.actions }}</th>
+                            <th class="px-2 py-4 text-center ">{{ lang().label.actions }}</th>
+                        </tr>
+
+                            <tr class="dark:bg-slate-900/50 text-left">
+                            <th class="px-2 py-4 text-center">
+                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" />
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <InputText
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="data.params.contract_number"
+                                    :placeholder="lang().label.contract_number"
+                                />
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <InputText
+                                    type="text"
+                                    class="mt-1 block w-full"
+                                    v-model="data.params.title"
+                                    :placeholder="lang().label.title"
+                                />
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <Select
+                                    showClear
+                                    v-model="data.params.currency_id"
+                                    :options="props.currency"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    filter
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :placeholder="lang().placeholder.select_currency"
+                                    class="w-full"
+                                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                                />
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <Select
+                                    showClear
+                                    v-model="data.params.user_id"
+                                    :options="props.users"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    filter
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :placeholder="lang().label.select_user"
+                                    class="w-full"
+                                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                                />
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <Select
+                                    showClear
+                                    v-model="data.params.status_id"
+                                    :options="props.statuses"
+                                    optionLabel="label"
+                                    optionValue="id"
+                                    filter
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :placeholder="lang().label.select_status"
+                                    class="w-full"
+                                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                                />
+                            </th>
+                            <th class="px-2 py-4 text-center"></th>
                         </tr>
 
                         </thead>
@@ -126,7 +206,7 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ formatNumber(contract.budget_sum) }} {{ contract.currency?.short_name || '' }}
                             </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                 {{ contract.user?.name || lang().label.undefined }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
@@ -139,7 +219,7 @@
                                         v-tooltip="lang().tooltip.show"
                                     />
                                     <EditLink
-                                        v-if="(contract.status !== 3 || user.roles.some(role => role.name === 'superadmin')) && can(['update contract'])"
+                                        v-if="(user.roles.some(role => role.name === 'superadmin')) || can(['update contract'])"
                                         :href="route('contract.edit', { contract: contract.id })"
                                         v-tooltip="lang().tooltip.edit"
                                     >
@@ -187,6 +267,7 @@ import CreateLink from "@/Components/CreateLink.vue";
 import Badge from "primevue/badge";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
+import InputNumber from 'primevue/inputnumber';
 
 const { _, debounce, pickBy } = pkg;
 const user = usePage().props.auth.user;
@@ -194,6 +275,8 @@ const user = usePage().props.auth.user;
 const props = defineProps({
     title: String,
     statuses: Object,
+    currency: Object,
+    users: Object,
     filters: Object,
     contracts: Object,
     breadcrumbs: Object,
@@ -201,10 +284,15 @@ const props = defineProps({
 });
 const data = reactive({
     params: {
-        search: props.filters.search,
-        field: props.filters.field,
-        order: props.filters.order,
-        perPage: props.perPage,
+        search: props.filters.search ?? "",
+        field: props.filters.field ?? "",
+        order: props.filters.order ?? "asc",
+        perPage: props.perPage ?? 10,
+        user_id: props.filters.user_id ?? "",
+        status_id: props.filters.status_id ?? "",
+        title: props.filters.title ?? "",
+        contract_number: props.filters.contract_number ?? "",
+        currency_id: props.filters.currency_id ?? "",
     },
     selectedId: [],
     multipleSelect: false,
@@ -215,12 +303,16 @@ const data = reactive({
 });
 
 const order = (field) => {
-    data.params.field = field;
-    data.params.order = data.params.order === "asc" ? "desc" : "asc";
+    if (data.params.field === field) {
+        data.params.order = data.params.order === "asc" ? "desc" : "asc";
+    } else {
+        data.params.field = field;
+        data.params.order = "asc";
+    }
 };
 
 watch(
-    () => _.cloneDeep(data.params),
+    () => data.params,
     debounce(() => {
         let params = pickBy(data.params);
         router.get(route("contract.index"), params, {
@@ -228,7 +320,8 @@ watch(
             preserveState: true,
             preserveScroll: true,
         });
-    }, 150)
+    }, 150),
+    { deep: true }
 );
 
 const selectAll = (event) => {

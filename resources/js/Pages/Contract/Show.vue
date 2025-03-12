@@ -24,7 +24,7 @@
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ contract.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
-                        <template v-if="application && application.type === 1">
+                        <template v-if="application">
                         <Button
                                 v-show="can_approve"
                                 type="button"
@@ -59,10 +59,8 @@
                                 :title="props.title"
                             />
                         </template>
-
-
                         <EditLink
-                            v-if="(contract.status !== 3 || authUser.roles[0].name === 'superadmin') && can(['update contract'])"
+                            v-if="(authUser.roles[0].name === 'superadmin') || can(['update contract'])"
                             :href="route('contract.edit', { contract: contract.id })"
                             class="px-4 py-2 rounded-md uppercase"
                             v-tooltip="lang().tooltip.edit"
@@ -91,7 +89,7 @@
                     </div>
                 </div>
 
-                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application && application.type === 1">
+                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application">
                     <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
                         <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
@@ -107,6 +105,13 @@
                     </div>
 
                     <div class="space-y-2">
+                        <div
+                            v-if="approvals.length < 2 && contract.user_id === authUser.id"
+                            class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                        >
+                            ⚠ {{ lang().label.min_approvers_warning }}
+                        </div>
+
                         <div v-if="approvals.length">
                             <div v-for="approval in approvals" :key="approval.user_id"
                                  class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
@@ -166,7 +171,7 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_id }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <span v-if="props.project">
-                                    {{ props.project.project_number ?? lang().label.undefined }}
+                                        {{ props.project.title ?? lang().label.undefined }}
                                 </span>
                                 <span v-else>
                                     {{ lang().label.undefined }}
@@ -257,7 +262,7 @@
 
         <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" class="w-[90vw] sm:w-2/3 md:w-1/2 lg:w-2/3">
             <div class="space-y-2 my-4">
-                <div v-if="application_approvals.length">
+                <div v-if="application_approvals.length" class="flex flex-col gap-3">
                     <div v-for="approval in application_approvals" :key="approval.user_id"
                          class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
                         <div class="details">
@@ -265,35 +270,80 @@
                             <p v-if="approval.approved" class="text-green-600 font-semibold">
                                 ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
                             </p>
-                            <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
-                        </div>
-                        <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
-                            <form>
-                                <input type="hidden" :value="approval.user_id" />
-                                <Button
-                                    type="button"
-                                    icon="pi pi-trash"
-                                    severity="danger"
-                                    class="p-button-sm dark:text-white"
-                                    @click="() => confirmRemoveApprover(approval)"
-                                    :disabled="approval.approved"
-                                />
-                            </form>
+                            <p v-else class="text-orange-500 font-semibold">
+                                ✖ {{ lang().label.not_approved }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="overflow-x-auto">
                 <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                     <tbody>
-                    <tr v-for="(value, key) in applicationData" :key="key" class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label[key] ?? key }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600" v-html="value"></td>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.id }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ props.application?.id ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.title }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ props.application?.title ?? '-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.type }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.types.find(t => t.id === props.application?.type)?.label ?? '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.project }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.project?.title ?? 'Не указан' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.user }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.application?.user?.name ?? 'Не указан' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.status }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ getStatusLabel(props.application?.status_id) }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.created }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.application?.created_at ?? '-' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.updated }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.application?.updated_at ?? '-' }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.files }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            <ul v-if="props.application?.media?.length > 0" class="list-none space-y-2">
+                                <li v-for="(file, index) in props.application.media" :key="index">
+                                    <a v-tooltip="lang().tooltip.download" :href="file.original_url" target="_blank" class="text-blue-600 hover:text-blue-800">
+                                        {{ file.name }}
+                                    </a>
+                                </li>
+                            </ul>
+                            <p v-else class="text-gray-500">{{ lang().label.no_files }}</p>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </Dialog>
+
 
 
 
@@ -321,21 +371,7 @@ import Dialog from "primevue/dialog";
 const form = useForm({});
 
 const showModal = ref(false);
-const applicationData = computed(() => ({
-    id: props.application?.id ?? '-',
-    title: props.application?.title ?? '-',
-    type: props.types.find(t => t.id === props.application?.type)?.label ?? props.application?.type ?? '-',
-    project_id: props.project
-        ? (props.project.project_number ?? (typeof lang === 'function' ? lang().label.undefined : 'Не указан'))
-        : (typeof lang === 'function' ? lang().label.undefined : 'Не указан'),
-    user_id: props.application?.user?.name ?? (typeof lang === 'function' ? lang().label.undefined : 'Не указан'),
-    files: props.files.length > 0
-        ? props.files.map(file => `<a href='${file.original_url}' target='_blank' class='text-blue-600 hover:text-blue-800'>${file.name}</a>`).join('<br>')
-        : (typeof lang === 'function' ? lang().label.no_files : 'Нет файлов'),
-    status: `<span class='badge'>${getStatusLabel(props.application?.status_id)}</span>`,
-    created: props.application?.created_at ?? '-',
-    updated: props.application?.updated_at ?? '-',
-}));
+
 
 const authUser = usePage().props.auth.user;
 
@@ -354,6 +390,7 @@ const props = defineProps({
     types: Object,
     files: Array,
 });
+
 
 const data = reactive({
     deleteOpen: false,

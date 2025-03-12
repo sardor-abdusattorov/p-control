@@ -21,7 +21,6 @@
     color: var(--primary-color-text);
 }
 
-
 .scrollbar::-webkit-scrollbar {
     @apply w-1.5 h-1.5 bg-slate-800 dark:bg-slate-300;
 }
@@ -119,3 +118,19 @@ html.dark select {
         text-transform: inherit;
     }
 }
+
+
+
+.select-width .p-inputtext{
+    font-size: 14px;
+    margin: 0;
+    height: 36px;
+}
+.select-width .p-select{
+    justify-content: space-between;
+}
+.select-width .p-select .p-select-label{
+    max-width: 200px;
+    min-width: 100px;
+}
+

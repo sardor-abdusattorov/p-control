@@ -10,6 +10,11 @@
                 >
                     {{ lang().label.create }} {{ props.title }}
                 </h2>
+
+                <div class="font-semibold text-base p-4 mt-4 bg-blue-100 border-l-4 border-blue-500 text-blue-700 dark:bg-blue-900 dark:border-blue-400 dark:text-blue-300 rounded-lg shadow-md">
+                    ℹ️ {{ lang().label.application_contract_notice }}
+                </div>
+
                 <div class="my-6 w-full">
                     <div class="form-group mb-5">
                         <InputLabel for="contract_number" :value="lang().label.contract_number" />
@@ -154,6 +159,7 @@
                     <div class="form-group mb-3">
                         <InputLabel for="budget_sum" :value="lang().label.contract_sum" />
                         <InputNumber
+                            v-if="form.budget_sum !== null"
                             id="budget_sum"
                             v-model="form.budget_sum"
                             class="mt-1 block w-full"
@@ -162,6 +168,7 @@
                             :placeholder="lang().label.contract_sum"
                             :error="form.errors.budget_sum"
                         />
+
                         <InputError class="mt-2" :message="form.errors.budget_sum" />
                     </div>
 
@@ -308,7 +315,7 @@ const form = useForm({
     application_id: "",
     application_type: 1,
     currency_id: 1,
-    budget_sum: null,
+    budget_sum: 0,
     deadline: new Date(new Date().getFullYear(), 11, 31),
 });
 
@@ -350,11 +357,7 @@ const create = () => {
 
 watchEffect(() => {
     form.errors = {};
-    if (form.application_type === 2) {
-        form.recipients = [];
-    } else {
-        form.recipients = props.recipients.map(recipient => recipient.recipient_id);
-    }
+    form.recipients = props.recipients.map(recipient => recipient.recipient_id);
 });
 
 const formattedProjects = computed(() => {

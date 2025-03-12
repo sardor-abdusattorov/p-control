@@ -70,6 +70,7 @@
                             optionLabel="label"
                             optionValue="id"
                             class="w-full"
+                            :disabled=true
                             filter
                             checkmark
                             :placeholder="lang().placeholder.select_type"
@@ -96,7 +97,7 @@
                             checkmark
                             :highlightOnSelect="false"
                             class="w-full"
-                            :disabled="!form.application_type"
+                            :disabled=true
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{

@@ -56,9 +56,6 @@ class ContractController extends Controller
                                 if (!$contract || $contract->user_id !== $user->id) {
                                     return redirect()->route('dashboard')->with('error', __('app.deny_access'));
                                 }
-                                if ($contract->status == 3) {
-                                    return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-                                }
                             }
 
                             return $next($request);
@@ -73,29 +70,54 @@ class ContractController extends Controller
 
     public function index(ContractIndexRequest $request)
     {
+        $currency = Currency::where(['status' => 1])->get();
         $user = auth()->user();
         $statuses = Contract::getStatuses();
         $contracts = Contract::query()->with(['user', 'currency']);
+
         if (!$user->can('view all contracts')) {
             $contracts->where('user_id', $user->id);
+            $users = User::where('id', $user->id)->get();
+        } else {
+            $users = User::where('status', 1)->get();
         }
-        if ($request->has('search')) {
-            $contracts->where('title', 'LIKE', "%" . $request->search . "%");
+
+        if ($request->filled('contract_number')) {
+            $contracts->where('contract_number', 'LIKE', "%" . $request->contract_number . "%");
+        }
+
+        if ($request->filled('title')) {
+            $contracts->where('title', 'LIKE', "%" . $request->title . "%");
+        }
+
+        if ($request->filled('user_id')) {
+            $contracts->where('user_id', (int) $request->user_id);
+        }
+
+        if ($request->filled('status_id')) {
+            $contracts->where('status', (int) $request->status_id);
+        }
+        if ($request->filled('currency_id')) {
+            $contracts->where('currency_id', (int) $request->currency_id);
         }
         if ($request->has(['field', 'order'])) {
             $contracts->orderBy($request->field, $request->order);
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
-        $contracts = $contracts->paginate($perPage);
+        $perPage = $request->input('perPage', 10);
+        $contracts = $contracts->paginate($perPage)->appends($request->query());
+
         return Inertia::render('Contract/Index', [
             'title'         => __('app.label.contracts'),
-            'filters'       => $request->all(['search', 'field', 'order']),
+            'filters'       => $request->all(['search', 'field', 'order', 'user_id', 'status_id', 'currency_id', 'contract_number', 'title']),
             'perPage'       => (int) $perPage,
             'contracts'     => $contracts,
             'statuses'      => $statuses,
+            'currency'      => $currency,
+            'users'         => $users,
             'breadcrumbs'   => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -244,9 +266,12 @@ class ContractController extends Controller
         $files = $contract->getMedia('files');
         $project = Project::find($contract->project_id);
 
-        $application = Application::with('media')->find($contract->application_id);
+        $application = Application::with(['media', 'user'])->find($contract->application_id);
+
         if ($application) {
-            $application->load(['user']);
+            $applicationFiles = $application->getMedia('documents');
+        } else {
+            $applicationFiles = collect();
         }
 
         $user = auth()->user();
@@ -290,9 +315,10 @@ class ContractController extends Controller
         return Inertia::render('Contract/Show', [
             'title' => $contract->title,
             'files' => $files,
+            'application_files' => $applicationFiles,
             'users' => $users,
             'statuses' => $statuses,
-            'types' => $types, //
+            'types' => $types,
             'project' => $project,
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
@@ -305,7 +331,6 @@ class ContractController extends Controller
             ],
         ]);
     }
-
 
     public function confirmContract(Request $request, Contract $contract)
     {
@@ -394,7 +419,6 @@ class ContractController extends Controller
             return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $contract->title]));
         }
     }
-
 
     public function chat(Contract $contract)
     {
@@ -601,7 +625,6 @@ class ContractController extends Controller
         }
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
@@ -683,6 +706,7 @@ class ContractController extends Controller
                 'name' => __('app.label.unknown_user')
             ]));
         }
+
         $userId = $request->user_id;
         $user = User::find($userId);
 
@@ -702,9 +726,15 @@ class ContractController extends Controller
                 'name' => $user ? $user->name : __('app.label.unknown_user')
             ]));
         }
-
         $approval->delete();
-        $contract->update(['status' => 1]);
+        $hasApprovedUsers = Approvals::where('approvable_type', Contract::class)
+            ->where('approvable_id', $contract->id)
+            ->where('approved', true)
+            ->exists();
+
+        if (!$hasApprovedUsers) {
+            $contract->update(['status' => Contract::STATUS_NEW]);
+        }
 
         return redirect()->route('contract.show', ['contract' => $contract->id])
             ->with('success', __('app.label.deleted_successfully', [
@@ -749,6 +779,5 @@ class ContractController extends Controller
         return redirect()->route('contract.show', ['contract' => $contract->id])
             ->with('success', __('app.label.approvers_updated_successfully'));
     }
-
 
 }

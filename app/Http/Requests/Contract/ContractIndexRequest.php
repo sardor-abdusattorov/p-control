@@ -24,10 +24,15 @@ class ContractIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,contract_number,user_id,budget_sum,status,currency_id'],
-            'order' => ['in:asc,desc'],
-            'perPage' => ['numeric'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'contract_number' => ['nullable', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'field'  => ['nullable', 'in:title,contract_number,user_id,status,currency_id'],
+            'order'  => ['nullable', 'in:asc,desc'],
+            'perPage' => ['nullable', 'numeric'],
+            'user_id' => ['nullable', 'exists:users,id'],
+            'status_id' => ['nullable', 'integer', 'in:1,2,3,-1'],
+            'currency_id' => ['nullable', 'exists:currency,id'],
         ];
     }
-
 }

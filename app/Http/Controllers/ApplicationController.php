@@ -107,11 +107,14 @@ class ApplicationController extends Controller
 
         $perPage = $request->input('perPage', 10);
 
+        // Добавление фильтров в URL пагинации
+        $applications = $applications->paginate($perPage)->appends($request->only(['title', 'field', 'order', 'project_id', 'user_id', 'status_id', 'type']));
+
         return Inertia::render('Application/Index', [
             'title'        => __('app.label.applications'),
             'filters'      => $request->only(['title', 'field', 'order', 'project_id', 'user_id', 'status_id', 'type']),
             'perPage'      => (int) $perPage,
-            'applications' => $applications->paginate($perPage),
+            'applications' => $applications,
             'statuses'     => $statuses,
             'types'        => $types,
             'users'        => $users,
@@ -119,6 +122,7 @@ class ApplicationController extends Controller
             'breadcrumbs'  => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
         ]);
     }
+
 
 
     /**

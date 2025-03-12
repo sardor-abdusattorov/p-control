@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <div class="overflow-x-auto scrollbar-table">
-                    <table class="w-full">
+                    <table class="w-full select-width">
                         <thead class="text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left border-b border-slate-300 dark:border-slate-600">
                             <th class="px-2 py-4 text-center w-5">
@@ -156,7 +156,7 @@
                                     filter
                                     checkmark
                                     :highlightOnSelect="false"
-                                    :placeholder="lang().label.select_user"
+                                    :placeholder="lang().label.select_status"
                                     class="w-full"
                                     :pt="{
                                 option: { class: 'custom-option' },
@@ -175,7 +175,7 @@
                                     filter
                                     checkmark
                                     :highlightOnSelect="false"
-                                    :placeholder="lang().label.select_user"
+                                    :placeholder="lang().placeholder.select_type"
                                     class="w-full"
                                     :pt="{
                                 option: { class: 'custom-option' },
@@ -363,19 +363,3 @@ const formattedProjects = computed(() => {
     }));
 });
 </script>
-
-
-<style>
-.p-inputtext{
-    font-size: 14px;
-    margin: 0;
-    height: 36px;
-}
-.p-select{
-    justify-content: space-between;
-}
-.p-select .p-select-label{
-    max-width: 200px;
-}
-
-</style>

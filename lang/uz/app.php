@@ -220,7 +220,7 @@ return [
         'telegram_id' => 'Telegram ID',
         'search' => 'Qidirish...',
         'email' => 'email@email.com',
-        'select_type' => "Ariza turini tanlang",
+        'select_type' => "Hujjat turi",
         'password' => 'Parol',
         'password_confirmation' => 'Parolni tasdiqlash',
         'name' => 'Ism',
