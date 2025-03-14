@@ -1,8 +1,8 @@
 <template>
     <div
-        class="flex items-center justify-between py-4 px-4 sm:px-0 text-slate-500 dark:text-slate-300"
+        class="breadcrumb-wrapper flex flex-col md:flex-row items-start md:items-center justify-between py-4 px-4 sm:px-0 text-slate-500 dark:text-slate-300"
     >
-        <div class="flex items-center space-x-2">
+    <div class="flex items-center space-x-2 flex-wrap">
             <Link :href="route('dashboard')" v-show="breadcrumbs.length !== 0">
                 {{ lang().label.dashboard }}
             </Link>
@@ -86,3 +86,10 @@ defineProps({
     breadcrumbs: Array,
 });
 </script>
+
+
+<style>
+.breadcrumb-wrapper{
+
+}
+</style>

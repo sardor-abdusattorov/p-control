@@ -3,8 +3,8 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
-            <form class="p-6" @submit.prevent="create" enctype="multipart/form-data">
-                <div class="my-6 space-y-4">
+            <form class="p-3 sm:p-6" @submit.prevent="create" enctype="multipart/form-data">
+                <div>
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select

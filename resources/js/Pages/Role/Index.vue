@@ -88,7 +88,7 @@ const select = () => {
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <div class="space-y-4">
-            <div class="px-4 sm:px-0">
+            <div class="px-0">
                 <div class="rounded-lg overflow-hidden w-fit">
                     <PrimaryButton
                         class="rounded-none"

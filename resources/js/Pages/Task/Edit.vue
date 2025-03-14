@@ -4,7 +4,7 @@
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
 
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
-            <form class="p-6" @submit.prevent="update">
+            <form class="p-3 sm:p-6" @submit.prevent="update">
                 <h2
                     class="text-lg font-medium text-slate-900 dark:text-slate-100"
                 >

@@ -28,7 +28,8 @@ class ActivityLogController extends Controller
     public function index(ActivityLogIndexRequest $request)
     {
         $logs = ActivityLog::query()
-            ->with('user');
+            ->with('user')
+            ->orderByDesc('created_at'); // Сортировка по убыванию
 
         if ($request->has('search')) {
             $logs->where('description', 'LIKE', "%" . $request->search . "%");
@@ -42,10 +43,11 @@ class ActivityLogController extends Controller
             'title'         => __('app.label.logs'),
             'filters'       => $request->all(['search', 'field', 'order']),
             'perPage'       => (int) $perPage,
-            'logs'      => $logs->paginate($perPage),
+            'logs'          => $logs->paginate($perPage),
             'breadcrumbs'   => [['label' => __('app.label.logs'), 'href' => route('logs.index')]],
         ]);
     }
+
 
     /**
      * Display the specified resource.

@@ -39,7 +39,7 @@ const updateApprovers = () => {
 
 <template>
     <Modal :show="props.show" @close="emit('close')" :maxWidth="'lg'">
-        <form class="p-6" @submit.prevent="updateApprovers">
+        <form class="p-3 sm:p-6" @submit.prevent="updateApprovers">
             <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
                 {{ lang().label.edit_approvers }}
             </h2>

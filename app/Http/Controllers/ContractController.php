@@ -104,7 +104,7 @@ class ContractController extends Controller
         if ($request->has(['field', 'order'])) {
             $contracts->orderBy($request->field, $request->order);
         } else {
-            $contracts->latest('created_at');
+            $contracts->latest('updated_at');
         }
 
         $perPage = $request->input('perPage', 10);

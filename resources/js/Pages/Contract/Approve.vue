@@ -30,7 +30,7 @@ const approve = () => {
 <template>
     <section class="space-y-6">
         <Modal :show="props.show" @close="emit('close')" :maxWidth="'lg'">
-            <form class="p-6" @submit.prevent="approve">
+            <form class="p-3 sm:p-6" @submit.prevent="approve">
                 <h2
                     class="text-lg font-medium text-slate-900 dark:text-slate-100"
                 >
