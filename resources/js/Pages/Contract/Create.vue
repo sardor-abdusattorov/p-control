@@ -159,7 +159,6 @@
                     <div class="form-group mb-3">
                         <InputLabel for="budget_sum" :value="lang().label.contract_sum" />
                         <InputNumber
-                            v-if="form.budget_sum !== null"
                             id="budget_sum"
                             v-model="form.budget_sum"
                             class="mt-1 block w-full"

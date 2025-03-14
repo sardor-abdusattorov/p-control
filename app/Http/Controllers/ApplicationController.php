@@ -101,13 +101,15 @@ class ApplicationController extends Controller
         }
 
         $sortableFields = ['title', 'user_id', 'project_id', 'status_id', 'type'];
+
         if ($request->filled('field') && in_array($request->field, $sortableFields) && in_array($request->order, ['asc', 'desc'])) {
             $applications->orderBy($request->field, $request->order);
+        } else {
+            $applications->latest('created_at'); // 🔥 Сортировка по убыванию даты создания
         }
 
         $perPage = $request->input('perPage', 10);
 
-        // Добавление фильтров в URL пагинации
         $applications = $applications->paginate($perPage)->appends($request->only(['title', 'field', 'order', 'project_id', 'user_id', 'status_id', 'type']));
 
         return Inertia::render('Application/Index', [
@@ -122,7 +124,6 @@ class ApplicationController extends Controller
             'breadcrumbs'  => [['label' => __('app.label.applications'), 'href' => route('application.index')]],
         ]);
     }
-
 
 
     /**

@@ -67,7 +67,6 @@ class ContractController extends Controller
         });
     }
 
-
     public function index(ContractIndexRequest $request)
     {
         $currency = Currency::where(['status' => 1])->get();
@@ -97,12 +96,17 @@ class ContractController extends Controller
         if ($request->filled('status_id')) {
             $contracts->where('status', (int) $request->status_id);
         }
+
         if ($request->filled('currency_id')) {
             $contracts->where('currency_id', (int) $request->currency_id);
         }
+
         if ($request->has(['field', 'order'])) {
             $contracts->orderBy($request->field, $request->order);
+        } else {
+            $contracts->latest('created_at');
         }
+
         $perPage = $request->input('perPage', 10);
         $contracts = $contracts->paginate($perPage)->appends($request->query());
 

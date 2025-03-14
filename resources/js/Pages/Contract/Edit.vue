@@ -70,20 +70,19 @@
                             optionLabel="label"
                             optionValue="id"
                             class="w-full"
-                            :disabled=true
+                            :disabled="!isAdmin"
                             filter
                             checkmark
                             :placeholder="lang().placeholder.select_type"
                             :highlightOnSelect="false"
                             :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+            option: { class: 'custom-option' },
+            dropdown: { style: { maxWidth: '300px' } },
+            overlay: { class: 'parent-wrapper-class' }
+        }"
                         />
                         <InputError class="mt-2" :message="form.errors.type" />
                     </div>
-
 
                     <div class="form-group mb-5">
                         <InputLabel for="application_id" :value="lang().label.application_id" />
@@ -97,17 +96,18 @@
                             checkmark
                             :highlightOnSelect="false"
                             class="w-full"
-                            :disabled=true
+                            :disabled="!isAdmin"
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+            option: { class: 'custom-option' },
+            dropdown: { style: { maxWidth: '300px' } },
+            overlay: { class: 'parent-wrapper-class' }
+        }"
                         />
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
+
 
 
                     <div class="form-group mb-5" v-if="isAdmin">
