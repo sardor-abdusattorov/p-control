@@ -198,7 +198,7 @@
                                 {{ contract.contract_number || lang().label.undefined }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
-                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline">
+                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline hover:underline dark:text-white">
                                     {{ contract.title ?? lang().label.undefined }}
                                 </Link>
                             </td>

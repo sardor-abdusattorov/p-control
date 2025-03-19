@@ -135,7 +135,7 @@
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3 max-w-xs">
                                 <Link
                                     :href="route('projects.show', { project: project.id })"
-                                    class="block text-blue-600 dark:text-blue-400 font-bold underline"
+                                    class="block text-blue-600 font-bold underline hover:underline dark:text-white"
                                 >
                                     {{ project.title }}
                                 </Link>
@@ -144,7 +144,7 @@
                             <td
                                 v-tooltip="lang().tooltip.detail"
                                 @click="project.contracts.length > 0 ? (data.contractsOpen = true, data.project = project) : null"
-                                class="whitespace-nowrap py-4 px-2 sm:py-3 cursor-pointer text-blue-600 dark:text-blue-400 font-bold underline"
+                                class="whitespace-nowrap py-4 px-2 sm:py-3 cursor-pointer text-blue-600 dark:text-white font-bold underline"
                                 :class="{'cursor-not-allowed opacity-50': project.contracts.length === 0}"
                             >
                                 {{ project.contracts.length > 0

@@ -196,12 +196,12 @@
                                 {{ (props.applications.current_page - 1) * props.applications.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                <Link :href="route('application.show', { application: application.id })" class="text-blue-500 hover:underline">
+                                <Link :href="route('application.show', { application: application.id })" class="text-blue-500 hover:underline dark:text-white">
                                     {{ application?.title || lang().label.no_available }}
                                 </Link>
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline">
+                                <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline dark:text-white">
                                     {{ application?.project?.title || lang().label.no_available }}
                                 </Link>
                             </td>
