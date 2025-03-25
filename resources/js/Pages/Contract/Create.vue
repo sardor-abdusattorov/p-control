@@ -369,3 +369,11 @@ const formattedProjects = computed(() => {
 });
 
 </script>
+
+
+<style>
+
+.p-inputnumber-input{
+    width: 100% !important;
+}
+</style>
