@@ -120,7 +120,7 @@
                                     <p v-if="approval.approved" class="text-green-600 font-semibold">
                                         ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
                                     </p>
-                                    <p v-else class="text-red-600 font-semibold">✖ {{ lang().label.not_approved }}</p>
+                                    <p v-else class="text-orange-500 font-semibold">✖ {{ lang().label.not_approved }}</p>
                                 </div>
                                 <div class="flex gap-2 items-center" v-show="contract.user_id === authUser.id">
                                     <form>
