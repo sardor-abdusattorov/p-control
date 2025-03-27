@@ -110,6 +110,27 @@ class ContractController extends Controller
         $perPage = $request->input('perPage', 10);
         $contracts = $contracts->paginate($perPage)->appends($request->query());
 
+
+        $contractIds = $contracts->pluck('id');
+
+        $approvals = Approvals::where('approvable_type', Contract::class)
+            ->whereIn('approvable_id', $contractIds)
+            ->with('user')
+            ->get()
+            ->groupBy('approvable_id')
+            ->map(function ($group) {
+                return $group->map(function ($approval) {
+                    return [
+                        'user_id'     => $approval->user_id,
+                        'user_name'   => optional($approval->user)->name,
+                        'approved'    => (bool) $approval->approved,
+                        'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                    ];
+                });
+            });
+
+
+
         return Inertia::render('Contract/Index', [
             'title'         => __('app.label.contracts'),
             'filters'       => $request->all(['search', 'field', 'order', 'user_id', 'status_id', 'currency_id', 'contract_number', 'title']),
@@ -118,6 +139,7 @@ class ContractController extends Controller
             'statuses'      => $statuses,
             'currency'      => $currency,
             'users'         => $users,
+            'approvals'     => $approvals,
             'breadcrumbs'   => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
         ]);
     }

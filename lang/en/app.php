@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'no_approvers' => 'No approvers selected',
         "contract_description" => 'Contract description',
         'unknown_user' => 'Unknown user',
         'not_found' => ':attribute not found.',

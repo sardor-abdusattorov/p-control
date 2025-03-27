@@ -62,7 +62,7 @@
                                           @change="selectAll"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer " @click="order('contract_number')">
+                            <th class="px-2 py-4 cursor-pointer w-[12%]" @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_number }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
@@ -93,6 +93,12 @@
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.status }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer" @click="order('status')">
+                                <div class="flex justify-between items-center">
+                                    <span>Статус согласования</span>
+
                                 </div>
                             </th>
                             <th class="px-2 py-4 text-center ">{{ lang().label.actions }}</th>
@@ -176,6 +182,7 @@
                                 />
                             </th>
                             <th class="px-2 py-4 text-center"></th>
+                            <th class="px-2 py-4 text-center"></th>
                         </tr>
 
                         </thead>
@@ -210,6 +217,30 @@
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <Badge :value="getStatusLabel(contract.status)" :severity="getStatusSeverity(contract.status)" />
+                            </td>
+                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
+                                <div v-if="approvals[contract.id] && approvals[contract.id].length">
+                                    <ul class="space-y-2 text-sm">
+                                        <li
+                                            v-for="item in approvals[contract.id]"
+                                            :key="item.user_id"
+                                            class="flex items-center gap-2"
+                                            :class="item.approved ? 'text-green-600' : 'text-orange-500'"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    :d="item.approved ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'"
+                                                />
+                                            </svg>
+                                            <span>{{ item.user_name }}</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div v-else class="text-gray-400 italic text-sm">
+                                    {{ lang().label.no_approvers }}
+                                </div>
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
                                 <div class="rounded-md gap-1 justify-center overflow-hidden flex items-center">
@@ -278,6 +309,7 @@ const props = defineProps({
     users: Object,
     filters: Object,
     contracts: Object,
+    approvals: Object,
     breadcrumbs: Object,
     perPage: Number,
 });

@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'no_approvers' => 'Kelishuvchilar tanlanmagan',
         "contract_description" => 'Shartnoma tavsifi',
         'type' => "Ariza turi",
         'unknown_user' => 'Noma\'lum foydalanuvchi',
