@@ -344,15 +344,15 @@ const getStatusLabel = (statusId) => {
 const getStatusSeverity = (statusId) => {
     switch (statusId) {
         case 1:
-            return 'info';
+            return 'secondary';
         case 2:
-            return 'info';
+            return 'warn';
         case 3:
             return 'success';
         case -1:
             return 'danger';
         default:
-            return 'contrast';
+            return 'info';
     }
 };
 

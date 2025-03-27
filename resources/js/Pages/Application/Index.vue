@@ -333,12 +333,12 @@ const getStatusLabel = (statusId) => {
 
 const getStatusSeverity = (statusId) => {
     const severities = {
-        1: "info",
-        2: "info",
+        1: "secondary",
+        2: "warn",
         3: "success",
         "-1": "danger",
     };
-    return severities[statusId] || "contrast";
+    return severities[statusId] || "info";
 };
 
 const getTypeLabel = (type) => {
