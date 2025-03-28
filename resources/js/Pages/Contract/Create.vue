@@ -117,9 +117,11 @@
                         <MultiSelect
                             v-model="form.recipients"
                             display="chip"
-                            optionValue="id"
                             :options="props.users"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             optionLabel="name"
+                            optionValue="id"
                             filter
                             checkmark
                             :highlightOnSelect="false"
@@ -132,6 +134,7 @@
                                 overlay: { class: 'parent-wrapper-class' }
                             }"
                         />
+
                         <InputError class="mt-2" :message="form.errors.recipients" />
                     </div>
 

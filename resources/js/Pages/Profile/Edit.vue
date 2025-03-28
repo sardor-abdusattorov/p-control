@@ -105,9 +105,11 @@
                                             <MultiSelect
                                                 v-model="form.recipients"
                                                 display="chip"
-                                                optionValue="id"
                                                 :options="props.users"
+                                                optionGroupLabel="label"
+                                                optionGroupChildren="items"
                                                 optionLabel="name"
+                                                optionValue="id"
                                                 filter
                                                 checkmark
                                                 :highlightOnSelect="false"

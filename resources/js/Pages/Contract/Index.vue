@@ -62,7 +62,7 @@
                                           @change="selectAll"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer w-[12%]" @click="order('contract_number')">
+                            <th class="px-2 py-4 cursor-pointer" @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_number }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
@@ -95,10 +95,9 @@
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" @click="order('status')">
+                            <th class="px-2 py-4 cursor-pointer  w-[15%]">
                                 <div class="flex justify-between items-center">
-                                    <span>Статус согласования</span>
-
+                                    <span>{{ lang().label.approval_status }}</span>
                                 </div>
                             </th>
                             <th class="px-2 py-4 text-center ">{{ lang().label.actions }}</th>

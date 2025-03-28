@@ -29,9 +29,23 @@ class ProfileController extends Controller
             ->get();
 
         $user = $request->user();
-        $users = User::where('id', '!=', $user->id)
+
+        $users = User::where('id', '!=', auth()->id())
             ->where('status', 1)
-            ->get();
+            ->whereIn('department_id', [7, 8, 9])
+            ->with('department')
+            ->get()
+            ->groupBy(fn($user) => $user->department->name ?? __('app.label.no_department'))
+            ->map(function ($users, $departmentName) {
+                return [
+                    'label' => $departmentName,
+                    'items' => $users->map(fn($user) => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                    ])->values()
+                ];
+            })
+            ->values();
 
         $recipients = Recipient::where('user_id', $user->id)->get();
 

@@ -68,7 +68,6 @@
                             {{ lang().tooltip.edit }}
                         </EditLink>
 
-
                         <DangerButton
                             type="button"
                             @click="(data.deleteOpen = true), (data.contract = contract)"

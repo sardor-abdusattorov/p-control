@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Contract;
 
 use App\Models\Contract;
+use App\Models\Currency;
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ContractStoreRequest extends FormRequest
@@ -30,7 +32,20 @@ class ContractStoreRequest extends FormRequest
                     if (!is_array($value) || count($value) < 2) {
                         $fail('Необходимо выбрать минимум 2 получателя.');
                     }
-                },
+
+                    $currencyId = $this->input('currency_id');
+                    $currency = Currency::find($currencyId);
+
+                    if ($currency && strtoupper($currency->short_name) !== 'UZS') {
+                        $hasAccountant = User::whereIn('id', $value)
+                            ->where('department_id', 9)
+                            ->exists();
+
+                        if (!$hasAccountant) {
+                            $fail('При выборе валюты, отличной от UZS, необходимо выбрать получателя из бухгалтерии.');
+                        }
+                    }
+                }
             ],
         ];
     }
