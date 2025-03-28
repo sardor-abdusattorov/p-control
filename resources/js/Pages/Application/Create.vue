@@ -3,7 +3,24 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
+
             <form class="p-3 sm:p-6" @submit.prevent="create" enctype="multipart/form-data">
+
+
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded mb-4" role="alert">
+                    <p class="font-bold mb-1">📢 {{ lang().label.attention }}</p>
+                    <p>
+                        {{ lang().label.use_new_application_form }}
+                        <a
+                            href="/downloads/new_application_form.docx"
+                            download
+                            class="text-blue-600 underline hover:text-blue-800"
+                        >
+                            {{ lang().label.download_docx }}
+                        </a>
+                    </p>
+                </div>
+
                 <div>
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />

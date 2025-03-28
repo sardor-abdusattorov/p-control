@@ -7,6 +7,9 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'attention' => 'Attention',
+        'use_new_application_form' => 'Please use the new application form.',
+        'download_docx' => 'Download (DOCX)',
         'no_approvers' => 'No approvers selected',
         "contract_description" => 'Contract description',
         'unknown_user' => 'Unknown user',

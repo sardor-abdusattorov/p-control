@@ -7,6 +7,9 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'attention' => 'Diqqat',
+        'use_new_application_form' => 'Iltimos, yangi ariza shaklidan foydalaning.',
+        'download_docx' => 'Yuklab olish (DOCX)',
         'no_approvers' => 'Kelishuvchilar tanlanmagan',
         "contract_description" => 'Shartnoma tavsifi',
         'type' => "Ariza turi",
