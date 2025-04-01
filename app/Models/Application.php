@@ -14,8 +14,8 @@ class Application extends Model implements HasMedia
     const STATUS_APPROVED = 3;
     const STATUS_REJECTED = -1;
 
-        const TYPE_REQUEST = 1;
-        const TYPE_MEMO = 2;
+    const TYPE_REQUEST = 1;
+    const TYPE_MEMO = 2;
 
 
     use InteractsWithMedia;
@@ -28,6 +28,7 @@ class Application extends Model implements HasMedia
         'project_id',
         'user_id',
         'status_id',
+        'currency_id',
     ];
 
     public function getDocuments()
@@ -60,6 +61,10 @@ class Application extends Model implements HasMedia
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function getCreatedAtAttribute() {

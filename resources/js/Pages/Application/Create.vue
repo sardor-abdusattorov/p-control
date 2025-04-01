@@ -82,6 +82,27 @@
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
+                    <div class="form-group mb-5" v-if="form.type !== 2">
+                        <InputLabel for="currency_id" :value="lang().label.currency_id" />
+                        <Select
+                            v-model="form.currency_id"
+                            :options="currency"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :placeholder="lang().placeholder.select_currency"
+                            class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.currency_id" />
+                    </div>
+
                     <div class="form-group mb-3" v-if="form.type !== 2">
                         <InputLabel for="recipients" :value="lang().label.approval_users" />
                         <MultiSelect
@@ -125,7 +146,7 @@
                             @clear="onClearFiles"
                             :error="form.errors.files"
                         >
-                            <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
+                            <template #content="{ files, uploadedFiles, messages }">
 
                                 <div class="flex flex-col gap-8 pt-4">
                                     <Message v-for="message of messages" :key="message" :class="{ 'mb-8': !files.length && !uploadedFiles.length}" severity="error">
@@ -205,6 +226,7 @@ const props = defineProps({
     projects: Array,
     users: Array,
     types: Array,
+    currency: Array,
 });
 
 const emit = defineEmits(["close"]);
@@ -215,6 +237,7 @@ const form = useForm({
     recipients: [],
     files: [],
     type: 1,
+    currency_id: 1,
 });
 
 const allowedFileTypes = [
@@ -235,6 +258,7 @@ watchEffect(() => {
 
     if (form.type === 2) {
         form.recipients = [];
+        form.currency_id = 1;
     } else {
         form.recipients = props.recipients.map(recipient => recipient.recipient_id);
     }

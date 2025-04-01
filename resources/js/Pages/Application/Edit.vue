@@ -72,6 +72,27 @@
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
+                    <div class="form-group mb-5" v-if="form.type !== 2">
+                        <InputLabel for="currency_id" :value="lang().label.currency_id" />
+                        <Select
+                            v-model="form.currency_id"
+                            :options="currency"
+                            optionLabel="name"
+                            optionValue="id"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :placeholder="lang().placeholder.select_currency"
+                            class="w-full"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
+                        <InputError class="mt-2" :message="form.errors.currency_id" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="files" :value="lang().label.files" />
                         <FileUpload
@@ -180,6 +201,7 @@ const props = defineProps({
     projects: Array,
     users: Array,
     types: Array,
+    currency: Array,
     files: Array
 });
 
@@ -190,6 +212,7 @@ const form = useForm({
     project_id: "",
     type: "",
     files: [],
+    currency_id: '',
     old_files: []
 });
 
@@ -199,6 +222,7 @@ watchEffect(() => {
     form.project_id = props.application.project_id;
     form.files = [];
     form.old_files = props.files;
+    form.currency_id = props.application.currency_id;
     form.type = props.application.type;
 });
 

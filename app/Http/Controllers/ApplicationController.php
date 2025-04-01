@@ -8,6 +8,7 @@ use App\Http\Requests\Application\ApplicationUpdateRequest;
 use App\Models\Application;
 use App\Models\Approvals;
 use App\Models\Chat;
+use App\Models\Currency;
 use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
@@ -129,6 +130,7 @@ class ApplicationController extends Controller
      */
     public function create()
     {
+        $currency = Currency::where(['status' => 1])->get();
         $projects = Project::all();
         $recipients = Recipient::where('user_id', auth()->id())->get();
 
@@ -155,6 +157,7 @@ class ApplicationController extends Controller
             'title' => __('app.label.applications'),
             'projects' => $projects,
             'recipients' => $recipients,
+            'currency' => $currency,
             'users' => $users,
             'types' => $types,
             'breadcrumbs' => [
@@ -291,7 +294,7 @@ class ApplicationController extends Controller
             'title' => $application->title,
             'project' => $project,
             'statuses' => $statuses,
-            'application' => $application,
+            'application' => $application->load(['currency']),
             'users' => $users,
             'types' => $types,
             'approvals' => $approvals,
@@ -396,8 +399,6 @@ class ApplicationController extends Controller
             return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $application->title]));
         }
     }
-
-
 
     public function chat(Application $application)
     {
@@ -516,6 +517,7 @@ class ApplicationController extends Controller
      */
     public function edit(Application $application)
     {
+        $currency = Currency::where(['status' => 1])->get();
         $types = Application::getTypes();
         $projects = Project::all();
         $files = $application->getMedia('documents');
@@ -530,6 +532,7 @@ class ApplicationController extends Controller
             'projects' => $projects,
             'recipients' => $recipients,
             'users' => $users,
+            'currency' => $currency,
             'types' => $types,
             'application' => $application,
             'files' => $files,
