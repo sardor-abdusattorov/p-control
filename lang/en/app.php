@@ -8,6 +8,7 @@ return [
     'deny_access' => 'You do not have access to this section',
     'label' => [
         'unknown_department' => 'Unknown Department',
+        'min_recipients_required' => 'For request type applications, at least 2 recipients must be specified.',
         'select_recipient_from_department' => 'At least one recipient must be selected from the ":department" department.',
         'select_accounting_recipient' => 'When selecting a currency other than UZS, at least one recipient from the accounting department must be chosen.',
         'recipients_required' => 'Recipients must be specified.',

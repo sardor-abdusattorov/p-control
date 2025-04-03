@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'min_recipients_required' => 'So‘rov turidagi arizalar uchun kamida 2 ta oluvchi ko‘rsatilishi kerak.',
         'unknown_department' => 'Noma\'lum bo\'lim',
         'select_recipient_from_department' => '":department" bo\'limidan kamida bitta qabul qiluvchi tanlanishi kerak.',
         'select_accounting_recipient' => 'Agar valuta UZS dan boshqa bo\'lsa, hisob-kitob bo\'limidan kamida bitta qabul qiluvchi tanlanishi kerak.',
