@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'budget_nonzero' => 'The amount cannot be zero.',
         'unknown_department' => 'Unknown Department',
         'min_recipients_required' => 'For request type applications, at least 2 recipients must be specified.',
         'select_recipient_from_department' => 'At least one recipient must be selected from the ":department" department.',

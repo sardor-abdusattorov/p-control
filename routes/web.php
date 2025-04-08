@@ -20,18 +20,15 @@ use App\Http\Controllers\{
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
-// Главная страница
 Route::get('/', [HomeController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Установка языка
 Route::get('/setLang/{locale}', function ($locale) {
     Session::put('locale', $locale);
     return back();
 })->name('setlang');
 
-// Группа маршрутов с аутентификацией
 Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Профиль

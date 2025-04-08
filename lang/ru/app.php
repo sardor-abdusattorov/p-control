@@ -7,6 +7,7 @@ return [
     ],
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'budget_nonzero' => 'Сумма не может быть равна нулю.',
         'min_recipients_required' => 'Для заявок типа "Запрос" необходимо указать минимум 2 получателя.',
         'unknown_department' => 'Неизвестный департамент',
         'select_recipient_from_department' => 'Необходимо выбрать хотя бы одного получателя из департамента ":department".',
