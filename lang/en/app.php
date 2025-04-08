@@ -7,6 +7,8 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'total' => 'Total',
+        'view_all' => 'View All',
         'budget_nonzero' => 'The amount cannot be zero.',
         'unknown_department' => 'Unknown Department',
         'min_recipients_required' => 'For request type applications, at least 2 recipients must be specified.',

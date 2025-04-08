@@ -1,15 +1,20 @@
 <script setup>
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { CheckCircleIcon, ClockIcon, DocumentTextIcon, InboxIcon } from "@heroicons/vue/24/solid";
+import { DocumentTextIcon, InboxIcon } from "@heroicons/vue/24/solid";
 import { Head, Link } from "@inertiajs/vue3";
 
 const props = defineProps({
-    completedTasksCount: Number,
-    totalTasksCount: Number,
     applicationsCount: Number,
+    approvedApplicationsCount: Number,
+    rejectedApplicationsCount: Number,
+    inProgressApplicationsCount: Number,
+    newApplicationsCount: Number,
     contractsCount: Number,
-    pendingTasksCount: Number,
+    approvedContractsCount: Number,
+    rejectedContractsCount: Number,
+    inProgressContractsCount: Number,
+    newContractsCount: Number,
 });
 </script>
 
@@ -17,105 +22,56 @@ const props = defineProps({
     <Head :title="lang().label.dashboard" />
     <AuthenticatedLayout>
         <Breadcrumb :title="lang().label.dashboard" :breadcrumbs="[]" />
-        <div class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6">
-                <Link
-                    :href="route('task.index')"
-                    class="px-4 py-6 flex justify-between bg-green-600/70 dark:bg-green-500/80 items-center overflow-hidden rounded-lg shadow-md ripple-effect"
-                >
-                    <div class="flex flex-col">
-                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
-                            {{ lang().label.completed_tasks }}
-                        </p>
-                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{ props.completedTasksCount }}</span> /
-                            <span class="ml-2">{{ props.totalTasksCount }}</span>
-                        </p>
-                    </div>
-                    <div>
-                        <CheckCircleIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
-                    </div>
-                </Link>
 
-                <Link
-                    :href="route('task.index')"
-                    class="ripple-effect px-4 py-6 flex justify-between bg-amber-600/70 dark:bg-amber-500/80 items-center overflow-hidden rounded-lg shadow-md"
-                >
-                    <div class="flex flex-col">
-                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
-                            {{ lang().label.pending_tasks }}
-                        </p>
-                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{ props.pendingTasksCount }}</span>
-                        </p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="p-6 rounded-xl shadow-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                    <InboxIcon class="absolute top-4 right-4 w-16 h-16 opacity-10" />
+                    <h2 class="text-2xl font-bold mb-4">{{ lang().label.applications }}</h2>
+                    <div class="space-y-2">
+                        <p class="text-lg">{{ lang().label.total }}: <strong>{{ props.applicationsCount }}</strong></p>
+                        <p class="text-lg text-green-600 dark:text-green-400">{{ lang().status.approved }}: <strong>{{ props.approvedApplicationsCount }}</strong></p>
+                        <p class="text-lg text-red-600 dark:text-red-400">{{ lang().status.rejected }}: <strong>{{ props.rejectedApplicationsCount }}</strong></p>
+                        <p class="text-lg text-yellow-600 dark:text-yellow-400">{{ lang().status.in_progress }}: <strong>{{ props.inProgressApplicationsCount }}</strong></p>
+                        <p class="text-lg text-blue-600 dark:text-blue-400">{{ lang().status.new }}: <strong>{{ props.newApplicationsCount }}</strong></p>
                     </div>
-                    <div>
-                        <ClockIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
-                    </div>
-                </Link>
-
-                <Link
-                    :href="route('contract.index')"
-                    class="ripple-effect px-4 py-6 flex justify-between bg-blue-600/70 dark:bg-blue-500/80 items-center overflow-hidden rounded-lg shadow-md"
-                >
-                    <div class="flex flex-col">
-                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
-                            {{ lang().label.contracts }}
-                        </p>
-                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{ props.contractsCount }}</span>
-                        </p>
-                    </div>
-                    <div>
-                        <DocumentTextIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
-                    </div>
-                </Link>
-
+                </div>
                 <Link
                     :href="route('application.index')"
-                    class="ripple-effect px-4 py-6 flex justify-between bg-red-600/70 dark:bg-red-500/80 items-center overflow-hidden rounded-lg shadow-md"
+                    class="mt-6 inline-block bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded shadow font-semibold hover:bg-gray-700 dark:hover:bg-gray-600 self-start"
                 >
-                    <div class="flex flex-col">
-                        <p class="text-white text-lg md:text-xl xl:text-2xl font-semibold">
-                            {{ lang().label.applications }}
-                        </p>
-                        <p class="text-lg md:text-base xl:text-lg uppercase mt-4 text-white">
-                            <span class="mr-2">{{ props.applicationsCount }}</span>
-                        </p>
+                    {{ lang().label.view_all }}
+                </Link>
+            </div>
+
+            <div class="p-6 rounded-xl shadow-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 relative overflow-hidden flex flex-col justify-between">
+                <div>
+                    <DocumentTextIcon class="absolute top-4 right-4 w-16 h-16 opacity-10" />
+                    <h2 class="text-2xl font-bold mb-4">{{ lang().label.contracts }}</h2>
+                    <div class="space-y-2">
+                        <p class="text-lg">{{ lang().label.total }}: <strong>{{ props.contractsCount }}</strong></p>
+                        <p class="text-lg text-green-600 dark:text-green-400">{{ lang().status.approved }}: <strong>{{ props.approvedContractsCount }}</strong></p>
+                        <p class="text-lg text-red-600 dark:text-red-400">{{ lang().status.rejected }}: <strong>{{ props.rejectedContractsCount }}</strong></p>
+                        <p class="text-lg text-yellow-600 dark:text-yellow-400">{{ lang().status.in_progress }}: <strong>{{ props.inProgressContractsCount }}</strong></p>
+                        <p class="text-lg text-blue-600 dark:text-blue-400">{{ lang().status.new }}: <strong>{{ props.newContractsCount }}</strong></p>
                     </div>
-                    <div>
-                        <InboxIcon class="w-12 md:w-14 xl:w-16 h-auto text-white" />
-                    </div>
+                </div>
+                <Link
+                    :href="route('contract.index')"
+                    class="mt-6 inline-block bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded shadow font-semibold hover:bg-gray-700 dark:hover:bg-gray-600 self-start"
+                >
+                    {{ lang().label.view_all }}
                 </Link>
             </div>
         </div>
     </AuthenticatedLayout>
 </template>
 
-<style>
-.ripple-effect {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
+<style scoped>
+.bg-gray-100, .bg-gray-800 {
+    transition: transform 0.3s;
 }
-
-.ripple-effect::after {
-    content: '';
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    top: 50%;
-    left: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-    border-radius: 50%;
-    pointer-events: none;
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-}
-
-.ripple-effect:active::after {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(4);
+.bg-gray-100:hover, .bg-gray-800:hover {
+    transform: translateY(-5px);
 }
 </style>

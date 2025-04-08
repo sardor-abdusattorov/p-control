@@ -7,6 +7,8 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'total' => 'Jami',
+        'view_all' => 'Hammasini ko\'rish',
         'budget_nonzero' => 'Summa nolga teng bo\'lishi mumkin emas.',
         'min_recipients_required' => 'So‘rov turidagi arizalar uchun kamida 2 ta oluvchi ko‘rsatilishi kerak.',
         'unknown_department' => 'Noma\'lum bo\'lim',

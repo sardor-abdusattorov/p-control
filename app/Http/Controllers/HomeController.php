@@ -12,40 +12,52 @@ class HomeController extends Controller
     public function index()
     {
         $user = auth()->user();
-        if ($user->can('view all tasks')) {
-            $completedTasksCount = Task::where('status', 3)->count();
-            $pendingTasksCount = Task::where('status', 2)->count();
-            $totalTasksCount = Task::count();
-        } else {
-            $completedTasksCount = Task::where('assigned_user', $user->id)
-                ->where('status', 3)
-                ->count();
-            $pendingTasksCount = Task::where('assigned_user', $user->id)
-                ->where('status', 2)
-                ->count();
-            $totalTasksCount = Task::where('assigned_user', $user->id)->count();
-        }
 
+        // Applications
         if ($user->can('view all applications')) {
             $applicationsCount = Application::count();
+            $approvedApplicationsCount = Application::where('status_id', Application::STATUS_APPROVED)->count();
+            $rejectedApplicationsCount = Application::where('status_id', Application::STATUS_REJECTED)->count();
+            $inProgressApplicationsCount = Application::where('status_id', Application::STATUS_IN_PROGRESS)->count();
+            $newApplicationsCount = Application::where('status_id', Application::STATUS_NEW)->count();
         } else {
             $applicationsCount = Application::where('user_id', $user->id)->count();
+            $approvedApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_APPROVED)->count();
+            $rejectedApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_REJECTED)->count();
+            $inProgressApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_IN_PROGRESS)->count();
+            $newApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_NEW)->count();
         }
 
+        // Contracts
         if ($user->can('view all contracts')) {
             $contractsCount = Contract::count();
+            $approvedContractsCount = Contract::where('status', Contract::STATUS_APPROVED)->count();
+            $rejectedContractsCount = Contract::where('status', Contract::STATUS_REJECTED)->count();
+            $inProgressContractsCount = Contract::where('status', Contract::STATUS_IN_PROGRESS)->count();
+            $newContractsCount = Contract::where('status', Contract::STATUS_NEW)->count();
         } else {
             $contractsCount = Contract::where('user_id', $user->id)->count();
+            $approvedContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_APPROVED)->count();
+            $rejectedContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_REJECTED)->count();
+            $inProgressContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_IN_PROGRESS)->count();
+            $newContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_NEW)->count();
         }
 
         return Inertia::render('Dashboard', [
-            'completedTasksCount' => $completedTasksCount,
-            'totalTasksCount' => $totalTasksCount,
-            'pendingTasksCount' => $pendingTasksCount,
+            // Applications data
             'applicationsCount' => $applicationsCount,
+            'approvedApplicationsCount' => $approvedApplicationsCount,
+            'rejectedApplicationsCount' => $rejectedApplicationsCount,
+            'inProgressApplicationsCount' => $inProgressApplicationsCount,
+            'newApplicationsCount' => $newApplicationsCount,
+
+            // Contracts data
             'contractsCount' => $contractsCount,
+            'approvedContractsCount' => $approvedContractsCount,
+            'rejectedContractsCount' => $rejectedContractsCount,
+            'inProgressContractsCount' => $inProgressContractsCount,
+            'newContractsCount' => $newContractsCount,
         ]);
     }
-
 
 }
