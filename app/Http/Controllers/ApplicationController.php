@@ -37,7 +37,7 @@ class ApplicationController extends Controller
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
                 'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
-                'approve application' => ['application.approve'],
+                'approve application' => ['application.approve', 'application.cancel'],
             ];
 
             foreach ($permissions as $permission => $routes) {
@@ -133,24 +133,7 @@ class ApplicationController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $projects = Project::all();
         $recipients = Recipient::where('user_id', auth()->id())->get();
-
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->whereIn('department_id', [7, 8, 9])
-            ->with('department')
-            ->get()
-            ->groupBy(fn($user) => $user->department->name ?? __('app.label.no_department'))
-            ->map(function ($users, $departmentName) {
-                return [
-                    'label' => $departmentName,
-                    'items' => $users->map(fn($user) => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                    ])->values()
-                ];
-            })
-            ->values();
-
+        $users = User::approverOptions();
         $types = Application::getTypes();
 
         return Inertia::render('Application/Create', [
@@ -170,7 +153,6 @@ class ApplicationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
 
     public function store(ApplicationStoreRequest $request)
     {
@@ -206,35 +188,13 @@ class ApplicationController extends Controller
 
             if (!empty($request->recipients)) {
                 foreach ($request->recipients as $recipient) {
-
                     Approvals::create([
                         'approvable_type' => Application::class,
                         'approvable_id' => $application->id,
                         'user_id' => $recipient,
-                        'approved' => false,
+                        'approved' => Approvals::STATUS_NEW,
                         'approved_at' => null,
                     ]);
-
-                    $chat = new Chat();
-                    $chat->model_type = 'application';
-                    $chat->model_id = $application->id;
-                    $chat->user_id = auth()->id();
-                    $chat->receiver_id = $recipient;
-                    $chat->name = 'Chat for application #' . $application->id;
-
-                    if ($chat->save()) {
-                        $messageContent = 'Отправляю заявку на ваше рассмотрение';
-                        $message = Message::create([
-                            'chat_id' => $chat->id,
-                            'user_id' => auth()->id(),
-                            'text' => $messageContent,
-                            'created_date' => now(),
-                            'is_notified' => 0
-                        ]);
-                    } else {
-                        DB::rollback();
-                        return redirect()->back()->with('error', __('app.label.chat_creation_failed'));
-                    }
                 }
             }
 
@@ -266,9 +226,8 @@ class ApplicationController extends Controller
         $files = $application->getMedia('documents');
         $statuses = Application::getStatuses();
         $user = auth()->user();
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->get();
+        $users = User::approverOptions();
+
         $types = Application::getTypes();
 
         $approvals = Approvals::where('approvable_type', Application::class)
@@ -400,117 +359,75 @@ class ApplicationController extends Controller
         }
     }
 
-    public function chat(Application $application)
+    public function cancelApplication(Request $request, Application $application)
     {
-        $users = User::where('status', 1)->get();
-        $currentUser = auth()->user();
-
-        $chats = Chat::where('model_type', 'application')
-            ->where('model_id', $application->id)
-            ->where(function ($query) use ($currentUser) {
-                $query->where('user_id', $currentUser->id)
-                    ->orWhere('receiver_id', $currentUser->id);
-            })
-            ->with(['messages.media'])
-            ->get();
-
-        return Inertia::render('Application/Chat', [
-            'title' => __('app.label.applications'),
-            'users' => $users,
-            'chats' => $chats,
-            'application' => $application,
-            'breadcrumbs' => [
-                ['label' => __('app.label.applications'), 'href' => route('application.index')],
-                ['label' => $application->title, 'href' => route('application.show', $application->id)],
-                ['label' => __('app.label.application_chat')],
-            ],
-        ]);
-    }
-
-    public function getAllChats(Request $request, $applicationId)
-    {
-        $currentUser = auth()->user();
-
         try {
-            $chats = Chat::with(['messages' => function ($query) {
-                $query->latest('created_date')->limit(1)->with('media');
-            }])
-                ->where('model_type', 'application')
-                ->where('model_id', $applicationId)
-                ->where(function ($query) use ($currentUser) {
-                    $query->where('user_id', $currentUser->id)
-                        ->orWhere('receiver_id', $currentUser->id);
-                })
-                ->get();
 
-            return response()->json(['chats' => $chats]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Ошибка при загрузке чатов'], 500);
-        }
-    }
+            $user = auth()->user();
 
-    public function getMessages(Request $request, $chat_id)
-    {
-        $messages = Message::where('chat_id', $chat_id)
-            ->with('media')
-            ->orderBy('created_date', 'asc')
-            ->get();
+            $approval = Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->where('user_id', $user->id)
+                ->first();
 
-        return response()->json(['messages' => $messages]);
-    }
 
-    public function sendMessage(Request $request, Application $application)
-    {
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-            'files.*' => 'file|mimes:jpg,png,pdf,docx|max:2048',
-        ]);
-
-        DB::beginTransaction();
-
-        try {
-            if (!empty($request['chat_id'])) {
-
-                $chat = Chat::findOrFail($request['chat_id']);
-            } else {
-
-                $chat = Chat::create([
-                    'model_type' => 'application',
-                    'model_id' => $application->id,
-                    'user_id' => auth()->id(),
-                    'receiver_id' => $request['receiver_id'],
-                    'name' => 'test',
-                ]);
+            if (!$approval) {
+                return redirect()->back()->with('error', __('app.label.not_recipient'));
             }
 
-            $message = Message::create([
-                'chat_id' => $chat->id,
-                'user_id' => auth()->id(),
-                'text' => $validated['message'],
-                'created_date' => now(),
-                'is_notified' => 0,
+            if ($approval->approved === false && $approval->reason) {
+                return redirect()->back()->with('error', __('app.label.already_rejected'));
+            }
+
+            $approval->update([
+                'approved' => false,
+                'reason' => $request->input('reason'),
+                'approved_at' => now(),
             ]);
 
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $message->addMedia($file)
-                        ->toMediaCollection('message file');
-                }
+            activity('application')
+                ->causedBy($user)
+                ->performedOn($application)
+                ->withProperties([
+                    'application_id' => $application->id,
+                    'reason' => $request->input('reason'),
+                    'rejected_by' => $user->id,
+                    'rejected_at' => now()->format('d.m.Y H:i'),
+                ])
+                ->log('Пользователь отменил заявку');
+
+            if ($application->status_id !== 0) {
+                $application->update(['status_id' => 0]);
+
+                activity('application')
+                    ->causedBy($user)
+                    ->performedOn($application)
+                    ->withProperties([
+                        'application_id' => $application->id,
+                        'previous_status' => $application->status_id,
+                        'new_status' => -1,
+                    ])
+                    ->log('Заявка отменена после отклонения пользователем');
             }
 
-            DB::commit();
+            return redirect()->route('application.show', $application->id)
+                ->with('success', __('app.label.cancelled_successfully', ['name' => $application->title]));
 
-            return redirect()->route('application.chat', [
-                'id' => $chat->id,
-                'application' => $application->id,
-            ])->with('success', 'Message sent successfully!');
         } catch (\Exception $e) {
-            DB::rollBack();
+            activity('application')
+                ->causedBy(auth()->user())
+                ->performedOn($application)
+                ->withProperties([
+                    'error' => $e->getMessage(),
+                    'application_id' => $application->id,
+                    'title' => $application->title,
+                ])
+                ->log('Ошибка при отмене заявки');
 
-            Log::error($e->getMessage());
-            return back()->with('error', 'An error occurred. Please try again later.');
+            return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $application->title]));
         }
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -596,7 +513,6 @@ class ApplicationController extends Controller
             return back()->with('error', __('app.label.updated_error', ['name' => $application->title]) . $th->getMessage());
         }
     }
-
 
     public function destroy(Application $application)
     {

@@ -36,15 +36,15 @@
                                 @click="(data.approveOpen = true), (data.application = application)"
                             />
 
-<!--                            <Button-->
-<!--                                v-show="can_approve"-->
-<!--                                type="button"-->
-<!--                                icon="pi pi-times"-->
-<!--                                severity="danger"-->
-<!--                                :label="lang().label.cancel_approval"-->
-<!--                                class="p-button-sm bg-yellow-500 text-white dark:text-white"-->
-<!--                                @click="(data.cancelApproval = true), (data.application = application)"-->
-<!--                            />-->
+                            <Button
+                                v-show="can_approve"
+                                type="button"
+                                icon="pi pi-times"
+                                severity="danger"
+                                :label="lang().label.cancel_approval"
+                                class="p-button-sm bg-yellow-500 text-white dark:text-white"
+                                @click="(data.cancelApproval = true), (data.application = application)"
+                            />
 
                             <DeleteUser
                                 :show="data.deleteUserOpen"
@@ -64,20 +64,19 @@
                             />
 
                             <Approve
-                                v-show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2)"
-                                :show="data.approveOpen"
+                                :show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2) && data.approveOpen"
                                 @close="data.approveOpen = false"
                                 :application="data.application"
                                 :title="props.title"
                             />
 
-<!--                            <CancelApproval-->
-<!--                                v-show="can(['approve application'])"-->
-<!--                                :show="data.approveOpen"-->
-<!--                                @close="data.approveOpen = false"-->
-<!--                                :application="data.application"-->
-<!--                                :title="props.title"-->
-<!--                            />-->
+
+                            <CancelApproval
+                                :show="can(['approve application']) && data.cancelApproval"
+                                @close="data.cancelApproval = false"
+                                :application="data.application"
+                                :title="props.title"
+                            />
 
                         </template>
 
@@ -142,11 +141,15 @@
                                  class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
                                 <div class="details">
                                     <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
-                                    <p v-if="approval.approved" class="text-green-600 font-semibold">
+                                    <p v-if="approval.approved === true" class="text-green-600 font-semibold">
                                         ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
                                     </p>
+
                                     <p v-else class="text-orange-500 font-semibold">
                                         ✖ {{ lang().label.not_approved }}
+                                        <span v-if="approval.reason" class="block text-sm font-normal text-red-600 dark:text-red-400 mt-1">
+                                            📝 {{ approval.reason }}
+                                        </span>
                                     </p>
                                 </div>
                                 <div class="flex gap-2 items-center" v-show="application.user_id === authUser.id">

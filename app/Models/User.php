@@ -110,4 +110,24 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Application::class);
     }
 
+    public static function approverOptions()
+    {
+        return self::where('id', '!=', auth()->id())
+            ->where('status', 1)
+            ->whereIn('department_id', [7, 8, 9])
+            ->with('department')
+            ->get()
+            ->groupBy(fn($user) => $user->department->name ?? __('app.label.no_department'))
+            ->map(function ($users, $departmentName) {
+                return [
+                    'label' => $departmentName,
+                    'items' => $users->map(fn($user) => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                    ])->values()
+                ];
+            })
+            ->values();
+    }
+
 }

@@ -31,7 +31,7 @@ Route::get('/setLang/{locale}', function ($locale) {
 
 Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
-    // Профиль
+
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::post('/', [ProfileController::class, 'update'])->name('update');
@@ -49,6 +49,10 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::put('/application/{application}/update-approvers', [ApplicationController::class, 'updateApprovers'])->name('application.update-approvers');
 
     Route::post('/application/{application}', [ApplicationController::class, 'update'])->name('application.update');
+
+    Route::post('/applications/{application}/cancel', [ApplicationController::class, 'cancelApplication'])
+        ->name('application.cancel');
+
 
     Route::get('/application/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('application.get-messages');
 

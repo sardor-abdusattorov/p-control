@@ -215,12 +215,13 @@
                                 <Badge :value="getTypeLabel(application.type)" :severity="getTypeSeverity(application.type)" />
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-24">
-                                <div class="gap-1 flex justify-center">
-                                    <ViewLink :href="route('application.show', { application: application.id })" v-tooltip="lang().tooltip.show" />
-                                    <EditLink v-if="user.roles.some(role => role.name === 'superadmin') || (can(['update application']) && application.user_id === user.id)" :href="route('application.edit', { application: application.id })" v-tooltip="lang().tooltip.edit" />
-                                    <DangerButton v-show="can(['delete application'])" type="button" @click="(data.deleteOpen = true), (data.application = application)" v-tooltip="lang().tooltip.delete">
-                                        <TrashIcon class="w-4 h-4" />
-                                    </DangerButton>
+                                <div class="flex justify-center">
+                                    <Menu :model="menuItems(application)" popup ref="el => actionMenuRefs[application.id] = el" />
+                                    <Button
+                                        icon="pi pi-ellipsis-v"
+                                        class="p-button-text"
+                                        @click="event => actionMenuRefs[application.id].toggle(event)"
+                                    />
                                 </div>
                             </td>
                         </tr>
@@ -240,7 +241,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import { computed, reactive, watch } from "vue";
+import {computed, reactive, ref, watch} from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import pkg from "lodash";
 import { router } from "@inertiajs/vue3";
@@ -256,6 +257,28 @@ import Select from "primevue/select";
 import EditLink from "@/Components/EditLink.vue";
 import ViewLink from "@/Components/ViewLink.vue";
 import Badge from "primevue/badge";
+import Menu from 'primevue/menu';
+import Button from 'primevue/button';
+
+
+const actionMenuRefs = ref({});
+const menuItems = (application) => [
+    {
+        label: lang().label.send_for_approval,
+        icon: 'pi pi-send',
+        command: () => sendForApproval(application),
+    },
+    // Добавь другие действия при необходимости
+];
+
+const sendForApproval = (application) => {
+    router.post(route('application.submit', { application: application.id }), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            // Можно добавить всплывающее сообщение
+        }
+    });
+};
 
 const { _, debounce, pickBy } = pkg;
 const user = usePage().props.auth.user;
