@@ -53,6 +53,8 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/applications/{application}/cancel', [ApplicationController::class, 'cancelApplication'])
         ->name('application.cancel');
 
+    Route::post('/application/{application}/submit', [ApplicationController::class, 'submit'])->name('application.submit');
+
 
     Route::get('/application/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('application.get-messages');
 

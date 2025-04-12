@@ -215,12 +215,14 @@
                                 <Badge :value="getTypeLabel(application.type)" :severity="getTypeSeverity(application.type)" />
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-24">
-                                <div class="flex justify-center">
-                                    <Menu :model="menuItems(application)" popup ref="el => actionMenuRefs[application.id] = el" />
+                                <div class="gap-1 flex justify-center">
                                     <Button
+                                        type="button"
                                         icon="pi pi-ellipsis-v"
-                                        class="p-button-text"
-                                        @click="event => actionMenuRefs[application.id].toggle(event)"
+                                        @click="toggleMenu($event, application)"
+                                        aria-haspopup="true"
+                                        aria-controls="menu"
+                                        severity="secondary"
                                     />
                                 </div>
                             </td>
@@ -235,8 +237,12 @@
                 </div>
             </div>
         </div>
+        <Menu ref="menu" :model="items" :popup="true" />
+        <SendApproval ref="confirmDialogRef" />
+
     </AuthenticatedLayout>
 </template>
+
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link } from "@inertiajs/vue3";
@@ -254,32 +260,68 @@ import { usePage } from "@inertiajs/vue3";
 import CreateLink from "@/Components/CreateLink.vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import EditLink from "@/Components/EditLink.vue";
-import ViewLink from "@/Components/ViewLink.vue";
 import Badge from "primevue/badge";
 import Menu from 'primevue/menu';
-import Button from 'primevue/button';
+import SendApproval from "@/Pages/Application/SendApproval.vue";
+import Button from "primevue/button";
+const menu = ref();
+const selectedApplication = ref(null);
+const lang = () => usePage().props.language;
 
+const items = computed(() => {
+    const baseItems = [];
 
-const actionMenuRefs = ref({});
-const menuItems = (application) => [
-    {
-        label: lang().label.send_for_approval,
-        icon: 'pi pi-send',
-        command: () => sendForApproval(application),
-    },
-    // Добавь другие действия при необходимости
-];
+    if (selectedApplication.value?.status_id === 1 && selectedApplication.value?.type !== 2) {
+        baseItems.push({
+            label: lang().tooltip.send_for_approval || 'Отправить на согласование',
+            icon: 'pi pi-send',
+            command: () => {
+                confirmDialogRef.value.open(selectedApplication.value);
+            },
+        });
+    }
 
-const sendForApproval = (application) => {
-    router.post(route('application.submit', { application: application.id }), {}, {
-        preserveScroll: true,
-        onSuccess: () => {
-            // Можно добавить всплывающее сообщение
-        }
+    baseItems.push({
+        label: lang().tooltip.show,
+        icon: 'pi pi-eye',
+        command: () => {
+            router.visit(route('application.show', { application: selectedApplication.value.id }));
+        },
     });
+
+    if (selectedApplication.value?.status_id === 1) {
+        baseItems.push({
+            label: lang().tooltip.edit,
+            icon: 'pi pi-pencil',
+            command: () => {
+                router.visit(route('application.edit', { application: selectedApplication.value.id }));
+            },
+        });
+
+        baseItems.push({
+            label: lang().tooltip.delete,
+            icon: 'pi pi-trash',
+            command: () => {
+                data.deleteOpen = true;
+                data.application = selectedApplication.value;
+            },
+        });
+    }
+
+    return [
+        {
+            label: lang().actions || 'Действия',
+            items: baseItems,
+        },
+    ];
+});
+
+const toggleMenu = (event, application) => {
+    selectedApplication.value = application;
+    menu.value.toggle(event);
 };
 
+const confirmDialogRef = ref();
 const { _, debounce, pickBy } = pkg;
 const user = usePage().props.auth.user;
 

@@ -59,8 +59,7 @@ class HandleInertiaRequests extends Middleware
                 return app()->getLocale();
             },
             'language' => function () {
-                $lang = __('app');
-                return response()->json($lang);
+                return __('app'); // ✅ Просто верни массив — это то, что ожидает Inertia
             },
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [

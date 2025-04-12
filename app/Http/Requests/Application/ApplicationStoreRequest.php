@@ -25,15 +25,19 @@ class ApplicationStoreRequest extends FormRequest
             'files' => ['required', 'array', 'min:1'],
             'files.*' => ['file', 'mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg', 'max:51200'],
             'recipients' => [
-                'required',
+                $this->input('type') != 2 ? 'required' : 'nullable',
                 'array',
                 function ($attribute, $value, $fail) {
+                    if ($this->input('type') == 2) return;
 
                     $currencyId = $this->input('currency_id');
                     $currency = Currency::find($currencyId);
 
                     $departments = [7, 8];
-                    $usersByDepartment = User::whereIn('department_id', $departments)->whereIn('id', $value)->pluck('department_id')->toArray();
+                    $usersByDepartment = User::whereIn('department_id', $departments)
+                        ->whereIn('id', $value)
+                        ->pluck('department_id')
+                        ->toArray();
 
                     foreach ($departments as $departmentId) {
                         $departmentName = Department::find($departmentId)->name ?? trans('app.label.unknown_department');

@@ -96,7 +96,7 @@ createInertiaApp({
                         return hasPermission;
                     },
                     lang: function () {
-                        return usePage().props.language.original;
+                        return usePage().props.language;
                     },
                     notifications: function () {
                         return usePage().props.notifications;

@@ -3,25 +3,8 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-            <!-- Header -->
-            <div class="border-b border-gray-300 dark:border-neutral-600 card-header flex flex-col md:flex-row justify-between items-start md:items-center p-4 bg-gray-100 dark:bg-slate-900 rounded-t-md gap-4">
-                <div class="flex justify-start gap-4">
-                    <Link
-                        :href="route('application.show', { application: application.id })"
-                        class="px-6 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 shadow-lg transition-all duration-300"
-                    >
-                        {{ lang().label.information }}
-                    </Link>
-                    <Link
-                        :href="route('application.chat', { id: application.id })"
-                        class="px-6 py-3 rounded-md bg-green-600 text-white hover:bg-green-700 shadow-lg transition-all duration-300"
-                    >
-                        {{ lang().label.chat }}
-                    </Link>
-                </div>
-            </div>
 
-            <div class="mt-0 p-4">
+            <div class="mt-3 p-4">
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">

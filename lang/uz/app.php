@@ -7,6 +7,10 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
+        'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
+        'submit_failed' => 'Arizani yuborishda xatolik yuz berdi.',
+
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
         'unknown' => 'Nomaʼlum',

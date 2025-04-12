@@ -7,6 +7,11 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'cannot_submit_non_draft' => 'Only draft applications can be submitted.',
+        'submitted_successfully' => 'Application successfully submitted for approval.',
+        'submit_failed' => 'Failed to submit the application.',
+
+
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
         'unknown' => 'Unknown',

@@ -10,11 +10,10 @@ class Approvals extends Model
 {
     use HasFactory;
 
-    const STATUS_REJECTED = 0;
+    const STATUS_NEW      = 0;
     const STATUS_PENDING  = 1;
     const STATUS_APPROVED = 2;
-
-    const STATUS_NEW = 3;
+    const STATUS_REJECTED = 3;
 
 
     protected $table = 'approvals';

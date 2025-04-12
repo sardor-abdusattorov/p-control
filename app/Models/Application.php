@@ -29,6 +29,7 @@ class Application extends Model implements HasMedia
         'project_id',
         'user_id',
         'status_id',
+        'type',
         'currency_id',
     ];
 
@@ -74,6 +75,11 @@ class Application extends Model implements HasMedia
 
     public function getUpdatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
+    }
+
+    public function approvals()
+    {
+        return $this->morphMany(Approvals::class, 'approvable');
     }
 
 }

@@ -33,6 +33,7 @@ class ApplicationController extends Controller
 
             $permissions = [
                 'create application' => ['application.create', 'application.store'],
+                'submit application' => ['application.submit'],
                 'update application' => ['application.edit', 'application.update', 'application.remove-approver', 'application.update-approvers'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
@@ -156,16 +157,17 @@ class ApplicationController extends Controller
 
     public function store(ApplicationStoreRequest $request)
     {
+        dd($request->all());
         DB::beginTransaction();
-        try {
-            $application = new Application();
-            $application->title = $request->title;
-            $application->project_id = $request->project_id;
-            $application->user_id = auth()->id();
-            $application->status_id = 1;
-            $application->type = $request->type;
-            $application->save();
 
+        try {
+            $application = Application::create([
+                'title' => $request->title,
+                'project_id' => $request->project_id,
+                'user_id' => auth()->id(),
+                'status_id' => Application::STATUS_NEW,
+                'type' => $request->type,
+            ]);
             activity('application')
                 ->causedBy(auth()->user())
                 ->performedOn($application)
@@ -175,44 +177,79 @@ class ApplicationController extends Controller
                     'user_id' => $application->user_id,
                 ])
                 ->log('Создана заявка');
-
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
                     $name = Str::random(24) . '.' . $ext;
                     $application->addMedia($file)
                         ->usingFileName($name)
-                        ->toMediaCollection("documents");
+                        ->toMediaCollection('documents');
                 }
             }
-
             if (!empty($request->recipients)) {
-                foreach ($request->recipients as $recipient) {
-                    Approvals::create([
-                        'approvable_type' => Application::class,
-                        'approvable_id' => $application->id,
-                        'user_id' => $recipient,
+                foreach ($request->recipients as $recipientId) {
+                    $application->approvals()->create([
+                        'user_id' => $recipientId,
                         'approved' => Approvals::STATUS_NEW,
-                        'approved_at' => null,
                     ]);
                 }
             }
-
             DB::commit();
-
             return redirect()->route('application.index')
                 ->with('success', __('app.label.created_successfully', ['name' => $application->title]));
         } catch (\Throwable $th) {
-            DB::rollback();
+            DB::rollBack();
             activity('application')
                 ->causedBy(auth()->user())
                 ->withProperties([
                     'error' => $th->getMessage(),
                 ])
                 ->log('Ошибка при создании заявки');
-            return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.application')]) . ' ' . $th->getMessage());
+
+            return redirect()->back()->with(
+                'error',
+                __('app.label.created_error', ['name' => __('app.label.application')]) . ' ' . $th->getMessage()
+            );
         }
     }
+
+    public function submit(Application $application)
+    {
+        if ($application->status_id !== 1) {
+            return redirect()->back()->with('error', __('app.label.cannot_submit_non_draft'));
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $application->update(['status_id' => 2]);
+
+            $application->approvals()
+                ->where('approved', Approvals::STATUS_NEW)
+                ->update([
+                    'approved' => Approvals::STATUS_PENDING,
+                    'approved_at' => null,
+                ]);
+
+            activity('application')
+                ->causedBy(auth()->user())
+                ->performedOn($application)
+                ->log('Заявка отправлена на согласование');
+
+            DB::commit();
+
+            return redirect()->route('application.index')
+                ->with('success', __('app.label.submitted_successfully'));
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
+        }
+    }
+
+
 
     /**
      * Display the specified resource.
@@ -439,10 +476,7 @@ class ApplicationController extends Controller
         $projects = Project::all();
         $files = $application->getMedia('documents');
         $recipients = Recipient::where('user_id', auth()->id())->get();
-
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->get();
+        $users = User::approverOptions();
 
         return Inertia::render('Application/Edit', [
             'title' => $application->title,
@@ -453,6 +487,7 @@ class ApplicationController extends Controller
             'types' => $types,
             'application' => $application,
             'files' => $files,
+            'approval_user_ids' => $application->approvals()->pluck('user_id')->toArray(),
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => $application->id, 'href' => route('application.show', $application->id)],
@@ -468,14 +503,34 @@ class ApplicationController extends Controller
     public function update(ApplicationUpdateRequest $request, Application $application)
     {
         DB::beginTransaction();
-
         try {
+            if ($request->input('type') == 2) {
+                $application->currency_id = null;
+                $application->approvals()->delete();
+            } else {
+                $application->approvals()->delete();
+                foreach ($request->recipients ?? [] as $recipientId) {
+                    $application->approvals()->create([
+                        'user_id' => $recipientId,
+                        'approved' => Approvals::STATUS_NEW
+                    ]);
+                }
+            }
             $application->update([
                 'title' => $request->input('title'),
                 'project_id' => $request->input('project_id'),
                 'type' => $request->input('type'),
+                'currency_id' => $request->input('currency_id'),
             ]);
 
+            if ($request->filled('deleted_old_file_ids')) {
+                foreach ($request->input('deleted_old_file_ids') as $fileId) {
+                    $media = $application->media()->where('id', $fileId)->first();
+                    if ($media) {
+                        $media->delete();
+                    }
+                }
+            }
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
@@ -485,23 +540,23 @@ class ApplicationController extends Controller
                         ->toMediaCollection("documents");
                 }
             }
-
             activity('application')
                 ->causedBy(auth()->user())
                 ->performedOn($application)
                 ->withProperties([
-                    'updated_fields' => $request->only(['title', 'project_id']),
+                    'updated_fields' => $request->only(['title', 'project_id', 'type']),
                     'application_id' => $application->id,
                 ])
                 ->log('Обновлена заявка');
 
             DB::commit();
 
-            return redirect()->route('application.index')->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
+            return redirect()->route('application.index')
+                ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
+
         } catch (\Throwable $th) {
             DB::rollback();
 
-            // Логирование ошибки
             activity('application')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -513,6 +568,7 @@ class ApplicationController extends Controller
             return back()->with('error', __('app.label.updated_error', ['name' => $application->title]) . $th->getMessage());
         }
     }
+
 
     public function destroy(Application $application)
     {

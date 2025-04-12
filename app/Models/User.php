@@ -109,25 +109,48 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->hasMany(Application::class);
     }
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
 
     public static function approverOptions()
     {
-        return self::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->whereIn('department_id', [7, 8, 9])
-            ->with('department')
-            ->get()
-            ->groupBy(fn($user) => $user->department->name ?? __('app.label.no_department'))
-            ->map(function ($users, $departmentName) {
+        $mainDepartments = [7, 8, 9];
+
+        $departments = Department::with(['head.position'])->get();
+
+        $users = self::where('id', '!=', auth()->id())
+            ->where('status', self::STATUS_ACTIVE)
+            ->whereIn('department_id', $mainDepartments)
+            ->with(['department', 'position'])
+            ->get();
+
+        return $departments->map(function ($department) use ($users, $mainDepartments) {
+            if (in_array($department->id, $mainDepartments)) {
+                $deptUsers = $users->where('department_id', $department->id);
+
                 return [
-                    'label' => $departmentName,
-                    'items' => $users->map(fn($user) => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                    ])->values()
+                    'label' => $department->name,
+                    'items' => $deptUsers->map(function ($user) {
+                        return [
+                            'id' => $user->id,
+                            'name' => $user->name . ($user->position ? ' — ' . $user->position->name : ''),
+                        ];
+                    })->values(),
                 ];
-            })
-            ->values();
+            }
+            if ($department->head) {
+                return [
+                    'label' => $department->name,
+                    'items' => [[
+                        'id' => $department->head->id,
+                        'name' => $department->head->name . ($department->head->position ? ' — ' . $department->head->position->name : ''),
+                    ]]
+                ];
+            }
+            return null;
+        })->filter()->values();
     }
 
 }

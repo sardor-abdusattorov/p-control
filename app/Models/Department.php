@@ -34,4 +34,9 @@ class Department extends Model
     public function getUpdatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
     }
+    public function head()
+    {
+        return $this->belongsTo(User::class, 'head_of_department');
+    }
+
 }
