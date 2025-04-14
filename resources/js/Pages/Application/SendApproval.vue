@@ -1,9 +1,9 @@
 <template>
-    <Dialog v-model:visible="visible" modal header="Подтверждение" :style="{ width: '400px' }">
-        <p>Вы уверены, что хотите отправить заявку на согласование?</p>
+    <Dialog v-model:visible="visible" modal :header="lang().label.confirmation" :style="{ width: '400px' }">
+        <p>{{lang().label.submit_confirmation}}</p>
         <template #footer>
-            <Button label="Отмена" class="p-button-text" @click="visible = false" />
-            <Button label="Отправить" class="p-button-danger" @click="send" />
+            <Button :label="lang().button.cancel" class="p-button-text" @click="visible = false" />
+            <Button :label="lang().button.confirm" class="p-button-danger" @click="send" />
         </template>
     </Dialog>
 </template>

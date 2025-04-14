@@ -1,6 +1,7 @@
 <script setup>
 import Dialog from "primevue/dialog";
 import Button from "primevue/button";
+import Textarea from "primevue/textarea";
 import { useForm } from "@inertiajs/vue3";
 import { ref, watch } from "vue";
 
@@ -14,7 +15,6 @@ const emit = defineEmits(["close"]);
 
 const visible = ref(false);
 
-// Синхронизируем `props.show` с локальной переменной
 watch(() => props.show, (val) => (visible.value = val), { immediate: true });
 
 const close = () => {
@@ -22,7 +22,9 @@ const close = () => {
     emit("close");
 };
 
-const form = useForm({});
+const form = useForm({
+    comment: '',
+});
 
 const approveApplication = () => {
     form.post(route("application.approve", props.application?.id), {
@@ -45,9 +47,19 @@ const approveApplication = () => {
         @hide="close"
     >
         <div>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                {{ lang().label.approve_application_confirm }}
-            </p>
+            <div class="mb-4">
+                <label for="comment" class="block text-xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+                    {{ lang().label.comment_optional }}
+                </label>
+                <Textarea
+                    id="comment"
+                    v-model="form.comment"
+                    autoResize
+                    rows="4"
+                    class="w-full"
+                    :placeholder="lang().placeholder.comment"
+                />
+            </div>
 
             <div class="flex justify-end gap-2 mt-6">
                 <Button
@@ -68,3 +80,4 @@ const approveApplication = () => {
         </div>
     </Dialog>
 </template>
+

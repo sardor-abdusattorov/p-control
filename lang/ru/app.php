@@ -10,6 +10,10 @@ return [
         'cannot_submit_non_draft' => 'Можно отправить только черновик.',
         'submitted_successfully' => 'Заявка успешно отправлена на согласование.',
         'submit_failed' => 'Ошибка при отправке заявки.',
+        'confirmation' => 'Подтверждение',
+        'submit_confirmation' => 'Вы уверены, что хотите отправить заявку на согласование?',
+        'selected_approvers' => 'Выбранные согласующие',
+        'comment_optional' => 'Комментарий (необязательно)',
 
         'delete_user_confirm' => 'Вы действительно хотите удалить пользователя',
         'unknown' => 'Неизвестный',
@@ -68,7 +72,6 @@ return [
         'logs' => 'Логи',
         'all_budget' => 'Общая сумма',
         'approve_application' => 'Подтвердить заявку',
-        'approve_application_confirm' => 'Вы уверены, что хотите подтвердить заявку?',
         'approve_contract' => 'Подтвердить контракт',
         'approve_contract_confirm' => 'Вы уверены, что хотите подтвердить контракт?',
         'related_contracts' => 'Связанные контракты',
@@ -237,6 +240,7 @@ return [
         'send' => 'Отправить'
     ],
     'placeholder' => [
+        'comment' => 'Добавьте комментарий к одобрению...',
         'select_recipients' => 'Выберите пользователей...',
         'select_role' => 'Выберите роль...',
         'select_currency' => 'Выберите валюту',

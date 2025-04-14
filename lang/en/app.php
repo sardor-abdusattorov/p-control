@@ -10,7 +10,10 @@ return [
         'cannot_submit_non_draft' => 'Only draft applications can be submitted.',
         'submitted_successfully' => 'Application successfully submitted for approval.',
         'submit_failed' => 'Failed to submit the application.',
-
+        'confirmation' => 'Confirmation',
+        'submit_confirmation' => 'Are you sure you want to submit the application for approval?',
+        'selected_approvers' => 'Selected approvers',
+        'comment_optional' => 'Comment (optional)',
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
@@ -67,7 +70,6 @@ return [
         'image' => 'Image',
         'all_budget' => 'Total Amount',
         'approve_application' => 'Approve Application',
-        'approve_application_confirm' => 'Are you sure you want to approve the application',
         'approve_contract' => 'Approve Contract',
         'approve_contract_confirm' => 'Are you sure you want to approve the contract?',
         'application_chat' => 'Application chat',
@@ -236,6 +238,7 @@ return [
         'send' => 'Send'
     ],
     'placeholder' => [
+        'comment' => 'Add a comment to your approval...',
         'select_recipients' => 'Select Users...',
         'select_role' => 'Select role...',
         'select_currency' => 'Select Currency',

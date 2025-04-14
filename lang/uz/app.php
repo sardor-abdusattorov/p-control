@@ -10,6 +10,10 @@ return [
         'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
         'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
         'submit_failed' => 'Arizani yuborishda xatolik yuz berdi.',
+        'confirmation' => 'Tasdiqlash',
+        'submit_confirmation' => 'Arizani tasdiqlash uchun yuborishni xohlaysizmi?',
+        'selected_approvers' => 'Tanlangan tasdiqlovchilar',
+        'comment_optional' => 'Izoh (ixtiyoriy)',
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
@@ -66,7 +70,6 @@ return [
         'upload' => 'Yuklash',
         'all_budget' => 'Jami summa',
         'approve_application' => 'Arizani tasdiqlash',
-        'approve_application_confirm' => 'Arizani tasdiqlashni xohlaysizmi?',
         'approve_contract' => 'Kontraktni tasdiqlash',
         'approve_contract_confirm' => 'Kontraktni tasdiqlashni xohlaysizmi?',
         'related_contracts' => 'Aloqador shartnomalar',
@@ -235,6 +238,7 @@ return [
         'send' => "Jo'natish"
     ],
     'placeholder' => [
+        'comment' => 'Tasdiqlashga izoh yozing...',
         'select_recipients' => 'Foydalanuvchilarni tanlang...',
         'select_role' => 'Rollarni tanlang...',
         'select_currency' => 'Valyutani tanlang',

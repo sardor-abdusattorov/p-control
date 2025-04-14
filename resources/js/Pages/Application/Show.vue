@@ -8,65 +8,68 @@
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
-                        <template v-if="application.type === 1">
-                            <Button
-                                v-show="can_approve"
-                                type="button"
-                                icon="pi pi-check-circle"
-                                :label="lang().button.approve"
-                                severity="success"
-                                class="p-button-sm dark:text-white"
-                                @click="(data.approveOpen = true), (data.application = application)"
-                            />
+                        <Button
+                            type="button"
+                            icon="pi pi-check-circle"
+                            :label="lang().button.approve"
+                            severity="success"
+                            class="p-button-sm dark:text-white"
+                            @click="(data.approveOpen = true), (data.application = application)"
+                        />
 
-                            <Button
-                                v-show="can_approve"
-                                type="button"
-                                icon="pi pi-times"
-                                severity="danger"
-                                :label="lang().label.cancel_approval"
-                                class="p-button-sm bg-yellow-500 text-white dark:text-white"
-                                @click="(data.cancelApproval = true), (data.application = application)"
-                            />
+                        <Button
+                            v-if="application.status_id === 1 && application.user_id === authUser.id"
+                            type="button"
+                            icon="pi pi-send"
+                            :label="lang().tooltip.send_for_approval"
+                            severity="info"
+                            class="p-button-sm dark:text-white"
+                            @click="confirmDialogRef.open(application)"
+                        />
 
-                            <DeleteUser
-                                :show="data.deleteUserOpen"
-                                @close="data.deleteUserOpen = false"
-                                :application="data.application"
-                                :user="data.selectedUser"
-                                :title="props.title"
-                            />
+                        <SendApproval ref="confirmDialogRef" />
 
-                            <EditUser
-                                :show="data.editUserOpen"
-                                @close="data.editUserOpen = false"
-                                :application="props.application"
-                                :users="props.users"
-                                :approvals="props.approvals"
-                                :title="props.title"
-                            />
+                        <Button
+                            type="button"
+                            icon="pi pi-times"
+                            severity="danger"
+                            :label="lang().label.cancel_approval"
+                            class="p-button-sm bg-yellow-500 text-white dark:text-white"
+                            @click="(data.cancelApproval = true), (data.application = application)"
+                        />
 
-                            <Approve
-                                :show="can(['approve application']) && (application.status_id === 1 || application.status_id === 2) && data.approveOpen"
-                                @close="data.approveOpen = false"
-                                :application="data.application"
-                                :title="props.title"
-                            />
+                        <DeleteUser
+                            :show="data.deleteUserOpen"
+                            @close="data.deleteUserOpen = false"
+                            :application="data.application"
+                            :user="data.selectedUser"
+                            :title="props.title"
+                        />
 
+                        <EditUser
+                            :show="data.editUserOpen"
+                            @close="data.editUserOpen = false"
+                            :application="props.application"
+                            :users="props.users"
+                            :approvals="props.approvals"
+                            :title="props.title"
+                        />
 
-                            <CancelApproval
-                                :show="can(['approve application']) && data.cancelApproval"
-                                @close="data.cancelApproval = false"
-                                :application="data.application"
-                                :title="props.title"
-                            />
+                        <Approve
+                            :show="can(['approve application']) && data.approveOpen"
+                            @close="data.approveOpen = false"
+                            :application="data.application"
+                            :title="props.title"
+                        />
 
-                        </template>
+                        <CancelApproval
+                            :show="can(['approve application']) && data.cancelApproval"
+                            @close="data.cancelApproval = false"
+                            :application="data.application"
+                            :title="props.title"
+                        />
 
                         <EditLink
-                            v-if="application.type === 1 && authUser?.roles?.length > 0 &&
-                              (authUser.roles[0].name === 'superadmin' ||
-                              (can(['update application']) && application.user_id === authUser.id))"
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
@@ -79,7 +82,7 @@
                             @click="(data.deleteOpen = true), (data.application = application)"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.delete"
-                            v-show="can(['delete application'])"
+                            v-if="props.application.status_id ===1"
                         >
                             {{ lang().tooltip.delete }}
                             <TrashIcon class="w-5 h-5" />
@@ -94,11 +97,10 @@
                     </div>
                 </div>
 
-                <div class="p-2 sm:p-4 xs:p-3 bg-gray-100 dark:bg-neutral-800 rounded-lg shadow-md mb-4" v-if="application.type === 1">
-                    <div class=" flex flex-wrap gap-2 items-center mb-3 justify-between">
-                        <h2 class="text-lg font-bold">{{ lang().label.approval_status }}</h2>
+                <div class="p-4 bg-gray-100 dark:bg-neutral-800 rounded-xl shadow mb-6" v-if="application.status_id != 1">
+                    <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
+                        <h2 class="text-xl font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
-                            type="button"
                             icon="pi pi-user-plus"
                             :label="lang().button.edit"
                             severity="info"
@@ -107,59 +109,69 @@
                             @click="data.editUserOpen = true"
                             v-show="application.user_id === authUser.id"
                         />
-
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-4">
                         <div
                             v-if="approvals.length < 2 && application.user_id === authUser.id"
-                            class="p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300"
+                            class="p-4 border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 rounded-md"
                         >
                             ⚠ {{ lang().label.min_approvers_warning }}
                         </div>
 
-
-                        <div v-if="approvals.length">
-                            <div v-for="approval in approvals" :key="approval.user_id"
-                                 class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
-                                <div class="details">
-                                    <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
-                                    <p v-if="approval.approved === true" class="text-green-600 font-semibold">
+                        <div v-if="approvals.length" class="flex flex-col gap-4">
+                            <div
+                                v-for="approval in approvals"
+                                :key="approval.user_id"
+                                class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-neutral-700 rounded-lg shadow transition hover:shadow-md"
+                            >
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-1">👤 {{ approval.user_name }}</h3>
+                                    <p
+                                        v-if="approval.approved === 2"
+                                        class="text-green-600 dark:text-green-400 font-semibold"
+                                    >
                                         ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
                                     </p>
-
-                                    <p v-else class="text-orange-500 font-semibold">
-                                        ✖ {{ lang().label.not_approved }}
-                                        <span v-if="approval.reason" class="block text-sm font-normal text-red-600 dark:text-red-400 mt-1">
+                                    <p
+                                        v-else-if="approval.approved === 3"
+                                        class="text-red-600 dark:text-red-400 font-semibold"
+                                    >
+                                        ✖ {{ lang().label.rejected }}
+                                        <span
+                                            v-if="approval.reason"
+                                            class="block mt-1 text-sm text-red-600 dark:text-red-400 font-normal"
+                                        >
                                             📝 {{ approval.reason }}
                                         </span>
                                     </p>
+                                    <p
+                                        v-else
+                                        class="text-orange-500 dark:text-orange-400 font-semibold"
+                                    >
+                                        ⏳ {{ lang().label.pending }}
+                                    </p>
+
                                 </div>
-                                <div class="flex gap-2 items-center" v-show="application.user_id === authUser.id">
-                                    <form>
-                                        <input type="hidden" :value="approval.user_id" />
-                                        <Button
-                                            type="button"
-                                            icon="pi pi-trash"
-                                            severity="danger"
-                                            class="p-button-sm dark:text-white"
-                                            @click="() => confirmRemoveApprover(approval)"
-                                            :disabled="approval.approved"
-                                        />
-                                    </form>
+                                <div v-if="application.user_id === authUser.id" class="mt-3 sm:mt-0 sm:ml-4">
+                                    <Button
+                                        type="button"
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        class="p-button-sm"
+                                        @click="() => confirmRemoveApprover(approval)"
+                                        :disabled="approval.approved"
+                                    />
                                 </div>
                             </div>
                         </div>
-
-                        <p v-else class="text-gray-500 dark:text-gray-400 text-center">
+                        <p v-else class="text-center text-gray-500 dark:text-gray-400">
                             {{ lang().label.no_data }}
                         </p>
-
                     </div>
-
                 </div>
 
-                <!-- Table -->
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>
@@ -169,6 +181,27 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.id }}</td>
                         </tr>
+                        <tr
+                            v-if="application.status_id === 1 && approvals.length > 0"
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 align-top ">
+                                {{ lang().label.selected_approvers }}
+                            </td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <ul class="space-y-2">
+                                    <li
+                                        v-for="approver in approvals"
+                                        :key="approver.user_id"
+                                        class="text-base font-semibold text-gray-800 dark:text-gray-200"
+                                    >
+                                        👤 {{ approver.user_name }}
+                                    </li>
+                                </ul>
+                            </td>
+                        </tr>
+
+
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -259,7 +292,7 @@
 
 <script setup>
 import {Head, Link, useForm, usePage} from '@inertiajs/vue3';
-import {defineProps, defineEmits, reactive, computed} from 'vue';
+import {defineProps, defineEmits, reactive, computed, ref} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Badge from "primevue/badge";
@@ -272,6 +305,7 @@ import DangerButton from "@/Components/DangerButton.vue";
 import Button from "primevue/button";
 import DeleteUser from "@/Pages/Application/DeleteUser.vue";
 import EditUser from "@/Pages/Application/EditUser.vue";
+import SendApproval from "@/Pages/Application/SendApproval.vue";
 
 const props = defineProps({
     show: Boolean,
@@ -282,12 +316,11 @@ const props = defineProps({
     statuses: Array,
     project: Object,
     files: Array,
-    can_approve: Boolean,
     approvals: Object,
     types: Object,
 });
 
-const form = useForm({});
+const confirmDialogRef = ref();
 
 const authUser = usePage().props.auth.user;
 
@@ -302,7 +335,6 @@ const data = reactive({
 });
 
 const emit = defineEmits(["close"]);
-
 
 const confirmRemoveApprover = (user) => {
     data.selectedUser = user;

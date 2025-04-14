@@ -125,7 +125,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-
     /**
      * Show the form for creating a new resource.
      */
@@ -157,13 +156,13 @@ class ApplicationController extends Controller
 
     public function store(ApplicationStoreRequest $request)
     {
-        dd($request->all());
         DB::beginTransaction();
 
         try {
             $application = Application::create([
                 'title' => $request->title,
                 'project_id' => $request->project_id,
+                'currency_id' => $request->currency_id,
                 'user_id' => auth()->id(),
                 'status_id' => Application::STATUS_NEW,
                 'type' => $request->type,
@@ -238,8 +237,7 @@ class ApplicationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('application.index')
-                ->with('success', __('app.label.submitted_successfully'));
+            return back()->with('success', __('app.label.submitted_successfully'));
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -248,8 +246,6 @@ class ApplicationController extends Controller
                 ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
         }
     }
-
-
 
     /**
      * Display the specified resource.
@@ -307,6 +303,7 @@ class ApplicationController extends Controller
     {
         try {
             $user = auth()->user();
+
             $approval = Approvals::where('approvable_type', Application::class)
                 ->where('approvable_id', $application->id)
                 ->where('user_id', $user->id)
@@ -323,60 +320,19 @@ class ApplicationController extends Controller
             $approval->update([
                 'approved' => true,
                 'approved_at' => now(),
+                'reason' => $request->input('comment'),
             ]);
 
             activity('application')
                 ->causedBy($user)
                 ->performedOn($application)
                 ->withProperties([
-                    'contract_id' => $application->id,
+                    'application_id' => $application->id,
                     'title' => $application->title,
                     'approved_by' => $user->id,
                     'approved_at' => now()->format('d.m.Y H:i'),
                 ])
                 ->log('Пользователь подтвердил заявку');
-
-            $totalApprovals = Approvals::where('approvable_type', Application::class)
-                ->where('approvable_id', $application->id)
-                ->where('approved', true)
-                ->count();
-
-            $totalRecipients = Approvals::where('approvable_type', Application::class)
-                ->where('approvable_id', $application->id)
-                ->count();
-
-            if ($application->status_id == 1) {
-                $application->update(['status_id' => 2]);
-
-                activity('application')
-                    ->causedBy($user)
-                    ->performedOn($application)
-                    ->withProperties([
-                        'application_id' => $application->id,
-                        'previous_status' => 1,
-                        'new_status' => 2,
-                    ])
-                    ->log('Статус заявки изменен на "в процессе"');
-            }
-
-            // 🛑 Проверяем, чтобы минимум 2 человека одобрили
-            if ($totalApprovals >= $totalRecipients) {
-                if ($totalApprovals < 2) {
-                    return redirect()->back()->with('warning', __('app.label.minimum_two_approvals_required'));
-                }
-
-                $application->update(['status_id' => 3]);
-
-                activity('application')
-                    ->causedBy($user)
-                    ->performedOn($application)
-                    ->withProperties([
-                        'application_id' => $application->id,
-                        'previous_status' => 2,
-                        'new_status' => 3,
-                    ])
-                    ->log('Заявка полностью одобрена');
-            }
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
@@ -395,6 +351,7 @@ class ApplicationController extends Controller
             return redirect()->back()->with('error', __('app.label.updated_error', ['name' => $application->title]));
         }
     }
+
 
     public function cancelApplication(Request $request, Application $application)
     {
