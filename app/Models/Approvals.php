@@ -10,10 +10,11 @@ class Approvals extends Model
 {
     use HasFactory;
 
-    const STATUS_NEW      = 0;
-    const STATUS_PENDING  = 1;
-    const STATUS_APPROVED = 2;
-    const STATUS_REJECTED = 3;
+    const STATUS_NEW      = 1;
+    const STATUS_PENDING  = 2;
+    const STATUS_APPROVED = 3;
+    const STATUS_REJECTED = -1;
+    const STATUS_INVALIDATED  = -2;
 
 
     protected $table = 'approvals';
@@ -57,4 +58,10 @@ class Approvals extends Model
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
         ];
     }
+
+    public function scopeActive($query)
+    {
+        return $query->where('approved', '!=', self::STATUS_INVALIDATED);
+    }
+
 }

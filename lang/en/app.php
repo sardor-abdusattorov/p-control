@@ -14,6 +14,10 @@ return [
         'submit_confirmation' => 'Are you sure you want to submit the application for approval?',
         'selected_approvers' => 'Selected approvers',
         'comment_optional' => 'Comment (optional)',
+        'comment' => 'Comment',
+        'cannot_delete_approved_list_single' => 'Cannot remove the recipient because they have already approved or rejected the application',
+        'approved_at' => 'Approved at',
+        'updated_at' => 'Updated at',
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
@@ -318,6 +322,7 @@ return [
         'approved' => 'Approved',
         'in_progress' => 'In Progress',
         'completed' => 'Completed',
+        'invalidated' => 'Invalidated (after editing)',
     ],
     "notification" => [
         "task_assigned"=> "A task has been assigned to you",

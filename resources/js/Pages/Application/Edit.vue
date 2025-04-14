@@ -54,7 +54,6 @@
                         optionValue="id"
                         filter
                         checkmark
-                        :disabled="[2, 3].includes(props.application.status_id)"
                         :highlightOnSelect="false"
                         :filterBy="['project_number', 'title']"
                         :filterPlaceholder="lang().placeholder.select_project"

@@ -14,6 +14,10 @@ return [
         'submit_confirmation' => 'Arizani tasdiqlash uchun yuborishni xohlaysizmi?',
         'selected_approvers' => 'Tanlangan tasdiqlovchilar',
         'comment_optional' => 'Izoh (ixtiyoriy)',
+        'comment' => 'Izoh',
+        'cannot_delete_approved_list_single' => 'Qabul qiluvchini o‘chirish mumkin emas, chunki u allaqachon arizani tasdiqlagan yoki rad etgan',
+        'approved_at' => 'Tasdiqlangan sana',
+        'updated_at' => "O‘zgartirilgan sana",
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
@@ -318,6 +322,8 @@ return [
         'completed' => 'Tugallangan',
         'active' => 'Faol',
         'disable' => 'Nofaol',
+        'invalidated' => 'Tahrirdan so‘ng bekor qilingan',
+
     ],
     "notification" => [
         "task_assigned"=> "Sizga vazifa tayinlandi",

@@ -2,6 +2,7 @@
 import Dialog from "primevue/dialog";
 import MultiSelect from "primevue/multiselect";
 import Button from "primevue/button";
+import Message from 'primevue/message';
 import { useForm } from "@inertiajs/vue3";
 import { watch, defineProps, defineEmits, ref } from "vue";
 
@@ -35,19 +36,24 @@ const form = useForm({
 });
 
 watch(
-    () => props.approvals,
-    (newApprovals) => {
-        form.user_ids = newApprovals ? newApprovals.map(a => a.user_id) : [];
+    () => visible.value,
+    (val) => {
+        if (val) {
+            form.user_ids = props.approvals ? props.approvals.map(a => a.user_id) : [];
+        }
     },
     { immediate: true }
 );
+
 
 const updateApprovers = () => {
     form.put(route("application.update-approvers", { application: props.application.id }), {
         preserveScroll: true,
         onSuccess: () => close(),
+        onError: () => {},
     });
 };
+
 </script>
 
 <template>
@@ -76,7 +82,11 @@ const updateApprovers = () => {
                     :maxSelectedLabels="8"
                     class="w-full"
                 />
+                <Message v-if="form.errors.user_ids" severity="error" :closable="false" class="mt-4">
+                    {{ form.errors.user_ids }}
+                </Message>
             </div>
+
 
             <div class="flex justify-end gap-2 mt-6">
                 <Button

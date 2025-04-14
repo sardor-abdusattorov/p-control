@@ -14,6 +14,7 @@ class Application extends Model implements HasMedia
     const STATUS_APPROVED = 3;
     const STATUS_REJECTED = -1;
 
+    const STATUS_INVALIDATED = -2;
 
     const TYPE_REQUEST = 1;
     const TYPE_MEMO = 2;
@@ -45,6 +46,7 @@ class Application extends Model implements HasMedia
             ['id' => self::STATUS_IN_PROGRESS, 'label' => __('app.status.in_progress')],
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
+            ['id' => self::STATUS_INVALIDATED, 'label' => __('app.status.invalidated')],
         ];
     }
 
