@@ -18,6 +18,21 @@ return [
         'cannot_delete_approved_list_single' => 'Qabul qiluvchini o‘chirish mumkin emas, chunki u allaqachon arizani tasdiqlagan yoki rad etgan',
         'approved_at' => 'Tasdiqlangan sana',
         'updated_at' => "O‘zgartirilgan sana",
+        'cannot_delete_protected_department' => ':name foydalanuvchini majburiy bo‘limdan o‘chirish mumkin emas.',
+        'cannot_delete_protected_accountant' => 'Tanlangan valyutada :name foydalanuvchini buxgalteriyadan o‘chirish mumkin emas.',
+        'cannot_update_approved' => 'Tasdiqlangan arizani tahrirlab bo‘lmaydi.',
+        'cannot_edit_approved' => 'Tasdiqlangan arizani tahrirlab bo‘lmaydi.',
+        'upload_scan' => 'Skanni yuklash',
+        'files_array' => 'Fayllar massiv ko‘rinishida bo‘lishi kerak.',
+        'each_file_required' => 'Har bir fayl majburiy.',
+        'each_file_must_be_file' => 'Har bir element fayl bo‘lishi kerak.',
+        'only_pdf_allowed' => 'Faqat PDF formatdagi fayllarga ruxsat beriladi.',
+        'file_too_large' => 'Fayl juda katta. Maksimal hajm: :size.',
+        'scans_uploaded_successfully' => 'Skanner qilingan fayllar muvaffaqiyatli yuklandi.',
+        'cannot_delete_has_progress' => 'Oʻchirish mumkin emas, chunki ariza boʻyicha kelishuv jarayoni boshlangan.',
+
+
+
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
@@ -315,6 +330,7 @@ return [
     ],
     'status' => [
         'new' => 'Yangi',
+        'not_sent' => 'Tasdiqlash uchun yuborilmagan',
         'send' => 'Jo\'natilgan',
         'rejected' => 'Rad etilgan',
         'approved' => 'Tasdiqlangan',

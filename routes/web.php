@@ -55,6 +55,12 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     Route::post('/application/{application}/submit', [ApplicationController::class, 'submit'])->name('application.submit');
 
+    Route::get('/application/{application}/upload-scan', [ApplicationController::class, 'uploadScan'])
+        ->name('application.upload-scan');
+
+
+    Route::post('/application/{application}/upload-scan', [ApplicationController::class, 'uploadScanFiles'])
+        ->name('application.upload-scan.store');
 
     Route::get('/application/chat-messages/{chat_id}', [ApplicationController::class, 'getMessages'])->name('application.get-messages');
 

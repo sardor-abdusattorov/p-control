@@ -59,9 +59,16 @@ class Approvals extends Model
         ];
     }
 
-    public function scopeActive($query)
+    // Только не аннулированные
+    public function scopeValid($query)
     {
         return $query->where('approved', '!=', self::STATUS_INVALIDATED);
     }
+
+    public function scopeActive($query)
+    {
+        return $query->whereNotIn('approved', [self::STATUS_INVALIDATED, self::STATUS_NEW]);
+    }
+
 
 }

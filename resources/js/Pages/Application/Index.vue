@@ -41,6 +41,7 @@
                             optionValue="value"
                         />
                         <DangerButton
+                            v-if="isAdmin"
                             @click="data.deleteBulkOpen = true"
                             v-show="data.selectedId.length !== 0 && can(['delete application'])"
                             class="px-3 py-1.5"
@@ -55,7 +56,9 @@
                         <thead class="text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left border-b border-slate-300 dark:border-slate-600">
                             <th class="px-2 py-4 text-center w-5">
-                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" />
+                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])"
+                                v-if="isAdmin"
+                                />
                             </th>
                             <th class="px-2 py-4 w-5">#</th>
                             <th class="px-2 py-4 cursor-pointer w-40" v-on:click="order('title')">
@@ -70,7 +73,7 @@
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer w-40" v-on:click="order('user_id')">
+                            <th class="px-2 py-4 cursor-pointer w-40" v-on:click="order('user_id')"  v-if="can(['approve application']) || isAdmin">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.user_id }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
@@ -93,7 +96,7 @@
 
                         <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4 text-center">
-                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" />
+                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
                             <th class="px-2 py-4">#</th>
                             <th class="px-2 py-4 cursor-pointer">
@@ -127,7 +130,10 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th
+                                v-if="can(['approve application']) || isAdmin"
+                                class="px-2 py-4 cursor-pointer"
+                            >
                                 <Select
                                     showClear
                                     v-model="data.params.user_id"
@@ -140,12 +146,13 @@
                                     :placeholder="lang().label.select_user"
                                     class="w-full"
                                     :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+                                        option: { class: 'custom-option' },
+                                        dropdown: { style: { maxWidth: '300px' } },
+                                        overlay: { class: 'parent-wrapper-class' }
+                                    }"
                                 />
                             </th>
+
                             <th class="px-2 py-4 cursor-pointer">
                                 <Select
                                     showClear
@@ -190,7 +197,7 @@
                         <tbody>
                         <tr v-for="(application, index) in applications.data" :key="index" class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20">
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-10">
-                                <input v-show="can(['delete application'])" type="checkbox" @change="select" :value="application.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
+                                <input v-if="isAdmin" v-show="can(['delete application'])" type="checkbox" @change="select" :value="application.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-10">
                                 {{ (props.applications.current_page - 1) * props.applications.per_page + index + 1 }}
@@ -205,7 +212,7 @@
                                     {{ application?.project?.title || lang().label.no_available }}
                                 </Link>
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2 w-40">
+                            <td class="whitespace-pre-wrap py-4 px-2 w-40"  v-if="can(['approve application']) || isAdmin">
                                 {{ application.user.name }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-32">
@@ -267,11 +274,18 @@ import Button from "primevue/button";
 const menu = ref();
 const selectedApplication = ref(null);
 const lang = () => usePage().props.language;
+const user = usePage().props.auth.user;
 
 const items = computed(() => {
     const baseItems = [];
 
-    if (selectedApplication.value?.status_id === 1 && selectedApplication.value?.type !== 2) {
+    if (!selectedApplication.value) return [];
+
+    if (
+        selectedApplication.value.status_id === 1 &&
+        selectedApplication.value.type !== 2 &&
+        selectedApplication.value.user_id === user.id
+    ) {
         baseItems.push({
             label: lang().tooltip.send_for_approval || 'Отправить на согласование',
             icon: 'pi pi-send',
@@ -289,7 +303,24 @@ const items = computed(() => {
         },
     });
 
-    if (selectedApplication.value?.status_id === 1) {
+    if (
+        selectedApplication.value.status_id === 3 &&
+        selectedApplication.value.type !== 2 &&
+        selectedApplication.value.user_id === user.id
+    ) {
+        baseItems.push({
+            label: lang().label.upload_scan,
+            icon: 'pi pi-upload',
+            command: () => {
+                router.visit(route('application.scan-upload', { application: selectedApplication.value.id }));
+            },
+        });
+    }
+
+    if (
+        selectedApplication.value.status_id !== 3 &&
+        selectedApplication.value.user_id === user.id
+    ) {
         baseItems.push({
             label: lang().tooltip.edit,
             icon: 'pi pi-pencil',
@@ -297,7 +328,12 @@ const items = computed(() => {
                 router.visit(route('application.edit', { application: selectedApplication.value.id }));
             },
         });
+    }
 
+    if (
+        selectedApplication.value.status_id === 1 &&
+        selectedApplication.value.user_id === user.id
+    ) {
         baseItems.push({
             label: lang().tooltip.delete,
             icon: 'pi pi-trash',
@@ -323,7 +359,6 @@ const toggleMenu = (event, application) => {
 
 const confirmDialogRef = ref();
 const { _, debounce, pickBy } = pkg;
-const user = usePage().props.auth.user;
 
 const props = defineProps({
     title: String,
@@ -343,10 +378,10 @@ const data = reactive({
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
-        project_id: props.filters.project_id ?? "",
-        user_id: props.filters.user_id ?? "",
-        status_id: props.filters.status_id ?? "",
-        type: props.filters.type ?? "",
+        project_id: props.filters.project_id ?? null,
+        user_id: props.filters.user_id ?? null,
+        status_id: props.filters.status_id ?? null,
+        type: props.filters.type ?? null,
     },
     selectedId: [],
     multipleSelect: false,
@@ -427,4 +462,6 @@ const formattedProjects = computed(() => {
         display: `${project.project_number ? project.project_number + "." : ""} ${project.title}`.trim(),
     }));
 });
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 </script>

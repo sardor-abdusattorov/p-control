@@ -13,9 +13,7 @@ class Application extends Model implements HasMedia
     const STATUS_IN_PROGRESS = 2;
     const STATUS_APPROVED = 3;
     const STATUS_REJECTED = -1;
-
     const STATUS_INVALIDATED = -2;
-
     const TYPE_REQUEST = 1;
     const TYPE_MEMO = 2;
 

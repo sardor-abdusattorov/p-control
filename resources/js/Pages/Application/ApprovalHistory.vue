@@ -39,7 +39,6 @@ const historyList = computed(() =>
         @hide="close"
     >
         <DataTable :value="historyList" class="p-datatable-sm">
-            <!-- ФИО и дата создания -->
             <Column :header="lang().label.user_id">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">
@@ -50,9 +49,6 @@ const historyList = computed(() =>
                             <div class="font-semibold text-sm">
                                 {{ slotProps.data.user_name }}
                             </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ slotProps.data.created_at || '-' }}
-                            </div>
                         </div>
                     </div>
                 </template>
@@ -61,9 +57,9 @@ const historyList = computed(() =>
             <!-- Комментарий -->
             <Column :header="lang().label.comment">
                 <template #body="slotProps">
-      <span class="text-sm text-gray-800 dark:text-gray-100">
-        {{ slotProps.data.reason || '-' }}
-      </span>
+                  <span class="text-sm text-gray-800 dark:text-gray-100">
+                    {{ slotProps.data.reason || '-' }}
+                  </span>
                 </template>
             </Column>
 
@@ -73,18 +69,24 @@ const historyList = computed(() =>
       <span
           :class="[
           'px-2 py-1 rounded-full text-xs font-semibold w-fit',
-          slotProps.data.approved === 3 ? 'bg-green-100 text-green-800' :
-          slotProps.data.approved === -1 ? 'bg-red-100 text-red-800' :
-          slotProps.data.approved === -2 ? 'bg-gray-200 text-gray-700' :
+            slotProps.data.approved === 3 ? 'bg-green-100 text-green-800' :
+            slotProps.data.approved === -1 ? 'bg-red-100 text-red-800' :
+            slotProps.data.approved === -2 ? 'bg-gray-200 text-gray-700' :
+            slotProps.data.approved === 1 ? 'bg-blue-100 text-blue-800' :
           'bg-yellow-100 text-yellow-800'
         ]"
       >
-        {{
-              slotProps.data.approved === 3 ? lang().status.approved :
-                  slotProps.data.approved === -1 ? lang().status.rejected :
-                      slotProps.data.approved === -2 ? lang().status.invalidated :
-                          lang().status.in_progress
+        {{ slotProps.data.approved === 3
+          ? lang().status.approved
+          : slotProps.data.approved === -1
+              ? lang().status.rejected
+              : slotProps.data.approved === -2
+                  ? lang().status.invalidated
+                  : slotProps.data.approved === 1
+                      ? lang().status.not_sent
+                      : lang().status.in_progress
           }}
+
       </span>
                 </template>
             </Column>

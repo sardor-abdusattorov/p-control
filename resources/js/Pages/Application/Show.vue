@@ -7,8 +7,20 @@
             <div class="mt-3 p-4">
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
+
                     <div class="actions flex flex-wrap gap-2">
-                        <Button v-if="userApproval"
+
+                        <Link
+                            v-if="application.status_id === 3 && application.user_id === authUser.id && application.type !== 2"
+                            :href="route('application.upload-scan', { application: application.id })"
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition"
+                            v-tooltip="lang().label.upload_scan"
+                        >
+                            <i class="pi pi-upload mr-2"></i>
+                            {{ lang().label.upload_scan }}
+                        </Link>
+
+                        <Button v-if="userApproval && application.type !== 2"
                             type="button"
                             icon="pi pi-check-circle"
                             :label="lang().button.approve"
@@ -18,7 +30,7 @@
                         />
 
                         <Button
-                            v-if="application.status_id === 1 && application.user_id === authUser.id"
+                            v-if="application.status_id === 1 && application.user_id === authUser.id && application.type !== 2"
                             type="button"
                             icon="pi pi-send"
                             :label="lang().tooltip.send_for_approval"
@@ -27,7 +39,9 @@
                             @click="confirmDialogRef.open(application)"
                         />
 
-                        <SendApproval ref="confirmDialogRef" />
+                        <SendApproval ref="confirmDialogRef"
+                            v-if="application.type !== 2"
+                        />
 
                         <Button
                             v-if="userApproval"
@@ -45,6 +59,7 @@
                             :application="data.application"
                             :user="data.selectedUser"
                             :title="props.title"
+                            v-if="application.type !== 2"
                         />
 
                         <EditUser
@@ -54,10 +69,11 @@
                             :users="props.users"
                             :approvals="activeApprovals"
                             :title="props.title"
+                            v-if="application.type !== 2"
                         />
 
                         <Approve
-                            v-if="userApproval"
+                            v-if="userApproval && application.type !== 2"
                             :show="can(['approve application']) && data.approveOpen"
                             @close="data.approveOpen = false"
                             :application="data.application"
@@ -65,7 +81,7 @@
                         />
 
                         <CancelApproval
-                            v-if="userApproval"
+                            v-if="userApproval && application.type !== 2"
                             :show="can(['approve application']) && data.cancelApproval"
                             @close="data.cancelApproval = false"
                             :application="data.application"
@@ -73,7 +89,7 @@
                         />
 
                         <EditLink
-                            v-if="application.user_id === authUser.id"
+                            v-if="application.user_id === authUser.id && application.status_id !== 3"
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
@@ -86,7 +102,7 @@
                             @click="(data.deleteOpen = true), (data.application = application)"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.delete"
-                            v-if="props.application.status_id ===1"
+                            v-if="props.application.status_id ===1 && application.user_id === authUser.id"
                         >
                             {{ lang().tooltip.delete }}
                             <TrashIcon class="w-5 h-5" />
@@ -102,14 +118,16 @@
                         <ApprovalHistory
                             :show="data.showHistory"
                             :approval="data.historyApproval"
-                            :all-approvals="props.approvals"
+                            :all-approvals="approvals"
                             @close="data.showHistory = false"
+                            v-if="application.type !== 2"
                         />
 
                     </div>
+
                 </div>
 
-                <div class="p-4 bg-gray-100 dark:bg-neutral-800 rounded-xl shadow mb-6" v-if="application.status_id !== 1">
+                <div class="p-4 bg-gray-100 dark:bg-neutral-800 rounded-xl shadow mb-6" v-if="application.type !== 2">
                     <div class="flex flex-wrap justify-between items-center gap-4 mb-4">
                         <h2 class="text-xl font-bold">{{ lang().label.approval_status }}</h2>
                         <Button
@@ -119,7 +137,7 @@
                             class="p-button-sm dark:text-white"
                             :disabled="application.status_id === 3"
                             @click="data.editUserOpen = true"
-                            v-show="application.user_id === authUser.id"
+                            v-if="application.user_id === authUser.id && application.status_id !== 3"
                         />
                     </div>
 
@@ -133,7 +151,7 @@
                             {{ lang().label.min_approvers_warning }}
                         </Message>
 
-                        <div v-if="activeApprovals.length" class="flex flex-col gap-4">
+                            <div v-if="activeApprovals.length" class="flex flex-col gap-4">
                             <Card
                                 v-for="approval in activeApprovals"
                                 :key="approval.user_id"
@@ -146,32 +164,36 @@
 
                                             <!-- Статус -->
                                         <div class="mb-3">
-                                        <span
+                                            <span
                                             class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
                                             :class="{
-                                                'bg-green-100 text-green-800': approval.approved === 3,
-                                                'bg-red-100 text-red-800': approval.approved === -1,
-                                                'bg-gray-200 text-gray-700': approval.approved === -2,
-                                                'bg-yellow-100 text-yellow-800': approval.approved === 2 || approval.approved === 1,
+                                              'bg-green-100 text-green-800': approval.approved === 3,
+                                              'bg-red-100 text-red-800': approval.approved === -1,
+                                              'bg-gray-200 text-gray-700': approval.approved === -2,
+                                              'bg-yellow-100 text-yellow-800': approval.approved === 2,
+                                              'bg-blue-100 text-blue-800': approval.approved === 1
                                             }"
-                                        >
+                                            >
                                               {{
-                                                approval.approved === 3
-                                                    ? lang().status.approved
-                                                    : approval.approved === -1
-                                                        ? lang().status.rejected
-                                                        : approval.approved === -2
-                                                            ? lang().status.invalidated
-                                                            : lang().status.in_progress
-                                            }}
+                                                    application.status_id === 1 && approval.approved === 1
+                                                        ? lang().status.not_sent
+                                                        : approval.approved === 3
+                                                            ? lang().status.approved
+                                                            : approval.approved === -1
+                                                                ? lang().status.rejected
+                                                                : approval.approved === -2
+                                                                    ? lang().status.invalidated
+                                                                    : lang().status.in_progress
+                                                }}
+
                                         </span>
-                                                <span
-                                                    v-if="approval.approved_at"
-                                                    class="text-sm text-gray-500 ml-2"
-                                                >
-                                                    ({{ approval.approved_at }})
-                                                </span>
-                                            </div>
+                                            <span
+                                                v-if="approval.approved_at"
+                                                class="text-sm text-gray-500 ml-2"
+                                            >
+                                                ({{ approval.approved_at }})
+                                            </span>
+                                        </div>
                                             <p v-if="approval.reason" class="text-base">
                                                 <span class="font-semibold text-gray-800 dark:text-gray-200">
                                                     {{ lang().label.comment }}:
@@ -180,16 +202,9 @@
                                                     {{ approval.reason }}
                                                 </span>
                                             </p>
-
-                                            <p
-                                                v-else
-                                                class="text-orange-500 dark:text-orange-400 font-semibold text-sm"
-                                            >
-                                                ⏳ {{ lang().label.not_approved }}
-                                            </p>
                                         </div>
 
-                                        <div v-if="application.user_id === authUser.id" class="flex items-center gap-2">
+                                        <div class="flex items-center gap-2">
                                             <Button
                                                 icon="pi pi-eye"
                                                 severity="info"
@@ -198,13 +213,14 @@
                                                 v-tooltip.bottom="lang().tooltip.view_details"
                                             />
                                             <Button
+                                                v-if="application.user_id === authUser.id && application.status_id !== 3"
                                                 type="button"
                                                 icon="pi pi-trash"
                                                 severity="danger"
                                                 class="p-button-sm"
                                                 @click="() => confirmRemoveApprover(approval)"
-                                                :disabled="approval.approved === 3"
                                             />
+
                                         </div>
                                     </div>
                                 </template>
@@ -226,27 +242,6 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ application.id }}</td>
                         </tr>
-                        <tr
-                            v-if="application.status_id === 2 && activeApprovals.some(a => a.approved === 1)"
-                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                        >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 align-top ">
-                                {{ lang().label.selected_approvers }}
-                            </td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                                <ul class="space-y-2">
-                                    <li
-                                        v-for="approver in activeApprovals.filter(a => a.approved === 1)"
-                                        :key="approver.user_id"
-                                        class="text-base font-semibold text-gray-800 dark:text-gray-200"
-                                    >
-                                        👤 {{ approver.user_name }}
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-
-
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -310,7 +305,12 @@
                         >
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                                <Badge :value="getStatusLabel(application.status_id)" :severity="getStatusSeverity(application.status_id)" />
+                                <span
+                                    class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                    :class="getStatusClass(application.status_id)"
+                                >
+                                      {{ getStatusLabel(application.status_id) }}
+                                </span>
                             </td>
                         </tr>
 
@@ -341,7 +341,6 @@ import {Head, usePage} from '@inertiajs/vue3';
 import {defineProps, defineEmits, reactive, computed, ref} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import Badge from "primevue/badge";
 import {TrashIcon} from "@heroicons/vue/24/solid";
 import EditLink from "@/Components/EditLink.vue";
 import Delete from "@/Pages/Application/Delete.vue";
@@ -355,6 +354,7 @@ import SendApproval from "@/Pages/Application/SendApproval.vue";
 import Message from 'primevue/message';
 import {Card} from "primevue";
 import ApprovalHistory from "@/Pages/Application/ApprovalHistory.vue";
+import {Link} from "@inertiajs/vue3";
 
 const props = defineProps({
     show: Boolean,
@@ -390,9 +390,17 @@ const openApprovalHistory = (approval) => {
     data.showHistory = true;
 };
 
-const activeApprovals = computed(() =>
-    props.approvals.filter(a => a.approved !== -2)
-);
+const activeApprovals = computed(() => {
+    const uniqueByUser = {};
+    props.approvals
+        .filter(a => a.approved !== -2)
+        .forEach(a => {
+            if (!uniqueByUser[a.user_id]) {
+                uniqueByUser[a.user_id] = a;
+            }
+        });
+    return Object.values(uniqueByUser);
+});
 
 const userApproval = computed(() =>
     activeApprovals.value.find(a => a.user_id === authUser.id && a.approved === 2)
@@ -406,26 +414,21 @@ const confirmRemoveApprover = (user) => {
     data.deleteUserOpen = true;
 };
 
+const getStatusClass = (statusId) => {
+    const map = {
+        1: 'bg-blue-100 text-blue-800',
+        2: 'bg-yellow-100 text-yellow-800',
+        3: 'bg-green-100 text-green-800',
+        '-1': 'bg-red-100 text-red-800',
+        '-2': 'bg-gray-200 text-gray-700',
+    };
+
+    return map[statusId] || 'bg-slate-200 text-slate-800';
+};
+
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);
     return status ? status.label : '';
-};
-
-const getStatusSeverity = (statusId) => {
-    switch (statusId) {
-        case 1:
-            return 'secondary';
-        case 2:
-            return 'warn';
-        case 3:
-            return 'success';
-        case -1:
-            return 'danger';
-        case -2:
-            return 'warn';
-        default:
-            return 'contrast';
-    }
 };
 
 </script>

@@ -18,6 +18,22 @@ return [
         'cannot_delete_approved_list_single' => 'Cannot remove the recipient because they have already approved or rejected the application',
         'approved_at' => 'Approved at',
         'updated_at' => 'Updated at',
+        'cannot_delete_protected_department' => 'User :name from a required department cannot be deleted.',
+        'cannot_delete_protected_accountant' => 'User :name from the accounting department cannot be deleted with the selected currency.',
+        'cannot_update_approved' => 'Approved application cannot be edited.',
+        'cannot_edit_approved' => 'Approved application cannot be edited.',
+        'upload_scan' => 'Upload Scan',
+        'files_array' => 'The files must be an array.',
+        'each_file_required' => 'Each file is required.',
+        'each_file_must_be_file' => 'Each item must be a valid file.',
+        'only_pdf_allowed' => 'Only PDF files are allowed.',
+        'file_too_large' => 'The file is too large. Maximum size: :size.',
+        'scans_uploaded_successfully' => 'Scanned files uploaded successfully.',
+        'cannot_delete_has_progress' => 'Cannot delete because the approval process has already started.',
+
+
+
+
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
@@ -315,6 +331,7 @@ return [
     ],
     'status' => [
         'new' => 'New',
+        'not_sent' => 'Not sent for approval',
         'active' => 'Active',
         'disable' => 'Disable',
         'send' => 'Send',

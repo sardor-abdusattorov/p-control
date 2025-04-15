@@ -3,6 +3,7 @@ import Dialog from "primevue/dialog";
 import Button from "primevue/button";
 import { useForm } from "@inertiajs/vue3";
 import { watchEffect, ref } from "vue";
+import Message from 'primevue/message';
 
 const props = defineProps({
     show: Boolean,
@@ -26,8 +27,10 @@ watchEffect(() => {
 
 const close = () => {
     visible.value = false;
+    form.clearErrors();
     emit("close");
 };
+
 
 const destroy = () => {
     form.post(route("application.remove-approver", { application: props.application.id }), {
@@ -53,6 +56,16 @@ const destroy = () => {
             {{ lang().label.delete_user_confirm }}
             <b>{{ props.user?.user_name || lang().label.unknown }}</b>?
         </p>
+
+        <Message
+            v-if="form.hasErrors"
+            severity="error"
+            :closable="false"
+            class="mb-4"
+        >
+            {{ Object.values(form.errors)[0] }}
+        </Message>
+
 
         <div class="flex justify-end gap-2 mt-6">
             <Button
