@@ -220,7 +220,7 @@
 
                                     <div v-if="files.length > 0">
                                         <div class="flex flex-wrap gap-4">
-                                            <div v-for="(file, index) in files.slice(0, 6)" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
+                                            <div v-for="(file, index) in files" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
                                                 <div>
                                                     <i class="pi pi-file" style="font-size: 32px;"></i>
                                                 </div>
@@ -284,6 +284,7 @@ import {Message} from "primevue";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import {Textarea} from "primevue";
+import { onMounted } from 'vue';
 
 const props = defineProps({
     show: Boolean,
@@ -297,9 +298,6 @@ const props = defineProps({
     application_types: Object,
 });
 
-// const user = usePage().props.auth.user;
-// const role = user.roles?.[0]?.name || null;
-
 const allowedFileTypes = [
     'application/pdf',
     'application/msword',
@@ -307,7 +305,6 @@ const allowedFileTypes = [
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
-
 
 const form = useForm({
     contract_number: "",
@@ -358,9 +355,14 @@ const create = () => {
     form.post(route("contract.store"));
 };
 
+onMounted(() => {
+    if (!form.recipients.length && props.recipients.length) {
+        form.recipients = props.recipients.map(r => r.recipient_id);
+    }
+});
+
 watchEffect(() => {
     form.errors = {};
-    form.recipients = props.recipients.map(recipient => recipient.recipient_id);
 });
 
 const formattedProjects = computed(() => {
@@ -373,7 +375,6 @@ const formattedProjects = computed(() => {
 });
 
 </script>
-
 
 <style>
 

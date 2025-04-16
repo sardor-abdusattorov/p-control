@@ -16,6 +16,7 @@
                         :title="props.title"
                     />
                     <DeleteBulk
+                        v-show="can(['delete contract'])"
                         :show="data.deleteBulkOpen"
                         @close="
                             (data.deleteBulkOpen = false),
@@ -37,7 +38,8 @@
                             optionValue="value"
                         />
                         <DangerButton
-                            v-show="can(['delete contract']) && data.selectedId.length !== 0"
+                            v-if="isAdmin"
+                            v-show="data.selectedId.length !== 0 && can(['delete contract'])"
                             @click="data.deleteBulkOpen = true"
                             class="px-3 py-1.5"
                             v-tooltip="lang().tooltip.delete_selected"
@@ -45,68 +47,64 @@
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
-<!--                    <InputText-->
-<!--                        v-model="data.params.search"-->
-<!--                        type="text"-->
-<!--                        class="block w-3/6 md:w-2/6 lg:w-1/6 rounded-lg"-->
-<!--                        :placeholder="lang().placeholder.search"-->
-<!--                    />-->
                 </div>
                 <div class="overflow-x-auto scrollbar-table">
                     <table class="w-full select-width">
                         <thead class="text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left border-b border-slate-300 dark:border-slate-600">
-                            <th class="px-2 py-4 text-center">
+                            <th class="px-2 py-4 text-center w-5">
                                 <Checkbox v-show="can(['delete contract'])"
                                           v-model:checked="data.multipleSelect"
                                           @change="selectAll"
+                                          v-if="isAdmin"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" @click="order('contract_number')">
+                            <th class="px-2 py-4 w-5">#</th>
+                            <th class="px-2 py-4 cursor-pointer min-w-40" @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_number }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer " @click="order('title')">
+                            <th class="px-2 py-4 cursor-pointer min-w-40" @click="order('title')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.title }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer " @click="order('currency_id')">
+                            <th class="px-2 py-4 cursor-pointer min-w-40" @click="order('currency_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_sum }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4"/>
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer " v-on:click="order('user_id')">
+                            <th class="px-2 py-4 cursor-pointer min-w-40" v-on:click="order('user_id')" v-if="can(['approve application']) || isAdmin">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.user_id }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" @click="order('status')">
+                            <th class="px-2 py-4 cursor-pointer min-w-28" @click="order('status')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.status }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer  w-[15%]">
+                            <th class="px-2 py-4 cursor-pointer min-w-28">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.approval_status }}</span>
                                 </div>
                             </th>
-                            <th class="px-2 py-4 text-center ">{{ lang().label.actions }}</th>
+                            <th class="px-2 py-4 text-center min-w-28">{{ lang().label.actions }}</th>
                         </tr>
-
                             <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4 text-center">
-                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" />
+                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
+                                <th class="px-2 py-4"></th>
                             <th class="px-2 py-4 cursor-pointer">
                                 <InputText
                                     type="text"
@@ -142,7 +140,7 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4 cursor-pointer"  v-if="can(['approve contract']) || isAdmin">
                                 <Select
                                     showClear
                                     v-model="data.params.user_id"
@@ -198,13 +196,17 @@
                                     @change="select"
                                     :value="contract.id"
                                     v-model="data.selectedId"
+                                    v-if="isAdmin"
                                 />
+                            </td>
+                            <td class="whitespace-pre-wrap py-4 px-2 w-10">
+                                {{ (props.contracts.current_page - 1) * props.contracts.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                 {{ contract.contract_number || lang().label.undefined }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
-                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline hover:underline dark:text-white">
+                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline dark:text-white">
                                     {{ contract.title ?? lang().label.undefined }}
                                 </Link>
                             </td>
@@ -215,7 +217,12 @@
                                 {{ contract.user?.name || lang().label.undefined }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                <Badge :value="getStatusLabel(contract.status)" :severity="getStatusSeverity(contract.status)" />
+                                <span
+                                    class="inline-block text-xs font-semibold px-2 py-1 rounded-full"
+                                    :class="getStatusClass(contract.status)"
+                                >
+                                  {{ getStatusLabel(contract.status) }}
+                                </span>
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                 <div v-if="approvals[contract.id] && approvals[contract.id].length">
@@ -242,25 +249,15 @@
                                 </div>
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
-                                <div class="rounded-md gap-1 justify-center overflow-hidden flex items-center">
-                                    <ViewLink
-                                        :href="route('contract.show', { contract: contract.id })"
-                                        v-tooltip="lang().tooltip.show"
-                                    />
-                                    <EditLink
-                                        v-if="(user.roles.some(role => role.name === 'superadmin')) || can(['update contract'])"
-                                        :href="route('contract.edit', { contract: contract.id })"
-                                        v-tooltip="lang().tooltip.edit"
-                                    >
-                                    </EditLink>
-
-                                    <DangerButton v-show="can(['delete contract'])"
+                                <div class="gap-1 flex justify-center">
+                                    <Button
                                         type="button"
-                                        @click="(data.deleteOpen = true), (data.contract = contract)"
-                                        v-tooltip="lang().tooltip.delete"
-                                    >
-                                        <TrashIcon class="w-4 h-4" />
-                                    </DangerButton>
+                                        icon="pi pi-ellipsis-v"
+                                        @click="toggleMenu($event, contract)"
+                                        aria-haspopup="true"
+                                        aria-controls="menu"
+                                        severity="secondary"
+                                    />
                                 </div>
                             </td>
                         </tr>
@@ -273,6 +270,10 @@
                 </div>
             </div>
         </div>
+
+        <Menu ref="menu" :model="items" :popup="true" />
+        <SendApproval ref="confirmDialogRef" />
+
     </AuthenticatedLayout>
 </template>
 
@@ -280,7 +281,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import {Head, Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import { reactive, watch } from "vue";
+import {computed, reactive, ref, watch} from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import pkg from "lodash";
 import { router } from "@inertiajs/vue3";
@@ -290,16 +291,101 @@ import Delete from "@/Pages/Contract/Delete.vue";
 import DeleteBulk from "@/Pages/Contract/DeleteBulk.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import { usePage } from "@inertiajs/vue3";
-import ViewLink from "@/Components/ViewLink.vue";
-import EditLink from "@/Components/EditLink.vue";
 import CreateLink from "@/Components/CreateLink.vue";
 import Badge from "primevue/badge";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import InputNumber from 'primevue/inputnumber';
+import SendApproval from "@/Pages/Contract/SendApproval.vue";
+import Menu from "primevue/menu";
+import Button from "primevue/button";
+
+const menu = ref();
+const selectedContract = ref(null);
+const lang = () => usePage().props.language;
+const user = usePage().props.auth.user;
+
+const items = computed(() => {
+    const baseItems = [];
+    if (!selectedContract.value) return [];
+    if (
+        selectedContract.value.status_id === 1 &&
+        selectedContract.value.type !== 2 &&
+        selectedContract.value.user_id === user.id
+    ) {
+        baseItems.push({
+            label: lang().tooltip.send_for_approval || 'Отправить на согласование',
+            icon: 'pi pi-send',
+            command: () => {
+                confirmDialogRef.value.open(selectedContract.value);
+            },
+        });
+    }
+
+    baseItems.push({
+        label: lang().tooltip.show,
+        icon: 'pi pi-eye',
+        command: () => {
+            router.visit(route('contract.show', { contract: selectedContract.value.id }));
+        },
+    });
+
+    if (
+        selectedContract.value.status_id === 3 &&
+        selectedContract.value.type !== 2 &&
+        selectedContract.value.user_id === user.id
+    ) {
+        baseItems.push({
+            label: lang().label.upload_scan,
+            icon: 'pi pi-upload',
+            command: () => {
+                router.visit(route('contract.scan-upload', { contract: selectedContract.value.id }));
+            },
+        });
+    }
+
+    if (
+        selectedContract.value.status_id !== 3 &&
+        selectedContract.value.user_id === user.id
+    ) {
+        baseItems.push({
+            label: lang().tooltip.edit,
+            icon: 'pi pi-pencil',
+            command: () => {
+                router.visit(route('contract.edit', { contract: selectedContract.value.id }));
+            },
+        });
+    }
+
+    if (
+        selectedContract.value.status_id === 1 &&
+        selectedContract.value.user_id === user.id
+    ) {
+        baseItems.push({
+            label: lang().tooltip.delete,
+            icon: 'pi pi-trash',
+            command: () => {
+                data.deleteOpen = true;
+                data.contract = selectedContract.value;
+            },
+        });
+    }
+
+    return [
+        {
+            label: lang().actions || 'Действия',
+            items: baseItems,
+        },
+    ];
+});
+
+const toggleMenu = (event, contract) => {
+    selectedContract.value = contract;
+    menu.value.toggle(event);
+};
+
+const confirmDialogRef = ref();
 
 const { _, debounce, pickBy } = pkg;
-const user = usePage().props.auth.user;
 
 const props = defineProps({
     title: String,
@@ -318,11 +404,11 @@ const data = reactive({
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
-        user_id: props.filters.user_id ?? "",
-        status_id: props.filters.status_id ?? "",
-        title: props.filters.title ?? "",
-        contract_number: props.filters.contract_number ?? "",
-        currency_id: props.filters.currency_id ?? "",
+        user_id: props.filters.user_id ?? null,
+        status_id: props.filters.status_id ?? null,
+        title: props.filters.title ?? null,
+        contract_number: props.filters.contract_number ?? null,
+        currency_id: props.filters.currency_id ?? null,
     },
     selectedId: [],
     multipleSelect: false,
@@ -372,20 +458,21 @@ const getStatusLabel = (statusId) => {
     return status ? status.label : '';
 };
 
-const getStatusSeverity = (statusId) => {
+const getStatusClass = (statusId) => {
     switch (statusId) {
         case 1:
-            return 'secondary';
+            return 'bg-blue-100 text-blue-800';
         case 2:
-            return 'warn';
+            return 'bg-yellow-100 text-yellow-800';
         case 3:
-            return 'success';
+            return 'bg-green-100 text-green-800';
         case -1:
-            return 'danger';
+            return 'bg-red-100 text-red-800';
         default:
-            return 'info';
+            return 'bg-gray-200 text-gray-700';
     }
 };
+
 
 const formatNumber = (amount) => {
     if (!amount) return '-';
@@ -397,6 +484,8 @@ const formatNumber = (amount) => {
 
     return formattedAmount;
 };
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 </script>
 

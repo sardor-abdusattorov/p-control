@@ -158,22 +158,7 @@ class ContractController extends Controller
         }else {
             $applications = auth()->user()->applications;
         }
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->whereIn('department_id', [7, 8, 9])
-            ->with('department')
-            ->get()
-            ->groupBy(fn($user) => $user->department->name ?? __('app.label.no_department'))
-            ->map(function ($users, $departmentName) {
-                return [
-                    'label' => $departmentName,
-                    'items' => $users->map(fn($user) => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                    ])->values()
-                ];
-            })
-            ->values();
+        $users = User::approverOptions();
 
         $types = Application::getTypes();
 

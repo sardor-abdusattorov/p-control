@@ -98,7 +98,7 @@
                             <th class="px-2 py-4 text-center">
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
-                            <th class="px-2 py-4">#</th>
+                            <th class="px-2 py-4"></th>
                             <th class="px-2 py-4 cursor-pointer">
                                 <InputText
                                     id="title"
