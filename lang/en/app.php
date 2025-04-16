@@ -30,7 +30,7 @@ return [
         'file_too_large' => 'The file is too large. Maximum size: :size.',
         'scans_uploaded_successfully' => 'Scanned files uploaded successfully.',
         'cannot_delete_has_progress' => 'Cannot delete because the approval process has already started.',
-
+        'scans' => 'Scanned files',
 
 
 

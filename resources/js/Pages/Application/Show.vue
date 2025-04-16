@@ -218,8 +218,10 @@
                                                 icon="pi pi-trash"
                                                 severity="danger"
                                                 class="p-button-sm"
+                                                :disabled="approval.approved === 3"
                                                 @click="() => confirmRemoveApprover(approval)"
                                             />
+
 
                                         </div>
                                     </div>
@@ -301,6 +303,33 @@
                         </tr>
 
                         <tr
+                            v-if="application.status_id === 3 ?? scans.length > 0"
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.scans }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <div v-if="props.scans.length > 0">
+                                    <ul class="list-none p-0 flex flex-col gap-1.5">
+                                        <li v-for="(file, index) in props.scans" :key="index" class="flex items-center space-x-2">
+                                            <a
+                                                v-tooltip="lang().tooltip.download"
+                                                :href="file.original_url"
+                                                target="_blank"
+                                                class="text-green-600 hover:text-green-800"
+                                            >
+                                                {{ file.name }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div v-else>
+                                    {{ lang().label.no_files }}
+                                </div>
+                            </td>
+                        </tr>
+
+
+                        <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
@@ -367,6 +396,7 @@ const props = defineProps({
     files: Array,
     approvals: Object,
     types: Object,
+    scans: Array
 });
 
 const confirmDialogRef = ref();
@@ -427,7 +457,7 @@ const getStatusClass = (statusId) => {
 };
 
 const getStatusLabel = (statusId) => {
-    const status = props.statuses.find(s => s.id === statusId);
+    const status = props.statuses.find(s => Number(s.id) === Number(statusId));
     return status ? status.label : '';
 };
 

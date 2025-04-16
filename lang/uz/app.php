@@ -30,7 +30,7 @@ return [
         'file_too_large' => 'Fayl juda katta. Maksimal hajm: :size.',
         'scans_uploaded_successfully' => 'Skanner qilingan fayllar muvaffaqiyatli yuklandi.',
         'cannot_delete_has_progress' => 'Oʻchirish mumkin emas, chunki ariza boʻyicha kelishuv jarayoni boshlangan.',
-
+        'scans' => 'Skaner fayllari',
 
 
 

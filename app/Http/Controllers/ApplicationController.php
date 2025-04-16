@@ -76,12 +76,21 @@ class ApplicationController extends Controller
         $projects = Project::all();
 
         $applications = Application::query()->with(['user', 'project']);
+        if ($user->can('view all applications')) {
+            $users = User::where('status', 1)->get();
+        } elseif ($user->can('approve application')) {
+            $applications->where(function ($query) {
+                $query->where('type', '!=', Application::TYPE_REQUEST)
+                    ->orWhere(function ($q) {
+                        $q->where('type', Application::TYPE_REQUEST)
+                            ->where('status_id', '!=', Application::STATUS_NEW);
+                    });
+            });
 
-        if (!$user->can('view all applications')) {
-            $applications->where('user_id', $user->id);
             $users = User::where('id', $user->id)->get();
         } else {
-            $users = User::where('status', 1)->get();
+            $applications->where('user_id', $user->id);
+            $users = User::where('id', $user->id)->get();
         }
 
         if ($request->filled('title')) {
@@ -253,7 +262,9 @@ class ApplicationController extends Controller
         $application->load(['user', 'currency']);
         $project = Project::find($application->project_id);
         $files = $application->getMedia('documents');
+        $scans = $application->getMedia('scans');
         $statuses = Application::getStatuses();
+
         $user = auth()->user();
         $users = User::approverOptions();
         $types = Application::getTypes();
@@ -286,6 +297,7 @@ class ApplicationController extends Controller
             'application' => $application,
             'users' => $users,
             'types' => $types,
+            'scans' => $scans,
             'approvals' => $approvals,
             'can_approve' => $canApprove,
             'files' => $files,
@@ -377,8 +389,8 @@ class ApplicationController extends Controller
                 ])
                 ->log('Пользователь отменил заявку');
 
-            if ($application->status_id !== 0) {
-                $application->update(['status_id' => 0]);
+            if ($application->status_id !== 1) {
+                $application->update(['status_id' => Application::STATUS_REJECTED]);
 
                 activity('application')
                     ->causedBy($user)
@@ -419,7 +431,6 @@ class ApplicationController extends Controller
             return redirect()->route('application.show', $application->id)
                 ->with('error', __('app.label.cannot_edit_approved'));
         }
-
 
         $currency = Currency::where(['status' => 1])->get();
         $types = Application::getTypes();
