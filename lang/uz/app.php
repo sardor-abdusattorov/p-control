@@ -31,6 +31,8 @@ return [
         'scans_uploaded_successfully' => 'Skanner qilingan fayllar muvaffaqiyatli yuklandi.',
         'cannot_delete_has_progress' => 'Oʻchirish mumkin emas, chunki ariza boʻyicha kelishuv jarayoni boshlangan.',
         'scans' => 'Skaner fayllari',
+        "application_contract_notice" => "Kontrakt tuzishdan oldin kontrakt shartlariga mos keladigan to‘g‘ri arizani tanlash zarur. Arizadagi barcha ma'lumotlar to‘g‘ri to‘ldirilganligiga ishonch hosil qiling. Agar mos ariza mavjud bo‘lmasa, davom etishdan oldin uni yaratishingiz kerak.",
+
 
 
 

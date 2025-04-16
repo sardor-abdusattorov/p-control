@@ -31,13 +31,13 @@
 
                     <div class="form-group mb-5">
                         <InputLabel for="title" :value="lang().label.contract_description" />
-                        <InputText
+                        <Textarea
                             id="title"
-                            type="text"
-                            class="mt-1 block w-full"
                             v-model="form.title"
                             :placeholder="lang().label.contract_description"
-                            :error="form.errors.title"
+                            autoResize
+                            rows="4"
+                            class="mt-1 w-full"
                         />
                         <InputError class="mt-2" :message="form.errors.title" />
                     </div>
@@ -270,8 +270,8 @@
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {computed, ref, watch, watchEffect} from "vue";
+import {Head, useForm} from "@inertiajs/vue3";
+import {computed, watch, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -283,6 +283,7 @@ import FileUpload from 'primevue/fileupload';
 import {Message} from "primevue";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
+import {Textarea} from "primevue";
 
 const props = defineProps({
     show: Boolean,
