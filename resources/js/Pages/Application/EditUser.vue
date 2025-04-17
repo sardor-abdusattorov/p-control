@@ -28,7 +28,8 @@ watch(
 
 const close = () => {
     visible.value = false;
-    emit("close");
+    form.clearErrors('user_ids');
+    emit('close');
 };
 
 const form = useForm({

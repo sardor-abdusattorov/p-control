@@ -3,8 +3,8 @@ import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import InputText from "primevue/inputtext";
 
 const form = useForm({
     password: "",
@@ -17,9 +17,11 @@ const submit = () => {
 };
 </script>
 
+
 <template>
     <GuestLayout>
         <Head :title="lang().label.password_confirmation" />
+
         <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
             {{ lang().label.confirm_password }}
         </div>
@@ -27,16 +29,15 @@ const submit = () => {
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="password" :value="lang().label.password" />
-                <TextInput
+                <InputText
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-1 w-full"
                     v-model="form.password"
-                    required
                     autocomplete="current-password"
                     autofocus
                     :placeholder="lang().placeholder.password"
-                    :error="form.errors.password"
+                    :class="{ 'p-invalid': form.errors.password }"
                 />
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
@@ -57,3 +58,4 @@ const submit = () => {
         </form>
     </GuestLayout>
 </template>
+

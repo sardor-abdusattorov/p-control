@@ -36,7 +36,6 @@ class ApplicationController extends Controller
                 'update application' => ['application.edit', 'application.update', 'application.remove-approver', 'application.update-approvers', 'application.upload-scan', 'application.upload-scan.store'],
                 'delete application' => ['application.destroy', 'application.destroy-bulk'],
                 'view application' => ['application.index', 'application.show'],
-                'application chat' => ['application.chat', 'application.send-message', 'application.get-messages', 'application.get-all-chats'],
                 'approve application' => ['application.approve', 'application.cancel'],
             ];
 
@@ -100,7 +99,6 @@ class ApplicationController extends Controller
             $applications->where('user_id', $user->id);
             $users = User::where('id', $user->id)->get();
         }
-
 
         if ($request->filled('title')) {
             $applications->where('title', 'LIKE', "%" . $request->title . "%");

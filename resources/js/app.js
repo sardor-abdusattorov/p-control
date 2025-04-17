@@ -98,9 +98,6 @@ createInertiaApp({
                     lang: function () {
                         return usePage().props.language;
                     },
-                    notifications: function () {
-                        return usePage().props.notifications;
-                    },
                 },
             })
             .mount(el);

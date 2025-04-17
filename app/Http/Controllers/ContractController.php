@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Contract\ContractApproversUpdateRequest;
 use App\Http\Requests\Contract\ContractIndexRequest;
+use App\Http\Requests\Contract\ContractScanRequest;
 use App\Http\Requests\Contract\ContractStoreRequest;
 use App\Http\Requests\Contract\ContractUpdateRequest;
 use App\Http\Requests\Contract\ContractUserDeleteRequest;
 use App\Models\Application;
 use App\Models\Approvals;
-use App\Models\Chat;
+
 use App\Models\Contract;
 use App\Models\Currency;
-use App\Models\Message;
 use App\Models\Project;
 use App\Models\Recipient;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
@@ -37,12 +37,12 @@ class ContractController extends Controller
             }
 
             $permissions = [
-                'create contract' => ['contract.create', 'contract.store', 'contract.submit'],
-                'update contract' => ['contract.edit', 'contract.update', 'contract.remove-approver', 'contract.update-approvers'],
+                'create contract' => ['contract.create', 'contract.store'],
+                'submit contract' => ['contract.submit'],
+                'update contract' => ['contract.edit', 'contract.update', 'contract.remove-approver', 'contract.update-approvers', 'contract.upload-scan', 'contract.upload-scan.store'],
                 'delete contract' => ['contract.destroy', 'contract.destroy-bulk'],
                 'view contract' => ['contract.index', 'contract.show'],
-                'contract chat' => ['contract.chat', 'contract.send-message', 'contract.get-messages', 'contract.get-all-chats'],
-                'approve contract' => ['contract.approve'],
+                'approve contract' => ['contract.approve', 'application.cancel'],
             ];
 
             foreach ($permissions as $permission => $routes) {
@@ -75,11 +75,23 @@ class ContractController extends Controller
         $statuses = Contract::getStatuses();
         $contracts = Contract::query()->with(['user', 'currency']);
 
-        if (!$user->can('view all contracts')) {
+        if ($user->can('view all contracts') || $user->can('approve contract')) {
+            $users = User::where('status', 1)
+                ->when(
+                    $user->can('approve contract') && !$user->can('view all contracts'),
+                    fn($q) => $q->where('id', '!=', $user->id)
+                )
+                ->get();
+
+            $contracts->when(
+                $user->can('approve contract') && !$user->can('view all contracts'),
+                function ($query) {
+                    $query->where('status', '!=', Contract::STATUS_NEW);
+                }
+            );
+        } else {
             $contracts->where('user_id', $user->id);
             $users = User::where('id', $user->id)->get();
-        } else {
-            $users = User::where('status', 1)->get();
         }
 
         if ($request->filled('contract_number')) {
@@ -300,6 +312,7 @@ class ContractController extends Controller
         $users = User::approverOptions();
 
         $files = $contract->getMedia('files');
+        $scans = $contract->getMedia('scans');
         $project = Project::find($contract->project_id);
 
         $application = Application::with(['media', 'user'])->find($contract->application_id);
@@ -325,8 +338,10 @@ class ContractController extends Controller
                     return [
                         'user_id' => $approval->user_id,
                         'user_name' => optional($approval->user)->name,
-                        'approved' => (bool)$approval->approved,
-                        'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                        'approved' => $approval->approved,
+                        'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
+                        'updated_at' => optional($approval->updated_at)?->format('d.m.Y H:i'),
+                        'reason' => $approval->reason,
                     ];
                 });
         }
@@ -340,6 +355,7 @@ class ContractController extends Controller
         return Inertia::render('Contract/Show', [
             'title' => $contract->title,
             'files' => $files,
+            'scans' => $scans,
             'application_files' => $applicationFiles,
             'users' => $users,
             'statuses' => $statuses,
@@ -364,20 +380,24 @@ class ContractController extends Controller
             $approval = Approvals::where('approvable_type', Contract::class)
                 ->where('approvable_id', $contract->id)
                 ->where('user_id', $user->id)
+                ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
                 ->first();
 
             if (!$approval) {
                 return redirect()->back()->with('error', __('app.label.not_recipient'));
             }
 
-            if ($approval->approved) {
+            if (in_array($approval->approved, [Approvals::STATUS_APPROVED, Approvals::STATUS_REJECTED])) {
                 return redirect()->back()->with('error', __('app.label.already_approved'));
             }
 
             $approval->update([
-                'approved' => true,
+                'approved' => Approvals::STATUS_APPROVED,
                 'approved_at' => now(),
+                'reason' => $request->input('comment'),
             ]);
+
+            $this->checkAndUpdateContractStatus($contract);
 
             activity('contract')
                 ->causedBy($user)
@@ -390,42 +410,6 @@ class ContractController extends Controller
                 ])
                 ->log('Пользователь подтвердил контракт');
 
-            $totalApprovals = Approvals::where('approvable_type', Contract::class)
-                ->where('approvable_id', $contract->id)
-                ->where('approved', true)
-                ->count();
-
-            $totalRecipients = Approvals::where('approvable_type', Contract::class)
-                ->where('approvable_id', $contract->id)
-                ->count();
-
-            if ($contract->status == 1) {
-                $contract->update(['status' => 2]);
-
-                activity('contract')
-                    ->causedBy($user)
-                    ->performedOn($contract)
-                    ->withProperties([
-                        'contract_id' => $contract->id,
-                        'previous_status' => 1,
-                        'new_status' => 2,
-                    ])
-                    ->log('Статус контракта изменен на "в процессе"');
-            }
-
-            if ($totalApprovals >= $totalRecipients) {
-                $contract->update(['status' => 3]);
-
-                activity('contract')
-                    ->causedBy($user)
-                    ->performedOn($contract)
-                    ->withProperties([
-                        'contract_id' => $contract->id,
-                        'previous_status' => 2,
-                        'new_status' => 3,
-                    ])
-                    ->log('Контракт полностью одобрен');
-            }
 
             return redirect()->route('contract.show', $contract->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
@@ -511,6 +495,52 @@ class ContractController extends Controller
 
             return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $contract->title]));
         }
+    }
+
+
+    public function uploadScan(Contract $contract)
+    {
+        if ($contract->status !== Contract::STATUS_APPROVED) {
+            abort(403, 'Доступ запрещён.');
+        }
+        $scans = $contract->getMedia('scans');
+
+        return Inertia::render('Contract/UploadScan', [
+            'title' => $contract->title,
+            'contract' => $contract,
+            'scans' => $scans,
+            'breadcrumbs' => [
+                ['label' => __('app.label.applications'), 'href' => route('application.index')],
+                ['label' => $contract->id, 'href' => route('contract.show', $contract->id)],
+                ['label' => __('app.label.upload_scan')],
+            ],
+        ]);
+    }
+
+    public function uploadScanFiles(ContractScanRequest $request, Contract $contract)
+    {
+        if ($contract->status !== Contract::STATUS_APPROVED) {
+            return redirect()->back()->with('error', __('app.label.cannot_upload_scan'));
+        }
+
+        foreach ($request->file('files', []) as $file) {
+            $name = Str::random(24) . '.' . $file->getClientOriginalExtension();
+
+            $contract->addMedia($file)
+                ->usingFileName($name)
+                ->toMediaCollection('scans');
+        }
+        activity('contract')
+            ->causedBy(auth()->user())
+            ->performedOn($contract)
+            ->withProperties([
+                'application_id' => $contract->id,
+                'uploaded_files' => collect($request->file('files'))->pluck('name'),
+            ])
+            ->log('Загружены скан-копии в одобренную заявку');
+
+        return redirect()->route('contract.show', $contract->id)
+            ->with('success', __('app.label.scans_uploaded_successfully'));
     }
 
     /**
@@ -758,5 +788,64 @@ class ContractController extends Controller
                 'name' => $user?->name ?? __('app.label.unknown_user')
             ]));
     }
+
+    public function updateApprovers(ContractApproversUpdateRequest $request, Contract $contract)
+    {
+        $validated    = $request->validated();
+        $newUserIds   = collect($validated['user_ids']);
+
+        $existingApprovals = Approvals::valid()
+            ->where('approvable_type', Contract::class)
+            ->where('approvable_id', $contract->id)
+            ->get()
+            ->keyBy('user_id');
+
+        $usersToAdd    = $newUserIds->diff($existingApprovals->keys());
+        $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
+
+        foreach ($usersToAdd as $userId) {
+            Approvals::create([
+                'approvable_type' => Contract::class,
+                'approvable_id'   => $contract->id,
+                'user_id'         => $userId,
+                'approved'        => $contract->status === Contract::STATUS_NEW
+                    ? Approvals::STATUS_NEW
+                    : Approvals::STATUS_PENDING,
+            ]);
+        }
+
+        $deletableStatuses = match ($contract->status) {
+            Contract::STATUS_NEW         => [Approvals::STATUS_NEW],
+            Contract::STATUS_IN_PROGRESS => [Approvals::STATUS_PENDING],
+            default                      => [],
+        };
+
+        if (!empty($deletableStatuses)) {
+            Approvals::whereIn('user_id', $usersToRemove)
+                ->where('approvable_type', Contract::class)
+                ->where('approvable_id', $contract->id)
+                ->whereIn('approved', $deletableStatuses)
+                ->delete();
+        }
+
+        return redirect()->route('contract.show', ['contract' => $contract->id])
+            ->with('success', __('app.label.approvers_updated_successfully'));
+    }
+
+    protected function checkAndUpdateContractStatus(Contract $contract)
+    {
+        $approvals = $contract->approvals()
+            ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
+            ->get();
+        if ($approvals->where('approved', Approvals::STATUS_REJECTED)->isNotEmpty()) {
+            $contract->update(['status' => Application::STATUS_REJECTED]);
+            return;
+        }
+        if ($approvals->every(fn($a) => $a->approved === Approvals::STATUS_APPROVED)) {
+            $contract->update(['status' => Application::STATUS_APPROVED]);
+            return;
+        }
+    }
+
 
 }

@@ -9,6 +9,16 @@
                     <h1 class="text-xl md:text-2xl font-bold">{{ contract.title }}</h1>
                     <div class="actions flex flex-wrap gap-2">
 
+                        <Link
+                            v-if="contract.status === 3 && contract.user_id === authUser.id"
+                            :href="route('contract.upload-scan', { contract: contract.id })"
+                            class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md transition"
+                            v-tooltip="lang().label.upload_scan"
+                        >
+                            <i class="pi pi-upload mr-2"></i>
+                            {{ lang().label.upload_scan }}
+                        </Link>
+
                         <Button
                             v-if="userApproval"
                             type="button"
@@ -322,6 +332,33 @@
                                 </div>
                             </td>
                         </tr>
+
+                        <tr
+                            v-if="contract.status === 3 ?? scans.length > 0"
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.scans }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <div v-if="props.scans.length > 0">
+                                    <ul class="list-none p-0 flex flex-col gap-1.5">
+                                        <li v-for="(file, index) in props.scans" :key="index" class="flex items-center space-x-2">
+                                            <a
+                                                v-tooltip="lang().tooltip.download"
+                                                :href="file.original_url"
+                                                target="_blank"
+                                                class="text-green-600 hover:text-green-800"
+                                            >
+                                                {{ file.name }}
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div v-else>
+                                    {{ lang().label.no_files }}
+                                </div>
+                            </td>
+                        </tr>
+
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -343,19 +380,77 @@
 
         <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" class="w-[90vw] sm:w-2/3 md:w-1/2 lg:w-2/3">
             <div class="space-y-2 my-4">
-                <div v-if="application_approvals.length" class="flex flex-col gap-3">
-                    <div v-for="approval in application_approvals" :key="approval.user_id"
-                         class="p-2 sm:p-4 xs:p-3 border border-gray-300 dark:border-neutral-700 rounded-md bg-white dark:bg-gray-900 shadow-md flex justify-between items-center">
-                        <div class="details">
-                            <h3 class="text-md font-semibold mb-2">👤 {{ approval.user_name }}</h3>
-                            <p v-if="approval.approved" class="text-green-600 font-semibold">
-                                ✔ {{ lang().label.approved }} ({{ approval.approved_at }})
-                            </p>
-                            <p v-else class="text-orange-500 font-semibold">
-                                ✖ {{ lang().label.not_approved }}
-                            </p>
-                        </div>
-                    </div>
+                <div v-if="uniqueApprovals.length" class="flex flex-col gap-4">
+                    <Card
+                        v-for="approval in uniqueApprovals" :key="approval.user_id"
+                        class="shadow-md"
+                    >
+                        <template #content>
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold mb-3">👤 {{ approval.user_name }}</h3>
+                                    <div class="mb-3">
+                                            <span
+                                                class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                                :class="{
+                                              'bg-green-100 text-green-800': approval.approved === 3,
+                                              'bg-red-100 text-red-800': approval.approved === -1,
+                                              'bg-gray-200 text-gray-700': approval.approved === -2,
+                                              'bg-yellow-100 text-yellow-800': approval.approved === 2,
+                                              'bg-blue-100 text-blue-800': approval.approved === 1
+                                            }"
+                                            >
+                                              {{
+                                                    application.status_id === 1 && approval.approved === 1
+                                                        ? lang().status.not_sent
+                                                        : approval.approved === 3
+                                                            ? lang().status.approved
+                                                            : approval.approved === -1
+                                                                ? lang().status.rejected
+                                                                : approval.approved === -2
+                                                                    ? lang().status.invalidated
+                                                                    : lang().status.in_progress
+                                                }}
+
+                                        </span>
+                                        <span
+                                            v-if="approval.approved_at"
+                                            class="text-sm text-gray-500 ml-2"
+                                        >
+                                                ({{ approval.approved_at }})
+                                            </span>
+                                    </div>
+                                    <p v-if="approval.reason" class="text-base">
+                                                <span class="font-semibold text-gray-800 dark:text-gray-200">
+                                                    {{ lang().label.comment }}:
+                                                </span>
+                                        <span class="text-gray-700 dark:text-gray-300">
+                                                    {{ approval.reason }}
+                                                </span>
+                                    </p>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <Button
+                                        icon="pi pi-eye"
+                                        severity="info"
+                                        class="p-button-sm"
+                                        @click="openHistory(approval)"
+                                        v-tooltip.bottom="lang().tooltip.view_details"
+                                    />
+
+                                    <ApplicationHistory
+                                        :show="data.showHistory"
+                                        :approval="data.historyApproval"
+                                        :all-approvals="application_approvals"
+                                        @close="data.showHistory = false"
+                                    />
+                                </div>
+                            </div>
+                        </template>
+
+                    </Card>
+
                 </div>
             </div>
 
@@ -391,7 +486,13 @@
                     <tr>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.status }}</td>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                            {{ getStatusLabel(props.application?.status) }}
+                            <span
+                                class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                :class="getStatusClass(props.application.status_id)"
+                            >
+                                      {{ getStatusLabel(props.application.status_id) }}
+                            </span>
+
                         </td>
                     </tr>
                     <tr>
@@ -424,10 +525,6 @@
                 </table>
             </div>
         </Dialog>
-
-
-
-
     </AuthenticatedLayout>
 </template>
 
@@ -443,7 +540,6 @@ import Delete from "@/Pages/Contract/Delete.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import DeleteUser from "@/Pages/Contract/DeleteUser.vue";
 import Button from "primevue/button";
-import { useForm } from "@inertiajs/vue3";
 import EditUser from "@/Pages/Contract/EditUser.vue";
 import { ref } from "vue";
 import Dialog from "primevue/dialog";
@@ -452,14 +548,13 @@ import CancelApproval from "@/Pages/Contract/CancelApproval.vue";
 import ApprovalHistory from "@/Pages/Contract/ApprovalHistory.vue";
 import Message from "primevue/message";
 import {Card} from "primevue";
+import ApplicationHistory from "@/Pages/Contract/ApplicationHistory.vue";
 
 const showModal = ref(false);
-
 
 const authUser = usePage().props.auth.user;
 
 const props = defineProps({
-    show: Boolean,
     contract: Object,
     can_approve: Boolean,
     application: Object,
@@ -472,6 +567,7 @@ const props = defineProps({
     approvals: Object,
     types: Object,
     files: Array,
+    scans: Array,
 });
 
 const data = reactive({
@@ -544,6 +640,23 @@ const openApprovalHistory = (approval) => {
     data.historyApproval = approval;
     data.showHistory = true;
 };
+
+const openHistory = (approval) => {
+    data.historyApproval = approval;
+    data.showHistory = true;
+};
+
+
+const uniqueApprovals = computed(() => {
+    const sorted = [...props.application_approvals].sort(
+        (a, b) => new Date(a.updated_at) - new Date(b.updated_at)
+    );
+    const map = {};
+    sorted.forEach(a => {
+        map[a.user_id] = a;
+    });
+    return Object.values(map);
+});
 
 
 </script>

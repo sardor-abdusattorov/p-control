@@ -56,19 +56,13 @@ class ProjectsController extends Controller
         $currencies = Currency::where(['status' => 1])->get();
         $projectsQuery = Project::query()->with(['user', 'currency', 'status', 'contracts']);
         $contractsQuery = Contract::query();
-
-        // Ограничение доступа
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
         }
-
-        // Поиск
         if ($request->has('search')) {
             $projectsQuery->where('title', 'LIKE', "%" . $request->search . "%")
                 ->orWhere('project_number', 'LIKE', "%" . $request->search . "%");
         }
-
-        // Сортировка
         if ($request->has(['field', 'order'])) {
             if ($request->field === 'project_number') {
                 $projectsQuery->orderByRaw('CAST(project_number AS UNSIGNED) ' . $request->order);
@@ -76,8 +70,6 @@ class ProjectsController extends Controller
                 $projectsQuery->orderBy($request->field, $request->order);
             }
         }
-
-        // Пагинация
         $perPage = $request->has('perPage') ? $request->perPage : 100;
         $projects = $projectsQuery->paginate($perPage);
 

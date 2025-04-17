@@ -66,14 +66,6 @@ class HandleInertiaRequests extends Middleware
                     'location' => $request->url(),
                 ]);
             },
-            'notifications' => function () use ($request) {
-                if ($user = $request->user()) {
-                    return Notification::where('receiver_id', $user->id)
-                        ->where('is_read', false)
-                        ->get();
-                }
-                return [];
-            },
         ]);
     }
 }

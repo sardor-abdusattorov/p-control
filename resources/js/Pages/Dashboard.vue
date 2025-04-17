@@ -71,7 +71,4 @@ const props = defineProps({
 .bg-gray-100, .bg-gray-800 {
     transition: transform 0.3s;
 }
-.bg-gray-100:hover, .bg-gray-800:hover {
-    transform: translateY(-5px);
-}
 </style>

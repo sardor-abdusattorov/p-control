@@ -312,7 +312,7 @@ const items = computed(() => {
             label: lang().label.upload_scan,
             icon: 'pi pi-upload',
             command: () => {
-                router.visit(route('application.scan-upload', { application: selectedApplication.value.id }));
+                router.visit(route('application.upload-scan', { application: selectedApplication.value.id }));
             },
         });
     }

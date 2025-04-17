@@ -3,8 +3,8 @@ import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import TextInput from "@/Components/TextInput.vue";
 import { Head, useForm } from "@inertiajs/vue3";
+import InputText from "primevue/inputtext"; // Новый импорт
 
 defineProps({
     status: String,
@@ -19,9 +19,11 @@ const submit = () => {
 };
 </script>
 
+
 <template>
     <GuestLayout>
         <Head :title="lang().label.password_forgot" />
+
         <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
             {{ lang().label.forgot_password }}
         </div>
@@ -37,16 +39,16 @@ const submit = () => {
             <div>
                 <InputLabel for="email" :value="lang().label.email" />
 
-                <TextInput
+                <InputText
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-1 w-full"
                     v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
                     :placeholder="lang().placeholder.email"
-                    :error="form.errors.email"
+                    :class="{ 'p-invalid': form.errors.email }"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />

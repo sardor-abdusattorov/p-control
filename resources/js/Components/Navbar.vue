@@ -4,7 +4,6 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 import {Bars3CenterLeftIcon, CheckBadgeIcon, ChevronDownIcon,UserIcon, Bars4Icon} from "@heroicons/vue/24/solid";
 import SwitchDarkModeNavbar from "@/Components/SwitchDarkModeNavbar.vue";
 import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
-import Notifications from "@/Components/Notifications.vue";
 
 const emit = defineEmits(["open", "toggleMenu"]);
 </script>
@@ -39,7 +38,6 @@ const emit = defineEmits(["open", "toggleMenu"]);
                 </div>
 
                 <div class="flex items-center space-x-4">
-<!--                    <Notifications/>-->
                     <SwitchLangNavbar />
                     <SwitchDarkModeNavbar />
                     <div class="">
