@@ -269,12 +269,16 @@ class ContractController extends Controller
 
     public function submit(Contract $contract)
     {
+        $user = auth()->user();
         if ($contract->status !== 1) {
             return redirect()->back()->with('error', __('app.label.cannot_submit_non_draft'));
         }
 
-        DB::beginTransaction();
+        if (!$user->can('submit contract')) {
+            abort(403, __('app.label.permission_denied'));
+        }
 
+        DB::beginTransaction();
         try {
             $contract->update(['status' => 2]);
 

@@ -118,9 +118,6 @@ html.dark select {
         text-transform: inherit;
     }
 }
-
-
-
 .select-width .p-inputtext{
     font-size: 14px;
     margin: 0;
@@ -128,9 +125,5 @@ html.dark select {
 }
 .select-width .p-select{
     justify-content: space-between;
-}
-.select-width .p-select .p-select-label{
-    max-width: 200px;
-    min-width: 100px;
 }
 

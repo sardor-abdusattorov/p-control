@@ -276,6 +276,19 @@ const selectedApplication = ref(null);
 const lang = () => usePage().props.language;
 const user = usePage().props.auth.user;
 
+const props = defineProps({
+    title: String,
+    filters: Object,
+    applications: Object,
+    breadcrumbs: Object,
+    perPage: Number,
+    statuses: Object,
+    types: Object,
+    users: Array,
+    projects: Object,
+});
+
+
 const items = computed(() => {
     const baseItems = [];
 
@@ -360,18 +373,6 @@ const toggleMenu = (event, application) => {
 const confirmDialogRef = ref();
 const { _, debounce, pickBy } = pkg;
 
-const props = defineProps({
-    title: String,
-    filters: Object,
-    applications: Object,
-    breadcrumbs: Object,
-    perPage: Number,
-    statuses: Object,
-    types: Object,
-    users: Array,
-    projects: Object,
-});
-
 const data = reactive({
     params: {
         search: props.filters.search ?? "",
@@ -380,7 +381,7 @@ const data = reactive({
         perPage: props.perPage ?? 10,
         project_id: props.filters.project_id ?? null,
         user_id: props.filters.user_id ?? null,
-        status_id: props.filters.status_id ?? null,
+        status_id: props.filters.status_id ? Number(props.filters.status_id) : null,
         type: props.filters.type ?? null,
     },
     selectedId: [],

@@ -228,6 +228,12 @@ class ApplicationController extends Controller
 
     public function submit(Application $application)
     {
+        $user = auth()->user();
+
+        if (!$user->can('submit application')) {
+            abort(403, __('app.label.permission_denied'));
+        }
+
         if ($application->status_id !== 1) {
             return redirect()->back()->with('error', __('app.label.cannot_submit_non_draft'));
         }
@@ -245,7 +251,7 @@ class ApplicationController extends Controller
                 ]);
 
             activity('application')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->performedOn($application)
                 ->log('Заявка отправлена на согласование');
 
@@ -260,6 +266,7 @@ class ApplicationController extends Controller
                 ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
         }
     }
+
 
     /**
      * Display the specified resource.

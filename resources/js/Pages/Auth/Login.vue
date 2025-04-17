@@ -35,29 +35,28 @@
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
-            <div class="block mt-4 w-fit">
+            <div class="block mt-4">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
                     <span class="ml-2 text-sm text-slate-600 dark:text-slate-400">
-            {{ lang().label.remember_me }}
-        </span>
+                        {{ lang().label.remember_me }}
+                    </span>
                 </label>
             </div>
 
-            <div class="flex flex-col mt-4 gap-4">
+            <div class="flex items-center justify-between mt-4">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="underline text-sm text-slate-600 dark:text-slate-400 hover:text-primary transition-colors duration-200 w-fit"
+                    class="underline text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:focus:ring-offset-slate-800"
                 >
                     {{ lang().label.lost_password }}
                 </Link>
 
                 <Button
                     type="submit"
-                    severity="info"
-                    raised
-                    class="w-full lg:w-[180px] px-6 py-2"
+                    severity="info" raised
+                    class="ml-4"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
@@ -68,7 +67,6 @@
                     }}
                 </Button>
             </div>
-
         </form>
     </GuestLayout>
 </template>

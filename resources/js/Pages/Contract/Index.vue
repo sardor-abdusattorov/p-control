@@ -429,7 +429,7 @@ const data = reactive({
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
         user_id: props.filters.user_id ?? null,
-        status: props.filters.status ?? null,
+        status: props.filters.status ? Number(props.filters.status) : null,
         title: props.filters.title ?? null,
         contract_number: props.filters.contract_number ?? null,
         currency_id: props.filters.currency_id ?? null,
