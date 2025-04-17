@@ -654,14 +654,25 @@ class ApplicationController extends Controller
 
     public function destroyBulk(Request $request)
     {
+        $user = auth()->user();
+
+        if (!$user->hasRole('superadmin')) {
+            abort(403, __('app.label.permission_denied'));
+        }
+
         try {
             $applications = Application::whereIn('id', $request->id)->get();
 
             foreach ($applications as $application) {
+                $application->approvals()->delete();
+
                 $application->clearMediaCollection('documents');
+                $application->clearMediaCollection('scans');
+
                 $application->delete();
+
                 activity('application')
-                    ->causedBy(auth()->user())
+                    ->causedBy($user)
                     ->performedOn($application)
                     ->withProperties([
                         'application_id' => $application->id,
@@ -670,17 +681,21 @@ class ApplicationController extends Controller
                     ->log('Удалена заявка (bulk)');
             }
 
-            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.applications')]));
+            return back()->with('success', __('app.label.deleted_successfully', [
+                'name' => count($request->id) . ' ' . __('app.label.applications')
+            ]));
         } catch (\Throwable $th) {
             activity('application')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->withProperties([
                     'error' => $th->getMessage(),
                     'application_ids' => $request->id,
                 ])
                 ->log('Ошибка при массовом удалении заявок');
 
-            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.applications')]) . $th->getMessage());
+            return back()->with('error', __('app.label.deleted_error', [
+                    'name' => count($request->id) . ' ' . __('app.label.applications')
+                ]) . ' ' . $th->getMessage());
         }
     }
 

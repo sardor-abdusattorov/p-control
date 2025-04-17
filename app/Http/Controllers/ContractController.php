@@ -721,6 +721,14 @@ class ContractController extends Controller
 
     public function destroyBulk(Request $request)
     {
+        $user = auth()->user();
+
+        if (!$user->hasRole('superadmin')) {
+            abort(403, __('app.label.permission_denied'));
+        }
+
+        DB::beginTransaction();
+
         try {
             $contracts = Contract::whereIn('id', $request->id)->get();
             $deletedContracts = [];
@@ -730,28 +738,37 @@ class ContractController extends Controller
                     'contract_id' => $contract->id,
                     'title' => $contract->title,
                 ];
+
                 $contract->clearMediaCollection('files');
                 $contract->delete();
             }
+
             activity('contract')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->withProperties([
                     'deleted_contracts' => $deletedContracts,
                 ])
                 ->log('Массовое удаление контрактов');
 
-            return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.contracts')]));
+            DB::commit();
+
+            return back()->with('success', __('app.label.deleted_successfully', [
+                'name' => count($request->id) . ' ' . __('app.label.contracts')
+            ]));
         } catch (\Throwable $th) {
+            DB::rollBack();
 
             activity('contract')
-                ->causedBy(auth()->user())
+                ->causedBy($user)
                 ->withProperties([
                     'error' => $th->getMessage(),
                     'contract_ids' => $request->id,
                 ])
                 ->log('Ошибка при массовом удалении контрактов');
 
-            return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.contracts')]) . $th->getMessage());
+            return back()->with('error', __('app.label.deleted_error', [
+                    'name' => count($request->id) . ' ' . __('app.label.contracts')
+                ]) . ' ' . $th->getMessage());
         }
     }
 
