@@ -26,13 +26,13 @@
 
                     <div class="form-group mb-5">
                         <InputLabel for="title" :value="lang().label.title"/>
-                        <InputText
+                        <Textarea
                             id="title"
-                            type="text"
-                            class="mt-1 block w-full"
                             v-model="form.title"
-                            :placeholder="lang().label.title"
-                            :error="form.errors.title"
+                            :placeholder="lang().label.contract_description"
+                            autoResize
+                            rows="4"
+                            class="mt-1 w-full"
                         />
                         <InputError class="mt-2" :message="form.errors.title"/>
                     </div>
@@ -70,7 +70,6 @@
                             optionLabel="label"
                             optionValue="id"
                             class="w-full"
-                            :disabled="!isAdmin"
                             filter
                             checkmark
                             :placeholder="lang().placeholder.select_type"
@@ -96,31 +95,32 @@
                             checkmark
                             :highlightOnSelect="false"
                             class="w-full"
-                            :disabled="!isAdmin"
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-            option: { class: 'custom-option' },
-            dropdown: { style: { maxWidth: '300px' } },
-            overlay: { class: 'parent-wrapper-class' }
-        }"
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
-
-
-                    <div class="form-group mb-5" v-if="isAdmin">
-                        <InputLabel for="user_id" :value="lang().label.user_id"/>
-                        <Select
-                            v-model="form.user_id"
-                            :options="users"
+                    <div class="form-group mb-3">
+                        <InputLabel for="recipients" :value="lang().label.approval_users" />
+                        <MultiSelect
+                            v-model="form.recipients"
+                            display="chip"
+                            :options="props.users"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             optionLabel="name"
                             optionValue="id"
                             filter
                             checkmark
                             :highlightOnSelect="false"
-                            :placeholder="lang().placeholder.select_user"
+                            :placeholder="lang().placeholder.select_recipients"
+                            :maxSelectedLabels="8"
                             class="w-full"
                             :pt="{
                                 option: { class: 'custom-option' },
@@ -128,7 +128,7 @@
                                 overlay: { class: 'parent-wrapper-class' }
                             }"
                         />
-                        <InputError class="mt-2" :message="form.errors.user_id"/>
+                        <InputError class="mt-2" :message="form.errors.recipients" />
                     </div>
 
                     <div class="form-group mb-5">
@@ -188,7 +188,7 @@
                     <div class="form-group mb-5">
                         <InputLabel for="files" :value="lang().label.files"/>
                         <FileUpload
-                            name="files[]"
+                            ref="fileUploadRef"
                             :auto="false"
                             :accept="'application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
                             :multiple="true"
@@ -203,7 +203,7 @@
                             :uploadLabel="lang().label.upload"
                             :cancelLabel="lang().label.cancel"
                         >
-                            <template #content="{ files, uploadedFiles, removeUploadedFileCallback, messages }">
+                            <template #content="{ files, uploadedFiles, messages }">
 
                                 <div class="flex flex-col gap-8 pt-4">
                                     <Message v-for="message of messages" :key="message"
@@ -212,43 +212,71 @@
                                         {{ message }}
                                     </Message>
 
-                                    <div v-if="form.files.length > 0">
+                                    <div v-if="form.files.length > 0 || form.old_files.length > 0">
                                         <div class="flex flex-wrap gap-4">
-                                            <div v-for="(file, index) in files.slice(0, 4)" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                                                <div>
-                                                    <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
+                                            <div
+                                                v-for="(file, index) in form.files"
+                                                :key="'new-' + file.name + file.type + file.size"
+                                                class="min-w-[160px] p-4 rounded-border flex flex-col border justify-between border-surface items-center gap-4"
+                                                style="width: calc(20% - 0.8rem)"
+                                            >
+                                                <div class="header flex items-center flex-col">
+                                                    <div>
+                                                        <i :class="getFileIcon(file.type)" style="font-size: 48px;" class="mb-6"></i>
+                                                    </div>
+                                                    <span class="font-semibold text-ellipsis max-w-full whitespace-nowrap overflow-hidden text-center">
+                                                {{ file.name }}
+                                            </span>
                                                 </div>
-                                                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                                                <Button icon="pi pi-times" @click="removeUploadedFile(index, file.id)" outlined rounded severity="danger" />
+                                                <Button
+                                                    icon="pi pi-trash"
+                                                    @click="removeUploadedFile(index)"
+                                                    outlined
+                                                    rounded
+                                                    severity="danger"
+                                                    :aria-label="lang().label.delete"
+                                                />
+                                            </div>
+
+                                            <div
+                                                v-for="(file, index) in form.old_files"
+                                                :key="'old-' + file.name + file.type + file.size"
+                                                class="min-w-[160px] p-4 rounded-border flex flex-col border border-surface items-center gap-4"
+                                                style="width: calc(20% - 0.8rem)"
+                                            >
+                                                <div class="header flex items-center flex-col">
+                                                    <div>
+                                                        <i :class="getFileIcon(file.type)" style="font-size: 48px;" class="mb-6"></i>
+                                                    </div>
+                                                    <span class="font-semibold text-ellipsis max-w-full whitespace-nowrap overflow-hidden text-center mb-4">
+                                                {{ file.name }}
+                                            </span>
+                                                    <span class="text-xs text-gray-500 mb-4">{{ formatDate(file.created_at) }}</span>
+                                                    <a
+                                                        :href="file.original_url"
+                                                        target="_blank"
+                                                        class="p-button p-component p-button-outlined p-button-success"
+                                                    >
+                                                        <span class="p-button-label">{{ lang().label.download }}</span>
+                                                    </a>
+                                                </div>
+
+                                                <Button
+                                                    icon="pi pi-trash"
+                                                    @click="removeOldFile(index)"
+                                                    outlined
+                                                    rounded
+                                                    severity="danger"
+                                                    :aria-label="lang().label.delete"
+                                                />
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div v-if="props.files.length > 0">
-                                        <div class="flex flex-wrap gap-4">
-                                            <div v-for="(file, index) in props.files" :key="file.name + file.type + file.size" class="p-8 rounded-border flex flex-col border border-surface items-center gap-4">
-                                                <div>
-                                                    <i :class="getFileIcon(file.type)" style="font-size: 32px;"></i>
-                                                </div>
-                                                <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
-                                                <span class="text-xs text-gray-500">
-                                                    {{ formatDate((file.created_at)) }}
-                                                </span>
-                                                <a
-                                                    :href="file.original_url"
-                                                    target="_blank"
-                                                    class="p-button p-component p-button-outlined p-button-success">
-                                                    <span class="p-button-label">{{ lang().label.download }}</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </template>
 
                             <template #empty>
-                                <div v-if="form.files.length !== 0" class="flex items-center justify-center flex-col">
+                                <div v-if="(form.old_files?.length ?? 0) === 0 && (form.files?.length ?? 0) === 0" class="flex items-center justify-center flex-col">
                                     <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color" />
                                     <p class="mt-6 mb-0">{{ lang().label.drag_and_drop }}</p>
                                 </div>
@@ -262,10 +290,10 @@
                 <div class="flex justify-start">
                     <BackLink :href="route('contract.index')" />
                     <PrimaryButton
+                        type="submit"
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
-                        @click="update"
                     >
                         {{ form.processing ? lang().button.save + "..." : lang().button.save }}
                     </PrimaryButton>
@@ -281,7 +309,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {computed, watch, watchEffect} from "vue";
+import {computed, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -290,11 +318,12 @@ import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import BackLink from "@/Components/BackLink.vue";
 import FileUpload from 'primevue/fileupload';
-import {Message} from "primevue";
+import {Message, Textarea} from "primevue";
 import Button from "primevue/button";
+import MultiSelect from "primevue/multiselect";
+import { watch } from "vue";
 
 const props = defineProps({
-    show: Boolean,
     title: String,
     breadcrumbs: Object,
     contract: Object,
@@ -304,21 +333,15 @@ const props = defineProps({
     currency: Array,
     files: Array,
     application_types: Object,
+    approval_user_ids: Array
 });
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
-
-const allowedFileTypes = [
-    'application/pdf',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-];
 
 const form = useForm({
     contract_number: "",
     files: [],
+    old_files: [],
+    deleted_old_file_ids: [],
+    recipients: [],
     title: "",
     project_id: "",
     application_id: "",
@@ -335,34 +358,38 @@ const filteredApplications = computed(() => {
 });
 
 const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        const newFiles = event.files;
-        const invalidFiles = [];
-        newFiles.forEach((file) => {
-            if (!allowedFileTypes.includes(file.type)) {
-                invalidFiles.push(file.name);
-            }
-        });
-        if (invalidFiles.length > 0) {
-        } else {
-            form.files = newFiles;
-        }
-    }
+    form.files = event.files || [];
 };
 
 const onClearFiles = () => {
     form.files = [];
-};
+    form.old_files.forEach(file => {
+        if (file.id) {
+            form.deleted_old_file_ids.push(file.id);
+        }
+    });
 
+    form.old_files = [];
+};
 const removeUploadedFile = (index) => {
     form.files.splice(index, 1);
 };
 
+const removeOldFile = (index) => {
+    const removed = form.old_files.splice(index, 1)[0];
+    if (removed?.id) {
+        form.deleted_old_file_ids.push(removed.id);
+    }
+};
 const update = () => {
     form.post(route("contract.update", props.contract?.id));
 };
 
+let initialized = false;
+
 watchEffect(() => {
+    if (initialized) return;
+
     form.contract_number = props.contract.contract_number;
     form.project_id = props.contract.project_id;
     form.application_id = props.contract.application_id;
@@ -373,20 +400,24 @@ watchEffect(() => {
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
     form.files = [];
     form.errors = {};
+    form.old_files = props.files;
+    form.recipients = props.approval_user_ids || [];
 
     const application = props.applications.find(app => app.id === props.contract.application_id);
     form.application_type = application ? application.type : "";
+
+    initialized = true;
 });
+
 const getFileIcon = (fileType) => {
-    if (fileType === 'application/pdf') {
-        return 'pi pi-file-pdf';
-    } else if (fileType === 'application/msword' || fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-        return 'pi pi-file-word';
-    } else if (fileType === 'application/vnd.ms-excel' || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        return 'pi pi-file-excel';
-    }
     return 'pi pi-file';
 };
+
+
+watch(() => form.application_type, () => {
+    form.application_id = "";
+});
+
 
 const formattedProjects = computed(() => {
     return props.projects.map(project => ({
@@ -418,5 +449,8 @@ const formatDate = (dateString) => {
     width: 1%;
     left: 0;
     right: auto;
+}
+.p-inputnumber-fluid .p-inputnumber-input{
+    width: 100% !important;
 }
 </style>

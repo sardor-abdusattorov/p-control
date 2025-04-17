@@ -3,7 +3,6 @@
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-
             <div class="mt-3 p-4">
                 <div class="block-header mb-5 flex flex-col md:flex-row justify-between items-start md:items-center pb-3 border-b border-gray-300 dark:border-neutral-600 gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ application.title }}</h1>
@@ -366,6 +365,7 @@
 </template>
 
 <script setup>
+
 import {Head, usePage} from '@inertiajs/vue3';
 import {defineProps, defineEmits, reactive, computed, ref} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";

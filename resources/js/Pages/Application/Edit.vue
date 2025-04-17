@@ -119,7 +119,7 @@
                 <div class="form-group mb-3">
                     <InputLabel for="files" :value="lang().label.files" />
                     <FileUpload
-                        name="files[]"
+                        ref="fileUploadRef"
                         :auto="false"
                         :multiple="true"
                         v-model="form.files"
@@ -204,11 +204,12 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
                         </template>
 
                         <template #empty>
-                            <div v-if="form.old_files.length === 0" class="flex items-center justify-center flex-col">
+                            <div v-if="(form.old_files?.length ?? 0) === 0 && (form.files?.length ?? 0) === 0" class="flex items-center justify-center flex-col">
                                 <i class="pi pi-cloud-upload !border-2 !rounded-full !p-8 !text-4xl !text-muted-color" />
                                 <p class="mt-6 mb-0">{{ lang().label.drag_and_drop }}</p>
                             </div>
@@ -222,13 +223,14 @@
                 <div class="flex justify-start">
                     <BackLink :href="route('application.index')" />
                     <PrimaryButton
+                        type="submit"
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
-                        @click="update"
                     >
                         {{ form.processing ? lang().button.save + "..." : lang().button.save }}
                     </PrimaryButton>
+
                 </div>
             </form>
         </section>
@@ -241,7 +243,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Select from 'primevue/select';
 import { Head, useForm } from "@inertiajs/vue3";
-import {computed, watchEffect} from "vue";
+import {computed, ref, watchEffect} from "vue";
 import InputText from "primevue/inputtext";
 import MultiSelect from "primevue/multiselect";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
@@ -252,7 +254,6 @@ import Button from "primevue/button";
 import {Message} from "primevue";
 
 const props = defineProps({
-    show: Boolean,
     title: String,
     application: Object,
     breadcrumbs: Object,
@@ -294,15 +295,19 @@ watchEffect(() => {
     initialized = true;
 });
 
+const fileUploadRef = ref(null);
+
 const update = () => {
     form.post(route("application.update", props.application?.id), {
     });
 };
 
 const onFileChange = (event) => {
-    if (event.files && event.files.length > 0) {
-        form.files = [...form.files, ...event.files];
-    }
+    form.files = event.files || [];
+};
+
+const removeUploadedFile = (index) => {
+    form.files.splice(index, 1);
 };
 
 const onClearFiles = () => {
@@ -314,10 +319,6 @@ const onClearFiles = () => {
     });
 
     form.old_files = [];
-};
-
-const removeUploadedFile = (index) => {
-    form.files.splice(index, 1);
 };
 
 const removeOldFile = (index) => {

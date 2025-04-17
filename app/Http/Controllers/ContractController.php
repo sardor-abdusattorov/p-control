@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Contract\ContractIndexRequest;
 use App\Http\Requests\Contract\ContractStoreRequest;
 use App\Http\Requests\Contract\ContractUpdateRequest;
+use App\Http\Requests\Contract\ContractUserDeleteRequest;
 use App\Models\Application;
 use App\Models\Approvals;
 use App\Models\Chat;
@@ -36,7 +37,7 @@ class ContractController extends Controller
             }
 
             $permissions = [
-                'create contract' => ['contract.create', 'contract.store'],
+                'create contract' => ['contract.create', 'contract.store', 'contract.submit'],
                 'update contract' => ['contract.edit', 'contract.update', 'contract.remove-approver', 'contract.update-approvers'],
                 'delete contract' => ['contract.destroy', 'contract.destroy-bulk'],
                 'view contract' => ['contract.index', 'contract.show'],
@@ -90,15 +91,15 @@ class ContractController extends Controller
         }
 
         if ($request->filled('user_id')) {
-            $contracts->where('user_id', (int) $request->user_id);
+            $contracts->where('user_id', (int)$request->user_id);
         }
 
-        if ($request->filled('status_id')) {
-            $contracts->where('status', (int) $request->status_id);
+        if ($request->filled('status')) {
+            $contracts->where('status', (int)$request->status);
         }
 
         if ($request->filled('currency_id')) {
-            $contracts->where('currency_id', (int) $request->currency_id);
+            $contracts->where('currency_id', (int)$request->currency_id);
         }
 
         if ($request->has(['field', 'order'])) {
@@ -110,9 +111,7 @@ class ContractController extends Controller
         $perPage = $request->input('perPage', 10);
         $contracts = $contracts->paginate($perPage)->appends($request->query());
 
-
         $contractIds = $contracts->pluck('id');
-
         $approvals = Approvals::where('approvable_type', Contract::class)
             ->whereIn('approvable_id', $contractIds)
             ->with('user')
@@ -121,26 +120,26 @@ class ContractController extends Controller
             ->map(function ($group) {
                 return $group->map(function ($approval) {
                     return [
-                        'user_id'     => $approval->user_id,
-                        'user_name'   => optional($approval->user)->name,
-                        'approved'    => (bool) $approval->approved,
-                        'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
+                        'user_id' => $approval->user_id,
+                        'user_name' => optional($approval->user)->name,
+                        'approved' => $approval->approved,
+                        'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
+                        'updated_at' => optional($approval->updated_at)?->format('d.m.Y H:i'),
+                        'reason' => $approval->reason,
                     ];
                 });
             });
 
-
-
         return Inertia::render('Contract/Index', [
-            'title'         => __('app.label.contracts'),
-            'filters'       => $request->all(['search', 'field', 'order', 'user_id', 'status_id', 'currency_id', 'contract_number', 'title']),
-            'perPage'       => (int) $perPage,
-            'contracts'     => $contracts,
-            'statuses'      => $statuses,
-            'currency'      => $currency,
-            'users'         => $users,
-            'approvals'     => $approvals,
-            'breadcrumbs'   => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
+            'title' => __('app.label.contracts'),
+            'filters' => $request->all(['search', 'field', 'order', 'user_id', 'status', 'currency_id', 'contract_number', 'title']),
+            'perPage' => (int)$perPage,
+            'contracts' => $contracts,
+            'statuses' => $statuses,
+            'currency' => $currency,
+            'users' => $users,
+            'approvals' => $approvals,
+            'breadcrumbs' => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
         ]);
     }
 
@@ -155,11 +154,10 @@ class ContractController extends Controller
         $projects = Project::all();
         if (auth()->user()->can('view all applications')) {
             $applications = Application::all();
-        }else {
+        } else {
             $applications = auth()->user()->applications;
         }
         $users = User::approverOptions();
-
         $types = Application::getTypes();
 
         return Inertia::render('Contract/Create', [
@@ -183,67 +181,42 @@ class ContractController extends Controller
     public function store(ContractStoreRequest $request)
     {
         DB::beginTransaction();
+
         try {
-            $contract = new Contract();
-            $contract->contract_number = $request->contract_number;
-            $contract->title = $request->title;
-            $contract->project_id = $request->project_id;
-            $contract->application_id = $request->application_id ?? null;
-            $contract->currency_id = $request->currency_id;
-            $contract->user_id = Auth()->user()->id;
-            $contract->budget_sum = $request->budget_sum;
-            $contract->status = 1;
-            $contract->deadline = Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s');
-            $contract->save();
+            $contract = Contract::create([
+                'contract_number' => $request->contract_number,
+                'title' => $request->title,
+                'project_id' => $request->project_id,
+                'application_id' => $request->application_id ?? null,
+                'currency_id' => $request->currency_id,
+                'user_id' => auth()->id(),
+                'budget_sum' => $request->budget_sum,
+                'status' => Contract::STATUS_NEW,
+                'deadline' => Carbon::parse($request->deadline)
+                    ->timezone(config('app.timezone'))
+                    ->format('Y-m-d H:i:s'),
+            ]);
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
                     $name = Str::random(24) . '.' . $ext;
+
                     $contract->addMedia($file)
                         ->usingFileName($name)
                         ->toMediaCollection("files");
                 }
             }
+
             if (!empty($request->recipients)) {
-                foreach ($request->recipients as $recipient) {
-
-                    Approvals::create([
-                        'approvable_type' => Contract::class,
-                        'approvable_id' => $contract->id,
-                        'user_id' => $recipient,
-                        'approved' => false,
-                        'approved_at' => null,
+                foreach ($request->recipients as $recipientId) {
+                    $contract->approvals()->create([
+                        'user_id' => $recipientId,
+                        'approved' => Approvals::STATUS_NEW,
                     ]);
-
-                    $chat = new Chat();
-                    $chat->model_type = 'contract';
-                    $chat->model_id = $contract->id;
-                    $chat->user_id = auth()->id();
-                    $chat->receiver_id = $recipient;
-                    $chat->name = 'Chat for contract #' . $contract->id;
-
-                    if ($chat->save()) {
-                        $messageContent = 'Отправляю контракт на ваше рассмотрение';
-                        Message::create([
-                            'chat_id' => $chat->id,
-                            'user_id' => auth()->id(),
-                            'text' => $messageContent,
-                            'created_date' => now(),
-                            'is_notified' => 0,
-                        ]);
-                    } else {
-                        DB::rollback();
-                        activity('contract')
-                            ->causedBy(auth()->user())
-                            ->performedOn($contract)
-                            ->withProperties(['error' => 'Chat creation failed'])
-                            ->log('Ошибка при создании чата для контракта');
-
-                        return redirect()->back()->with('error', __('app.label.chat_creation_failed'));
-                    }
                 }
             }
+
             activity('contract')
                 ->causedBy(auth()->user())
                 ->performedOn($contract)
@@ -259,9 +232,12 @@ class ContractController extends Controller
 
             DB::commit();
 
-            return redirect()->route('contract.index')->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
+            return redirect()->route('contract.index')
+                ->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
+
         } catch (\Throwable $th) {
-            DB::rollback();
+            DB::rollBack();
+
             activity('contract')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -272,7 +248,45 @@ class ContractController extends Controller
                 ])
                 ->log('Ошибка при создании контракта');
 
-            return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.contracts')]) . ' ' . $th->getMessage());
+            return redirect()->back()->with(
+                'error',
+                __('app.label.created_error', ['name' => __('app.label.contracts')]) . ' ' . $th->getMessage()
+            );
+        }
+    }
+
+    public function submit(Contract $contract)
+    {
+        if ($contract->status !== 1) {
+            return redirect()->back()->with('error', __('app.label.cannot_submit_non_draft'));
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $contract->update(['status' => 2]);
+
+            $contract->approvals()
+                ->where('approved', Approvals::STATUS_NEW)
+                ->update([
+                    'approved' => Approvals::STATUS_PENDING,
+                    'approved_at' => null,
+                ]);
+
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->log('Заявка отправлена на согласование');
+
+            DB::commit();
+
+            return back()->with('success', __('app.label.submitted_successfully'));
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return redirect()->back()
+                ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
         }
     }
 
@@ -283,9 +297,7 @@ class ContractController extends Controller
     {
         $types = Application::getTypes();
         $statuses = Contract::getStatuses();
-        $users = User::where('id', '!=', auth()->id())
-            ->where('status', 1)
-            ->get();
+        $users = User::approverOptions();
 
         $files = $contract->getMedia('files');
         $project = Project::find($contract->project_id);
@@ -300,18 +312,7 @@ class ContractController extends Controller
 
         $user = auth()->user();
 
-        $approvals = Approvals::where('approvable_type', Contract::class)
-            ->where('approvable_id', $contract->id)
-            ->with('user')
-            ->get()
-            ->map(function ($approval) {
-                return [
-                    'user_id' => $approval->user_id,
-                    'user_name' => optional($approval->user)->name,
-                    'approved' => (bool) $approval->approved,
-                    'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
-                ];
-            });
+        $approvals = $contract->getFormattedApprovals();
 
         $applicationApprovals = collect();
 
@@ -324,7 +325,7 @@ class ContractController extends Controller
                     return [
                         'user_id' => $approval->user_id,
                         'user_name' => optional($approval->user)->name,
-                        'approved' => (bool) $approval->approved,
+                        'approved' => (bool)$approval->approved,
                         'approved_at' => optional($approval->approved_at)->format('d.m.Y H:i'),
                     ];
                 });
@@ -333,7 +334,7 @@ class ContractController extends Controller
         $canApprove = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $user->id)
-            ->where('approved', false)
+            ->where('approved', Approvals::STATUS_PENDING)
             ->exists();
 
         return Inertia::render('Contract/Show', [
@@ -444,116 +445,71 @@ class ContractController extends Controller
         }
     }
 
-    public function chat(Contract $contract)
+    public function cancelContract(Request $request, Contract $contract)
     {
-        $users = User::where('status', 1)->get();
-        $currentUser = auth()->user();
-
-        $chats = Chat::where('model_type', 'contract')
-            ->where('model_id', $contract->id)
-            ->where(function ($query) use ($currentUser) {
-                $query->where('user_id', $currentUser->id)
-                    ->orWhere('receiver_id', $currentUser->id);
-            })
-            ->with(['messages.media'])
-            ->get();
-
-        return Inertia::render('Contract/Chat', [
-            'title' => __('app.label.contracts'),
-            'users' => $users,
-            'chats' => $chats,
-            'contract' => $contract,
-            'breadcrumbs' => [
-                ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
-                ['label' => $contract->title, 'href' => route('contract.show', $contract->id)],
-                ['label' => __('app.label.contract_chat')],
-            ],
-        ]);
-    }
-
-    public function getAllChats(Request $request, $contract_id)
-    {
-        $currentUser = auth()->user();
-
         try {
-            $chats = Chat::with(['messages' => function ($query) {
-                $query->latest('created_date')->limit(1)->with('media');
-            }])
-                ->where('model_type', 'contract')
-                ->where('model_id', $contract_id)
-                ->where(function ($query) use ($currentUser) {
-                    $query->where('user_id', $currentUser->id)
-                        ->orWhere('receiver_id', $currentUser->id);
-                })
-                ->get();
+            $user = auth()->user();
 
-            return response()->json(['chats' => $chats]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Ошибка при загрузке чатов'], 500);
-        }
-    }
+            $approval = Approvals::where('approvable_type', Contract::class)
+                ->where('approvable_id', $contract->id)
+                ->where('user_id', $user->id)
+                ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
+                ->first();
 
-    public function getMessages(Request $request, $chat_id)
-    {
-        $messages = Message::where('chat_id', $chat_id)
-            ->with('media')
-            ->orderBy('created_date', 'asc')
-            ->get();
-
-        return response()->json(['messages' => $messages]);
-    }
-
-    public function sendMessage(Request $request, Contract $contract)
-    {
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-            'files.*' => 'file|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z,txt,csv,mp3,mp4,mov,avi|max:20480',
-        ]);
-
-
-        DB::beginTransaction();
-
-        try {
-            if (!empty($request['chat_id'])) {
-                $chat = Chat::findOrFail($request['chat_id']);
-            } else {
-                $chat = Chat::create([
-                    'model_type' => 'contract',
-                    'model_id' => $contract->id,
-                    'user_id' => auth()->id(),
-                    'receiver_id' => $request['receiver_id'],
-                    'name' => 'test',
-                ]);
+            if (!$approval) {
+                return redirect()->back()->with('error', __('app.label.not_recipient'));
             }
 
-            $message = Message::create([
-                'chat_id' => $chat->id,
-                'user_id' => auth()->id(),
-                'text' => $validated['message'],
-                'created_date' => now(),
-                'is_notified' => 0,
+            if ($approval->approved === Approvals::STATUS_REJECTED && $approval->reason) {
+                return redirect()->back()->with('error', __('app.label.already_rejected'));
+            }
+
+            $approval->update([
+                'approved' => Approvals::STATUS_REJECTED,
+                'reason' => $request->input('reason'),
+                'approved_at' => now(),
             ]);
 
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    $ext = $file->extension();
-                    $name = Str::random(24) . '.' . $ext;
-                    $message->addMedia($file)
-                        ->usingFileName($name)
-                        ->toMediaCollection("message file");
-                }
+            activity('contract')
+                ->causedBy($user)
+                ->performedOn($contract)
+                ->withProperties([
+                    'contract_id' => $contract->id,
+                    'reason' => $request->input('reason'),
+                    'rejected_by' => $user->id,
+                    'rejected_at' => now()->format('d.m.Y H:i'),
+                ])
+                ->log('Пользователь отклонил контракт');
+
+            if ($contract->status !== Contract::STATUS_NEW) {
+                $contract->update(['status' => Contract::STATUS_REJECTED]);
+
+                activity('contract')
+                    ->causedBy($user)
+                    ->performedOn($contract)
+                    ->withProperties([
+                        'contract_id' => $contract->id,
+                        'previous_status' => $contract->status,
+                        'new_status' => Contract::STATUS_REJECTED,
+                    ])
+                    ->log('Контракт отклонён после отказа согласующего');
             }
 
-            DB::commit();
+            return redirect()->route('contract.show', $contract->id)
+                ->with('success', __('app.label.cancelled_successfully', ['name' => $contract->title]));
 
-            return redirect()->route('contract.chat', [
-                'id' => $chat->id,
-                'contract' => $contract->id,
-            ])->with('success', 'Message sent successfully!');
         } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error($e->getMessage());
-            return back()->with('error', 'An error occurred. Please try again later.');
+            activity('contract')
+                ->causedBy(auth()->user())
+                ->performedOn($contract)
+                ->withProperties([
+                    'error' => $e->getMessage(),
+                    'contract_id' => $contract->id,
+                    'title' => $contract->title,
+                ])
+                ->log('Ошибка при отклонении контракта');
+
+            return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $contract->title]));
         }
     }
 
@@ -568,11 +524,10 @@ class ContractController extends Controller
         $projects = Project::all();
         if (auth()->user()->can('view all applications')) {
             $applications = Application::all();
-        }else {
+        } else {
             $applications = auth()->user()->applications;
         }
-
-        $users = User::where('status', 1)->get();
+        $users = User::approverOptions();
 
         return inertia('Contract/Edit', [
             'contract' => $contract,
@@ -580,6 +535,10 @@ class ContractController extends Controller
             'projects' => $projects,
             'applications' => $applications,
             'application_types' => $types,
+            'approval_user_ids' => $contract->approvals()
+                ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
+                ->pluck('user_id')
+                ->toArray(),
             'users' => $users,
             'files' => $files,
             'title' => __('app.label.contracts'),
@@ -599,7 +558,35 @@ class ContractController extends Controller
         DB::beginTransaction();
 
         try {
+            $isNew = $contract->status === Contract::STATUS_NEW;
+
+            if ($contract->status === Contract::STATUS_APPROVED) {
+                return back()->with('error', __('app.label.cannot_update_approved'));
+            }
+
             $originalData = $contract->getOriginal();
+
+            if ($isNew) {
+                $contract->approvals()->delete();
+
+                foreach ($request->recipients ?? [] as $recipientId) {
+                    $contract->approvals()->create([
+                        'user_id' => $recipientId,
+                        'approved' => Approvals::STATUS_NEW,
+                    ]);
+                }
+            } else {
+                $contract->approvals()->update(['approved' => Approvals::STATUS_INVALIDATED]);
+
+                if ($request->input('type') != 2) {
+                    foreach ($request->recipients ?? [] as $recipientId) {
+                        $contract->approvals()->create([
+                            'user_id' => $recipientId,
+                            'approved' => Approvals::STATUS_NEW,
+                        ]);
+                    }
+                }
+            }
 
             $contract->update([
                 'contract_number' => $request->contract_number,
@@ -608,13 +595,24 @@ class ContractController extends Controller
                 'application_id' => $request->application_id,
                 'currency_id' => $request->currency_id,
                 'budget_sum' => $request->budget_sum,
+                'status' => Contract::STATUS_NEW,
                 'deadline' => Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
             ]);
+
+            if ($request->filled('deleted_old_file_ids')) {
+                foreach ($request->input('deleted_old_file_ids') as $fileId) {
+                    $media = $contract->media()->where('id', $fileId)->first();
+                    if ($media) {
+                        $media->delete();
+                    }
+                }
+            }
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
                     $ext = $file->extension();
                     $name = Str::random(24) . '.' . $ext;
+
                     $contract->addMedia($file)
                         ->usingFileName($name)
                         ->toMediaCollection("files");
@@ -634,7 +632,7 @@ class ContractController extends Controller
 
             return redirect()->route('contract.index')->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
         } catch (\Throwable $th) {
-            DB::rollback();
+            DB::rollBack();
 
             activity('contract')
                 ->causedBy(auth()->user())
@@ -645,7 +643,7 @@ class ContractController extends Controller
                 ])
                 ->log('Ошибка при обновлении контракта');
 
-            return back()->with('error', __('app.label.updated_error', ['name' => $contract->title]) . $th->getMessage());
+            return back()->with('error', __('app.label.updated_error', ['name' => $contract->title]) . ' ' . $th->getMessage());
         }
     }
 
@@ -723,7 +721,7 @@ class ContractController extends Controller
         }
     }
 
-    public function removeApprover(Request $request, Contract $contract)
+    public function removeApprover(ContractUserDeleteRequest $request, Contract $contract)
     {
         if (!$request->has('user_id')) {
             return redirect()->back()->with('error', __('app.label.deleted_error', [
@@ -734,7 +732,8 @@ class ContractController extends Controller
         $userId = $request->user_id;
         $user = User::find($userId);
 
-        $approval = Approvals::where('approvable_type', Contract::class)
+        $approval = Approvals::valid()
+            ->where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $userId)
             ->first();
@@ -744,64 +743,20 @@ class ContractController extends Controller
                 'name' => __('app.label.approver')
             ]));
         }
-
-        if ($approval->approved) {
-            return redirect()->back()->with('warning', __('app.label.cannot_delete_approved', [
-                'name' => $user ? $user->name : __('app.label.unknown_user')
-            ]));
+        if ($contract->status !== 1) {
+            if ($approval->approved === Approvals::STATUS_APPROVED) {
+                return redirect()->back()->with('warning', __('app.label.cannot_delete_approved', [
+                    'name' => $user?->name ?? __('app.label.unknown_user')
+                ]));
+            }
         }
+
         $approval->delete();
-        $hasApprovedUsers = Approvals::where('approvable_type', Contract::class)
-            ->where('approvable_id', $contract->id)
-            ->where('approved', true)
-            ->exists();
-
-        if (!$hasApprovedUsers) {
-            $contract->update(['status' => Contract::STATUS_NEW]);
-        }
 
         return redirect()->route('contract.show', ['contract' => $contract->id])
             ->with('success', __('app.label.deleted_successfully', [
-                'name' => $user ? $user->name : __('app.label.unknown_user')
+                'name' => $user?->name ?? __('app.label.unknown_user')
             ]));
-    }
-
-    public function updateApprovers(Request $request, Contract $contract)
-    {
-        $existingApprovals = Approvals::where('approvable_type', Contract::class)
-            ->where('approvable_id', $contract->id)
-            ->get()
-            ->keyBy('user_id');
-
-        $newUserIds = collect($request->user_ids);
-        $usersToAdd = $newUserIds->diff($existingApprovals->keys());
-        $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
-        foreach ($usersToAdd as $userId) {
-            Approvals::create([
-                'approvable_type' => Contract::class,
-                'approvable_id' => $contract->id,
-                'user_id' => $userId,
-                'approved' => false,
-            ]);
-        }
-        $confirmedUsers = Approvals::whereIn('user_id', $usersToRemove)
-            ->where('approvable_type', Contract::class)
-            ->where('approvable_id', $contract->id)
-            ->where('approved', true)
-            ->exists();
-
-        if ($confirmedUsers) {
-            return redirect()->route('contract.show', ['contract' => $contract->id])
-                ->with('warning', __('app.label.cannot_delete_approved_list'));
-        }
-        Approvals::whereIn('user_id', $usersToRemove)
-            ->where('approvable_type', Contract::class)
-            ->where('approvable_id', $contract->id)
-            ->where('approved', false)
-            ->delete();
-
-        return redirect()->route('contract.show', ['contract' => $contract->id])
-            ->with('success', __('app.label.approvers_updated_successfully'));
     }
 
 }

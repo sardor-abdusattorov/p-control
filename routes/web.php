@@ -93,9 +93,13 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     // Контракты
     Route::resource('contract', ContractController::class)->except(['update']);
+
+    Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');
     Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk'); // Вынесено за пределы группы с параметром
     Route::post('/contract/{contract}/remove-approver', [ContractController::class, 'removeApprover'])
         ->name('contract.remove-approver');
+    Route::post('/contract/{contract}/cancel', [ContractController::class, 'cancelContract'])
+        ->name('contract.cancel');
     Route::put('/contract/{contract}/update-approvers', [ContractController::class, 'updateApprovers'])->name('contract.update-approvers');
 
     Route::get('/contract/chat-messages/{chat_id}', [ContractController::class, 'getMessages'])->name('contract.get-messages');

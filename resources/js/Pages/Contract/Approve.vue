@@ -1,8 +1,9 @@
 <script setup>
-import PrimaryButton from "@/Components/PrimaryButton.vue";
-import Modal from "@/Components/Modal.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
+import Dialog from "primevue/dialog";
+import Button from "primevue/button";
+import Textarea from "primevue/textarea";
 import { useForm } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
 
 const props = defineProps({
     show: Boolean,
@@ -12,54 +13,71 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
-const form = useForm({});
+const visible = ref(false);
 
-const approve = () => {
+watch(() => props.show, (val) => (visible.value = val), { immediate: true });
+
+const close = () => {
+    visible.value = false;
+    emit("close");
+};
+
+const form = useForm({
+    comment: '',
+});
+
+const approveContract = () => {
     form.post(route("contract.approve", props.contract?.id), {
         preserveScroll: true,
         onSuccess: () => {
-            emit("close");
+            close();
             form.reset();
         },
-        onError: () => null,
-        onFinish: () => null,
     });
 };
 </script>
 
 <template>
-    <section class="space-y-6">
-        <Modal :show="props.show" @close="emit('close')" :maxWidth="'lg'">
-            <form class="p-3 sm:p-6" @submit.prevent="approve">
-                <h2
-                    class="text-lg font-medium text-slate-900 dark:text-slate-100"
-                >
-                    {{ lang().label.approve_contract }} {{ props.title }}
-                </h2>
-                <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                    {{ lang().label.approve_contract_confirm }}
-                </p>
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton
-                        :disabled="form.processing"
-                        @click="emit('close')"
-                    >
-                        {{ lang().button.close }}
-                    </SecondaryButton>
-                    <PrimaryButton
-                        class="ml-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="approve"
-                    >
-                        {{
-                            form.processing
-                                ? lang().button.confirm + "..."
-                                : lang().button.confirm
-                        }}
-                    </PrimaryButton>
-                </div>
-            </form>
-        </Modal>
-    </section>
+    <Dialog
+        v-model:visible="visible"
+        :header="lang().label.approve_contract + ' ' + props.title"
+        modal
+        :style="{ width: '40vw' }"
+        :breakpoints="{ '960px': '95vw' }"
+        @hide="close"
+    >
+        <div>
+            <div class="mb-4">
+                <label for="comment" class="block text-xl font-bold text-gray-700 dark:text-gray-300 mb-3">
+                    {{ lang().label.comment_optional }}
+                </label>
+                <Textarea
+                    id="comment"
+                    v-model="form.comment"
+                    autoResize
+                    rows="4"
+                    class="w-full"
+                    :placeholder="lang().placeholder.comment"
+                />
+            </div>
+
+            <div class="flex justify-end gap-2 mt-6">
+                <Button
+                    type="button"
+                    severity="secondary"
+                    :label="lang().button.close"
+                    @click="close"
+                    :disabled="form.processing"
+                />
+                <Button
+                    type="button"
+                    severity="success"
+                    :label="form.processing ? lang().button.confirm : lang().button.confirm"
+                    @click="approveContract"
+                    :disabled="form.processing"
+                />
+            </div>
+        </div>
+    </Dialog>
 </template>
+

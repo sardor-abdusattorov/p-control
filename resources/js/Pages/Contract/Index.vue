@@ -1,6 +1,5 @@
 <template>
     <Head :title="props.title"/>
-
     <AuthenticatedLayout>
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
         <div class="space-y-4">
@@ -59,7 +58,7 @@
                                           v-if="isAdmin"
                                 />
                             </th>
-                            <th class="px-2 py-4 w-5">#</th>
+
                             <th class="px-2 py-4 cursor-pointer min-w-40" @click="order('contract_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_number }}</span>
@@ -104,8 +103,8 @@
                             <th class="px-2 py-4 text-center">
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
-                                <th class="px-2 py-4"></th>
-                            <th class="px-2 py-4 cursor-pointer">
+
+                            <th class="px-2 py-4">
                                 <InputText
                                     type="text"
                                     class="mt-1 block w-full"
@@ -113,7 +112,7 @@
                                     :placeholder="lang().label.contract_number"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <InputText
                                     type="text"
                                     class="mt-1 block w-full"
@@ -121,7 +120,7 @@
                                     :placeholder="lang().label.title"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <Select
                                     showClear
                                     v-model="data.params.currency_id"
@@ -140,7 +139,7 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer"  v-if="can(['approve contract']) || isAdmin">
+                            <th class="px-2 py-4"  v-if="can(['approve contract']) || isAdmin">
                                 <Select
                                     showClear
                                     v-model="data.params.user_id"
@@ -162,7 +161,7 @@
                             <th class="px-2 py-4 cursor-pointer">
                                 <Select
                                     showClear
-                                    v-model="data.params.status_id"
+                                    v-model="data.params.status"
                                     :options="props.statuses"
                                     optionLabel="label"
                                     optionValue="id"
@@ -199,48 +198,65 @@
                                     v-if="isAdmin"
                                 />
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2 w-10">
-                                {{ (props.contracts.current_page - 1) * props.contracts.per_page + index + 1 }}
-                            </td>
+
                             <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
                                 {{ contract.contract_number || lang().label.undefined }}
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
-                                <Link :href="route('contract.show', { contract: contract.id })" class="text-blue-500 hover:underline dark:text-white">
+                            <td class="py-4 px-2 sm:py-3">
+                                <Link
+                                    :href="route('contract.show', { contract: contract.id })"
+                                    class="text-blue-500 hover:underline dark:text-white"
+                                    style="
+                                          display: -webkit-box;
+                                          -webkit-line-clamp: 5;
+                                          -webkit-box-orient: vertical;
+                                          overflow: hidden;
+                                          text-overflow: ellipsis;
+                                        "
+                                >
                                     {{ contract.title ?? lang().label.undefined }}
                                 </Link>
                             </td>
+
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ formatNumber(contract.budget_sum) }} {{ contract.currency?.short_name || '' }}
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
+                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3" v-if="can(['approve contract']) || isAdmin">
                                 {{ contract.user?.name || lang().label.undefined }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <span
-                                    class="inline-block text-xs font-semibold px-2 py-1 rounded-full"
+                                    class="inline-block text-md font-semibold px-2 py-1 rounded-full"
                                     :class="getStatusClass(contract.status)"
                                 >
                                   {{ getStatusLabel(contract.status) }}
                                 </span>
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2 sm:py-3">
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <div v-if="approvals[contract.id] && approvals[contract.id].length">
                                     <ul class="space-y-2 text-sm">
                                         <li
-                                            v-for="item in approvals[contract.id]"
+                                            v-for="item in getUniqueApprovals(approvals[contract.id])"
                                             :key="item.user_id"
                                             class="flex items-center gap-2"
-                                            :class="item.approved ? 'text-green-600' : 'text-orange-500'"
                                         >
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                                <path
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    :d="item.approved ? 'M5 13l4 4L19 7' : 'M6 18L18 6M6 6l12 12'"
-                                                />
-                                            </svg>
-                                            <span>{{ item.user_name }}</span>
+                <span
+                    class="text-md font-semibold px-2 py-1 rounded-full"
+                    :class="{
+                        'bg-green-100 text-green-800': item.approved === 3,
+                        'bg-orange-100 text-orange-800': item.approved === 2,
+                        'bg-blue-100 text-blue-800': item.approved === 1,
+                        'bg-red-100 text-red-800': item.approved === -1,
+                        'bg-gray-200 text-gray-700': item.approved === -2 || item.approved === 0 || item.approved === null,
+                    }"
+                >
+                    <span
+                        class="cursor-pointer underline"
+                        @click="openHistory(item, contract.id)"
+                    >
+                        {{ item.user_name }}
+                    </span>
+                </span>
                                         </li>
                                     </ul>
                                 </div>
@@ -248,6 +264,8 @@
                                     {{ lang().label.no_approvers }}
                                 </div>
                             </td>
+
+
                             <td class="whitespace-nowrap py-4 px-2">
                                 <div class="gap-1 flex justify-center">
                                     <Button
@@ -273,6 +291,12 @@
 
         <Menu ref="menu" :model="items" :popup="true" />
         <SendApproval ref="confirmDialogRef" />
+        <ApprovalHistory
+            :show="historyVisible"
+            :approval="selectedApproval"
+            :all-approvals="approvals[approvalContextId]"
+            @close="historyVisible = false"
+        />
 
     </AuthenticatedLayout>
 </template>
@@ -292,24 +316,24 @@ import DeleteBulk from "@/Pages/Contract/DeleteBulk.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import { usePage } from "@inertiajs/vue3";
 import CreateLink from "@/Components/CreateLink.vue";
-import Badge from "primevue/badge";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
 import SendApproval from "@/Pages/Contract/SendApproval.vue";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
+import ApprovalHistory from "@/Pages/Contract/ApprovalHistory.vue";
 
 const menu = ref();
 const selectedContract = ref(null);
 const lang = () => usePage().props.language;
 const user = usePage().props.auth.user;
 
+
 const items = computed(() => {
     const baseItems = [];
     if (!selectedContract.value) return [];
     if (
-        selectedContract.value.status_id === 1 &&
-        selectedContract.value.type !== 2 &&
+        selectedContract.value.status === 1 &&
         selectedContract.value.user_id === user.id
     ) {
         baseItems.push({
@@ -330,7 +354,7 @@ const items = computed(() => {
     });
 
     if (
-        selectedContract.value.status_id === 3 &&
+        selectedContract.value.status === 3 &&
         selectedContract.value.type !== 2 &&
         selectedContract.value.user_id === user.id
     ) {
@@ -344,7 +368,7 @@ const items = computed(() => {
     }
 
     if (
-        selectedContract.value.status_id !== 3 &&
+        selectedContract.value.status !== 3 &&
         selectedContract.value.user_id === user.id
     ) {
         baseItems.push({
@@ -357,7 +381,7 @@ const items = computed(() => {
     }
 
     if (
-        selectedContract.value.status_id === 1 &&
+        selectedContract.value.status === 1 &&
         selectedContract.value.user_id === user.id
     ) {
         baseItems.push({
@@ -405,7 +429,7 @@ const data = reactive({
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
         user_id: props.filters.user_id ?? null,
-        status_id: props.filters.status_id ?? null,
+        status: props.filters.status ?? null,
         title: props.filters.title ?? null,
         contract_number: props.filters.contract_number ?? null,
         currency_id: props.filters.currency_id ?? null,
@@ -468,11 +492,12 @@ const getStatusClass = (statusId) => {
             return 'bg-green-100 text-green-800';
         case -1:
             return 'bg-red-100 text-red-800';
+        case -2:
+            return 'bg-gray-400 text-gray-900';
         default:
             return 'bg-gray-200 text-gray-700';
     }
 };
-
 
 const formatNumber = (amount) => {
     if (!amount) return '-';
@@ -486,6 +511,28 @@ const formatNumber = (amount) => {
 };
 
 const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
+
+const historyVisible = ref(false);
+const selectedApproval = ref(null);
+const approvalContextId = ref(null);
+
+const openHistory = (approval, modelId) => {
+    selectedApproval.value = approval;
+    approvalContextId.value = modelId;
+    historyVisible.value = true;
+};
+
+const getUniqueApprovals = (list) => {
+    const latest = {};
+    list.forEach(item => {
+        if (item.approved !== -2) {
+            latest[item.user_id] = item;
+        }
+    });
+    return Object.values(latest);
+};
+
+
 
 </script>
 

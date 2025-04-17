@@ -278,20 +278,7 @@ class ApplicationController extends Controller
         $users = User::approverOptions();
         $types = Application::getTypes();
 
-        $approvals = Approvals::where('approvable_type', Application::class)
-            ->where('approvable_id', $application->id)
-            ->with('user')
-            ->get()
-            ->map(function ($approval) {
-                return [
-                    'user_id' => $approval->user_id,
-                    'user_name' => optional($approval->user)->name,
-                    'approved' => $approval->approved, // НЕ bool
-                    'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
-                    'updated_at'  => optional($approval->updated_at)?->format('d.m.Y H:i'),
-                    'reason' => $approval->reason,
-                ];
-            });
+        $approvals = $application->getFormattedApprovals();
 
         $canApprove = Approvals::where('approvable_type', Application::class)
             ->where('approvable_id', $application->id)
@@ -357,7 +344,6 @@ class ApplicationController extends Controller
         return redirect()->route('application.show', $application->id)
             ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
     }
-
 
     public function cancelApplication(Request $request, Application $application)
     {
@@ -514,7 +500,6 @@ class ApplicationController extends Controller
             ->with('success', __('app.label.scans_uploaded_successfully'));
     }
 
-
     /**
      * Update the specified resource in storage.
      */
@@ -522,7 +507,6 @@ class ApplicationController extends Controller
     public function update(ApplicationUpdateRequest $request, Application $application)
     {
         DB::beginTransaction();
-
         try {
             $isNew = $application->status_id === Application::STATUS_NEW;
 

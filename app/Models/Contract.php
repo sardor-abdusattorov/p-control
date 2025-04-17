@@ -16,6 +16,7 @@ class Contract extends Model implements HasMedia
     const STATUS_IN_PROGRESS = 2;
     const STATUS_APPROVED = 3;
     const STATUS_REJECTED = -1;
+    const STATUS_INVALIDATED = -2;
 
 
     protected $table = 'contracts';
@@ -54,6 +55,7 @@ class Contract extends Model implements HasMedia
             ['id' => self::STATUS_IN_PROGRESS, 'label' => __('app.status.in_progress')],
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
+            ['id' => self::STATUS_INVALIDATED, 'label' => __('app.status.invalidated')],
         ];
     }
 
@@ -61,12 +63,25 @@ class Contract extends Model implements HasMedia
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
-
     public function getCreatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['created_at']));
     }
-
     public function getUpdatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
     }
+    public function getFormattedApprovals()
+    {
+        return $this->approvals()
+            ->with('user')
+            ->get()
+            ->map(fn($approval) => [
+                'user_id' => $approval->user_id,
+                'user_name' => optional($approval->user)->name,
+                'approved' => $approval->approved,
+                'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
+                'updated_at' => optional($approval->updated_at)?->format('d.m.Y H:i'),
+                'reason' => $approval->reason,
+            ]);
+    }
+
 }

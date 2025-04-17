@@ -99,7 +99,7 @@
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
                             <th class="px-2 py-4"></th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <InputText
                                     id="title"
                                     type="text"
@@ -108,7 +108,7 @@
                                     :placeholder="lang().label.title"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <Select
                                     id="project_id"
                                     v-model="data.params.project_id"
@@ -132,7 +132,7 @@
                             </th>
                             <th
                                 v-if="can(['approve application']) || isAdmin"
-                                class="px-2 py-4 cursor-pointer"
+                                class="px-2 py-4"
                             >
                                 <Select
                                     showClear
@@ -153,7 +153,7 @@
                                 />
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <Select
                                     showClear
                                     v-model="data.params.status_id"
@@ -172,7 +172,7 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4 cursor-pointer">
+                            <th class="px-2 py-4">
                                 <Select
                                     showClear
                                     v-model="data.params.type"

@@ -81,5 +81,18 @@ class Application extends Model implements HasMedia
     {
         return $this->morphMany(Approvals::class, 'approvable');
     }
-
+    public function getFormattedApprovals()
+    {
+        return $this->approvals()
+            ->with('user')
+            ->get()
+            ->map(fn($approval) => [
+                'user_id' => $approval->user_id,
+                'user_name' => optional($approval->user)->name,
+                'approved' => $approval->approved,
+                'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
+                'updated_at' => optional($approval->updated_at)?->format('d.m.Y H:i'),
+                'reason' => $approval->reason,
+            ]);
+    }
 }

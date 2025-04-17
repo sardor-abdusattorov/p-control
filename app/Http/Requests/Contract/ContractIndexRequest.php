@@ -31,7 +31,7 @@ class ContractIndexRequest extends FormRequest
             'order'  => ['nullable', 'in:asc,desc'],
             'perPage' => ['nullable', 'numeric'],
             'user_id' => ['nullable', 'exists:users,id'],
-            'status_id' => ['nullable', 'integer', 'in:1,2,3,-1'],
+            'status' => ['nullable', 'integer', 'in:1,2,3,-1'],
             'currency_id' => ['nullable', 'exists:currency,id'],
         ];
     }

@@ -1,39 +1,37 @@
 <script setup>
 import Dialog from "primevue/dialog";
+import Textarea from "primevue/textarea";
 import Button from "primevue/button";
 import { useForm } from "@inertiajs/vue3";
-import { watchEffect, ref } from "vue";
-import Message from 'primevue/message';
+import { ref, watch } from "vue";
 
 const props = defineProps({
     show: Boolean,
     title: String,
     contract: Object,
-    user: Object,
 });
 
 const emit = defineEmits(["close"]);
 
-const form = useForm({
-    user_id: "",
-});
-
 const visible = ref(false);
 
-watchEffect(() => {
-    visible.value = props.show;
-    form.user_id = props.user?.user_id || "";
-});
+watch(
+    () => props.show,
+    (val) => (visible.value = val),
+    { immediate: true }
+);
 
 const close = () => {
     visible.value = false;
-    form.clearErrors();
     emit("close");
 };
 
+const form = useForm({
+    reason: "",
+});
 
-const destroy = () => {
-    form.post(route("contract.remove-approver", { contract: props.contract.id }), {
+const cancelContract = () => {
+    form.post(route("contract.cancel", props.contract?.id), {
         preserveScroll: true,
         onSuccess: () => {
             close();
@@ -46,26 +44,27 @@ const destroy = () => {
 <template>
     <Dialog
         v-model:visible="visible"
-        :header="lang().label.delete"
+        :header="lang().label.cancel_contract + ' - ' + props.title"
         modal
-        :style="{ width: '35vw' }"
+        :style="{ width: '40vw' }"
         :breakpoints="{ '960px': '95vw' }"
         @hide="close"
     >
-        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
-            {{ lang().label.delete_user_confirm }}
-            <b>{{ props.user?.user_name || lang().label.unknown }}</b>?
-        </p>
-
-        <Message
-            v-if="form.hasErrors"
-            severity="error"
-            :closable="false"
-            class="mb-4"
-        >
-            {{ Object.values(form.errors)[0] }}
-        </Message>
-
+        <div class="mb-4">
+            <label
+                for="reason"
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+                {{ lang().label.reason }}
+            </label>
+            <Textarea
+                id="reason"
+                v-model="form.reason"
+                rows="4"
+                class="w-full"
+                :placeholder="lang().placeholder.enter_note"
+            />
+        </div>
 
         <div class="flex justify-end gap-2 mt-6">
             <Button
@@ -78,8 +77,8 @@ const destroy = () => {
             <Button
                 type="button"
                 severity="danger"
-                :label="form.processing ? lang().button.delete : lang().button.delete"
-                @click="destroy"
+                :label="form.processing ? lang().button.confirm : lang().button.confirm"
+                @click="cancelContract"
                 :disabled="form.processing"
             />
         </div>

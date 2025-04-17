@@ -70,5 +70,4 @@ class Approvals extends Model
         return $query->whereNotIn('approved', [self::STATUS_INVALIDATED, self::STATUS_NEW]);
     }
 
-
 }
