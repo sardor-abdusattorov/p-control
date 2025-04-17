@@ -328,68 +328,77 @@ const selectedContract = ref(null);
 const lang = () => usePage().props.language;
 const user = usePage().props.auth.user;
 
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const items = computed(() => {
     const baseItems = [];
-    if (!selectedContract.value) return [];
+    const contract = selectedContract.value;
+
+    if (!contract) return [];
+
+    // Отправить на согласование
     if (
-        selectedContract.value.status === 1 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 1 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.send_for_approval || 'Отправить на согласование',
             icon: 'pi pi-send',
             command: () => {
-                confirmDialogRef.value.open(selectedContract.value);
+                confirmDialogRef.value.open(contract);
             },
         });
     }
 
+    // Просмотр
     baseItems.push({
         label: lang().tooltip.show,
         icon: 'pi pi-eye',
         command: () => {
-            router.visit(route('contract.show', { contract: selectedContract.value.id }));
+            router.visit(route('contract.show', { contract: contract.id }));
         },
     });
 
+    // Загрузить скан
     if (
-        selectedContract.value.status === 3 &&
-        selectedContract.value.type !== 2 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 3 &&
+        contract.type !== 2 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().label.upload_scan,
             icon: 'pi pi-upload',
             command: () => {
-                router.visit(route('contract.upload-scan', { contract: selectedContract.value.id }));
+                router.visit(route('contract.upload-scan', { contract: contract.id }));
             },
         });
     }
 
+    // Редактировать
     if (
-        selectedContract.value.status !== 3 &&
-        selectedContract.value.user_id === user.id
+        contract.status !== 3 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.edit,
             icon: 'pi pi-pencil',
             command: () => {
-                router.visit(route('contract.edit', { contract: selectedContract.value.id }));
+                router.visit(route('contract.edit', { contract: contract.id }));
             },
         });
     }
 
+    // Удалить
     if (
-        selectedContract.value.status === 1 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 1 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.delete,
             icon: 'pi pi-trash',
             command: () => {
                 data.deleteOpen = true;
-                data.contract = selectedContract.value;
+                data.contract = contract;
             },
         });
     }
@@ -401,6 +410,7 @@ const items = computed(() => {
         },
     ];
 });
+
 
 const toggleMenu = (event, contract) => {
     selectedContract.value = contract;
@@ -509,8 +519,6 @@ const formatNumber = (amount) => {
 
     return formattedAmount;
 };
-
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const historyVisible = ref(false);
 const selectedApproval = ref(null);

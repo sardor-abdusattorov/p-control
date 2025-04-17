@@ -29,7 +29,7 @@
                         />
 
                         <Button
-                            v-if="application.status_id === 1 && application.user_id === authUser.id && application.type !== 2"
+                            v-if="application.status_id === 1 && (application.user_id === authUser.id || isAdmin) && application.type !== 2"
                             type="button"
                             icon="pi pi-send"
                             :label="lang().tooltip.send_for_approval"
@@ -88,7 +88,7 @@
                         />
 
                         <EditLink
-                            v-if="application.user_id === authUser.id && application.status_id !== 3"
+                            v-if="application.user_id === authUser.id || isAdmin && application.status_id !== 3"
                             :href="route('application.edit', { application: application.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"
@@ -101,19 +101,17 @@
                             @click="(data.deleteOpen = true), (data.application = application)"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.delete"
-                            v-if="props.application.status_id ===1 && application.user_id === authUser.id"
+                            v-if="props.application.status_id ===1 && application.user_id === authUser.id || isAdmin"
                         >
                             {{ lang().tooltip.delete }}
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
-
                         <Delete
                             :show="data.deleteOpen"
                             @close="data.deleteOpen = false"
                             :application="data.application"
                             :title="props.title"
                         />
-
                         <ApprovalHistory
                             :show="data.showHistory"
                             :approval="data.historyApproval"
@@ -121,9 +119,7 @@
                             @close="data.showHistory = false"
                             v-if="application.type !== 2"
                         />
-
                     </div>
-
                 </div>
 
                 <div class="p-4 bg-gray-100 dark:bg-neutral-800 rounded-xl shadow mb-6" v-if="application.type !== 2">
@@ -136,22 +132,21 @@
                             class="p-button-sm dark:text-white"
                             :disabled="application.status_id === 3"
                             @click="data.editUserOpen = true"
-                            v-if="application.user_id === authUser.id && application.status_id !== 3"
+                            v-if="application.user_id === authUser.id || isAdmin && application.status_id !== 3"
                         />
                     </div>
 
                     <div class="space-y-4">
                         <Message
-                            v-if="activeApprovals.length < 2 && application.user_id === authUser.id"
+                            v-if="activeApprovals.length < 2 && (application.user_id === authUser.id || isAdmin)"
                             severity="warn"
                             :closable="false"
                             class="mb-2"
                         >
                             {{ lang().label.min_approvers_warning }}
                         </Message>
-
-                            <div v-if="activeApprovals.length" class="flex flex-col gap-4">
-                            <Card
+                        <div v-if="activeApprovals.length" class="flex flex-col gap-4">
+                            <Cardы
                                 v-for="approval in activeApprovals"
                                 :key="approval.user_id"
                                 class="shadow-md"
@@ -160,8 +155,6 @@
                                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div>
                                             <h3 class="text-lg font-semibold mb-3">👤 {{ approval.user_name }}</h3>
-
-                                            <!-- Статус -->
                                         <div class="mb-3">
                                             <span
                                             class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
@@ -212,7 +205,7 @@
                                                 v-tooltip.bottom="lang().tooltip.view_details"
                                             />
                                             <Button
-                                                v-if="application.user_id === authUser.id && application.status_id !== 3"
+                                                v-if="application.user_id === authUser.id || isAdmin && application.status_id !== 3"
                                                 type="button"
                                                 icon="pi pi-trash"
                                                 severity="danger"
@@ -226,10 +219,9 @@
                                     </div>
                                 </template>
 
-                            </Card>
+                            </Cardы>
 
                         </div>
-
                     </div>
                 </div>
 
@@ -402,6 +394,8 @@ const props = defineProps({
 const confirmDialogRef = ref();
 
 const authUser = usePage().props.auth.user;
+
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const data = reactive({
     deleteOpen: false,

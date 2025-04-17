@@ -288,71 +288,79 @@ const props = defineProps({
     projects: Object,
 });
 
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const items = computed(() => {
     const baseItems = [];
 
     if (!selectedApplication.value) return [];
 
+    const app = selectedApplication.value;
+
+    // Отправить на согласование
     if (
-        selectedApplication.value.status_id === 1 &&
-        selectedApplication.value.type !== 2 &&
-        selectedApplication.value.user_id === user.id
+        app.status_id === 1 &&
+        app.type !== 2 &&
+        (app.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.send_for_approval || 'Отправить на согласование',
             icon: 'pi pi-send',
             command: () => {
-                confirmDialogRef.value.open(selectedApplication.value);
+                confirmDialogRef.value.open(app);
             },
         });
     }
 
+    // Просмотр
     baseItems.push({
         label: lang().tooltip.show,
         icon: 'pi pi-eye',
         command: () => {
-            router.visit(route('application.show', { application: selectedApplication.value.id }));
+            router.visit(route('application.show', { application: app.id }));
         },
     });
 
+    // Загрузить скан
     if (
-        selectedApplication.value.status_id === 3 &&
-        selectedApplication.value.type !== 2 &&
-        selectedApplication.value.user_id === user.id
+        app.status_id === 3 &&
+        app.type !== 2 &&
+        (app.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().label.upload_scan,
             icon: 'pi pi-upload',
             command: () => {
-                router.visit(route('application.upload-scan', { application: selectedApplication.value.id }));
+                router.visit(route('application.upload-scan', { application: app.id }));
             },
         });
     }
 
+    // Редактировать
     if (
-        selectedApplication.value.status_id !== 3 &&
-        selectedApplication.value.user_id === user.id
+        app.status_id !== 3 &&
+        (app.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.edit,
             icon: 'pi pi-pencil',
             command: () => {
-                router.visit(route('application.edit', { application: selectedApplication.value.id }));
+                router.visit(route('application.edit', { application: app.id }));
             },
         });
     }
 
+    // Удалить
     if (
-        selectedApplication.value.status_id === 1 &&
-        selectedApplication.value.user_id === user.id
+        app.status_id === 1 &&
+        (app.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.delete,
             icon: 'pi pi-trash',
             command: () => {
                 data.deleteOpen = true;
-                data.application = selectedApplication.value;
+                data.application = app;
             },
         });
     }
@@ -364,6 +372,7 @@ const items = computed(() => {
         },
     ];
 });
+
 
 const toggleMenu = (event, application) => {
     selectedApplication.value = application;
@@ -464,5 +473,4 @@ const formattedProjects = computed(() => {
     }));
 });
 
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 </script>
