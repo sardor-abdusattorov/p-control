@@ -33,6 +33,7 @@ return [
         'scans' => 'Scanned files',
         "application_contract_notice" => "Before creating a contract, you must select a valid application that meets the contract requirements. Make sure all information in the application is filled out correctly. If there is no suitable application, you must create one before proceeding.",
         'application_currency_mismatch' => 'The contract currency must match the application currency.',
+        'cancelled_successfully ' => 'Cancelled successfully',
 
 
 
