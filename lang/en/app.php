@@ -35,6 +35,7 @@ return [
         'application_currency_mismatch' => 'The contract currency must match the application currency.',
         'cancelled_successfully ' => 'Cancelled successfully',
         'cancel_contract' => 'Cancel contract',
+        'cancel_approval' => 'Reject',
 
 
 

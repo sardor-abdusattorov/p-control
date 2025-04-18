@@ -35,6 +35,7 @@ return [
         'application_currency_mismatch' => 'Shartnoma valyutasi ariza valyutasi bilan mos bo‘lishi kerak.',
         'cancelled_successfully ' => 'Muvaffaqiyatli rad etildi',
         'cancel_contract' => 'Shartnomani rad etish',
+        'cancel_approval' => 'Rad etish',
 
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
