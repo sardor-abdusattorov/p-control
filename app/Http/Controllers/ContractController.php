@@ -161,16 +161,30 @@ class ContractController extends Controller
      */
     public function create()
     {
-        $currency = Currency::where(['status' => 1])->get();
+        $currency = Currency::where('status', 1)->get();
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
-        if (auth()->user()->can('view all applications')) {
-            $applications = Application::all();
-        } else {
-            $applications = auth()->user()->applications;
-        }
-        $users = User::approverOptions();
         $types = Application::getTypes();
+        $users = User::approverOptions();
+
+        $applications = auth()->user()->can('view all applications')
+            ? Application::with('currency')->get()
+            : auth()->user()->applications()->with('currency')->get();
+
+        $groupedApplications = $applications
+            ->sortByDesc('created_at')
+            ->groupBy(fn ($app) => 'Валюта - ' . ($app->currency->name ?? '---'))
+            ->map(function ($apps, $currency) {
+                return [
+                    'label' => $currency,
+                    'items' => $apps->map(fn ($app) => [
+                        'id' => $app->id,
+                        'title' => $app->title,
+                        'type' => $app->type,
+                        'created_at' => $app->created_at,
+                    ])->values(),
+                ];
+            })->values();
 
         return Inertia::render('Contract/Create', [
             'title' => __('app.label.contracts'),
@@ -180,7 +194,7 @@ class ContractController extends Controller
             ],
             'currency' => $currency,
             'projects' => $projects,
-            'applications' => $applications,
+            'applications' => $groupedApplications,
             'users' => $users,
             'application_types' => $types,
             'recipients' => $recipients
@@ -553,21 +567,35 @@ class ContractController extends Controller
     public function edit(Contract $contract)
     {
         $types = Application::getTypes();
-        $currency = Currency::where(['status' => 1])->get();
+        $currency = Currency::where('status', 1)->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
-        if (auth()->user()->can('view all applications')) {
-            $applications = Application::all();
-        } else {
-            $applications = auth()->user()->applications;
-        }
         $users = User::approverOptions();
+
+        $applications = auth()->user()->can('view all applications')
+            ? Application::with('currency')->get()
+            : auth()->user()->applications()->with('currency')->get();
+
+        $groupedApplications = $applications
+            ->sortByDesc('created_at')
+            ->groupBy(fn ($app) => 'Валюта - ' . ($app->currency->name ?? '---'))
+            ->map(function ($apps, $currency) {
+                return [
+                    'label' => $currency,
+                    'items' => $apps->map(fn ($app) => [
+                        'id' => $app->id,
+                        'title' => $app->title,
+                        'type' => $app->type,
+                        'created_at' => $app->created_at,
+                    ])->values(),
+                ];
+            })->values();
 
         return inertia('Contract/Edit', [
             'contract' => $contract,
             'currency' => $currency,
             'projects' => $projects,
-            'applications' => $applications,
+            'applications' => $groupedApplications,
             'application_types' => $types,
             'approval_user_ids' => $contract->approvals()
                 ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
@@ -583,6 +611,7 @@ class ContractController extends Controller
             ]
         ]);
     }
+
 
     /**
      * Update the specified resource in storage.

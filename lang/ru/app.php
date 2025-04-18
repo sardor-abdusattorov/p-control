@@ -31,6 +31,8 @@ return [
         'scans_uploaded_successfully' => 'Скан-копии успешно загружены.',
         'cannot_delete_has_progress' => 'Нельзя удалить, так как по заявке уже начат процесс согласования.',
         'scans' => 'Скан-копии',
+        'application_currency_mismatch' => 'Валюта контракта должна совпадать с валютой заявки.',
+
 
 
 

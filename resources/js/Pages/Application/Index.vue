@@ -208,7 +208,15 @@
                                 </Link>
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline dark:text-white">
+                                <Link :href="route('projects.show', { project: application.project_id })" class="text-blue-500 hover:underline dark:text-white"
+                                      style="
+                                          display: -webkit-box;
+                                          -webkit-line-clamp: 8;
+                                          -webkit-box-orient: vertical;
+                                          overflow: hidden;
+                                          text-overflow: ellipsis;
+                                        "
+                                >
                                     {{ application?.project?.title || lang().label.no_available }}
                                 </Link>
                             </td>
@@ -296,8 +304,6 @@ const items = computed(() => {
     if (!selectedApplication.value) return [];
 
     const app = selectedApplication.value;
-
-    // Отправить на согласование
     if (
         app.status_id === 1 &&
         app.type !== 2 &&
@@ -312,7 +318,6 @@ const items = computed(() => {
         });
     }
 
-    // Просмотр
     baseItems.push({
         label: lang().tooltip.show,
         icon: 'pi pi-eye',
@@ -321,7 +326,6 @@ const items = computed(() => {
         },
     });
 
-    // Загрузить скан
     if (
         app.status_id === 3 &&
         app.type !== 2 &&
@@ -336,7 +340,6 @@ const items = computed(() => {
         });
     }
 
-    // Редактировать
     if (
         app.status_id !== 3 &&
         (app.user_id === user.id || isAdmin)
@@ -350,7 +353,6 @@ const items = computed(() => {
         });
     }
 
-    // Удалить
     if (
         app.status_id === 1 &&
         (app.user_id === user.id || isAdmin)
@@ -373,7 +375,6 @@ const items = computed(() => {
     ];
 });
 
-
 const toggleMenu = (event, application) => {
     selectedApplication.value = application;
     menu.value.toggle(event);
@@ -388,10 +389,10 @@ const data = reactive({
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
-        project_id: props.filters.project_id ?? null,
-        user_id: props.filters.user_id ?? null,
+        project_id: props.filters.project_id ? Number(props.filters.project_id) : null,
+        user_id: props.filters.user_id ? Number(props.filters.user_id) : null,
         status_id: props.filters.status_id ? Number(props.filters.status_id) : null,
-        type: props.filters.type ?? null,
+        type: props.filters.type ? Number(props.filters.type) : null,
     },
     selectedId: [],
     multipleSelect: false,

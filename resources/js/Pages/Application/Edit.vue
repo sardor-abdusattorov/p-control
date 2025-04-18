@@ -152,7 +152,7 @@
                                             class="min-w-[160px] p-4 rounded-border flex flex-col border justify-between border-surface items-center gap-4"
                                             style="width: calc(20% - 0.8rem)"
                                         >
-                                            <div class="header flex items-center flex-col">
+                                            <div class="header flex items-center flex-col w-full">
                                                 <div>
                                                     <i :class="getFileIcon(file.type)" style="font-size: 48px;" class="mb-6"></i>
                                                 </div>
@@ -176,7 +176,7 @@
                                             class="min-w-[160px] p-4 rounded-border flex flex-col border border-surface items-center gap-4"
                                             style="width: calc(20% - 0.8rem)"
                                         >
-                                            <div class="header flex items-center flex-col">
+                                            <div class="header flex items-center flex-col w-full">
                                                 <div>
                                                     <i :class="getFileIcon(file.type)" style="font-size: 48px;" class="mb-6"></i>
                                                 </div>

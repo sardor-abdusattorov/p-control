@@ -90,6 +90,8 @@
                             v-model="form.application_id"
                             optionLabel="title"
                             optionValue="id"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             :options="filteredApplications"
                             filter
                             checkmark
@@ -98,11 +100,12 @@
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+        option: { class: 'custom-option' },
+        dropdown: { style: { maxWidth: '300px' } },
+        overlay: { class: 'parent-wrapper-class' }
+    }"
                         />
+
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
@@ -354,8 +357,18 @@ const form = useForm({
 
 const filteredApplications = computed(() => {
     if (!form.application_type) return [];
-    return props.applications.filter(app => app.type === form.application_type);
+
+    return props.applications
+        .map(group => {
+            const filteredItems = group.items.filter(app => app.type === form.application_type);
+            return {
+                label: group.label,
+                items: filteredItems
+            };
+        })
+        .filter(group => group.items.length > 0);
 });
+
 
 const onFileChange = (event) => {
     form.files = event.files || [];
@@ -403,8 +416,14 @@ watchEffect(() => {
     form.old_files = props.files;
     form.recipients = props.approval_user_ids || [];
 
-    const application = props.applications.find(app => app.id === props.contract.application_id);
-    form.application_type = application ? application.type : "";
+    let foundApplication = null;
+    props.applications.forEach(group => {
+        const match = group.items.find(app => app.id === props.contract.application_id);
+        if (match) {
+            foundApplication = match;
+        }
+    });
+    form.application_type = foundApplication ? foundApplication.type : "";
 
     initialized = true;
 });

@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests\Contract;
 
-use App\Models\Contract;
+use App\Models\Application;
 use App\Models\Currency;
 use App\Models\User;
 use App\Models\Department;
@@ -21,7 +21,18 @@ class ContractStoreRequest extends FormRequest
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'project_id' => 'required|integer',
-            'application_id' => 'required|integer',
+            'application_id' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) {
+                    $application = Application::find($value);
+                    $currencyId = $this->input('currency_id');
+
+                    if ($application && $application->currency_id !== (int) $currencyId) {
+                        $fail(__('app.label.application_currency_mismatch'));
+                    }
+                }
+            ],
             'budget_sum' => 'required|numeric|min:0.01',
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',
@@ -62,6 +73,7 @@ class ContractStoreRequest extends FormRequest
             ],
         ];
     }
+
 
     public function messages()
     {
