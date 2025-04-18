@@ -146,7 +146,7 @@
                             {{ lang().label.min_approvers_warning }}
                         </Message>
                         <div v-if="activeApprovals.length" class="flex flex-col gap-4">
-                            <Cardы
+                            <Card
                                 v-for="approval in activeApprovals"
                                 :key="approval.user_id"
                                 class="shadow-md"
@@ -219,7 +219,7 @@
                                     </div>
                                 </template>
 
-                            </Cardы>
+                            </Card>
 
                         </div>
                     </div>
