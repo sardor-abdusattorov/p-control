@@ -319,7 +319,7 @@ class ContractController extends Controller
         $scans = $contract->getMedia('scans');
         $project = Project::find($contract->project_id);
 
-        $application = Application::with(['media', 'user'])->find($contract->application_id);
+        $application = Application::with(['media', 'user', 'currency'])->find($contract->application_id);
 
         if ($application) {
             $applicationFiles = $application->getMedia('documents');

@@ -484,6 +484,12 @@
                         </td>
                     </tr>
                     <tr>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold"> {{ lang().label.currency_id }}</td>
+                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                            {{ props.application.currency.name }}
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.status }}</td>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                             <span
