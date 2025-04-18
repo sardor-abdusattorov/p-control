@@ -33,7 +33,7 @@ return [
         'scans' => 'Скан-копии',
         'application_currency_mismatch' => 'Валюта контракта должна совпадать с валютой заявки.',
         'cancelled_successfully ' => 'Успешно отклонено',
-
+        'cancel_contract ' => 'Отклонить контракт',
 
 
 
