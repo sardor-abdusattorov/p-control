@@ -38,8 +38,6 @@ return [
         'cancel_approval' => 'Reject',
 
 
-
-
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
         'unknown' => 'Unknown',

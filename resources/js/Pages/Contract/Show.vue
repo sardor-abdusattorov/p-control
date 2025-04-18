@@ -115,11 +115,12 @@
                         />
 
                         <ApprovalHistory
-                            :show="data.showHistory"
-                            :approval="data.historyApproval"
+                            :show="data.showHistoryContract"
+                            :approval="data.historyApprovalContract"
                             :all-approvals="approvals"
-                            @close="data.showHistory = false"
+                            @close="data.showHistoryContract = false"
                         />
+
                     </div>
                 </div>
 
@@ -440,10 +441,10 @@
                                     />
 
                                     <ApplicationHistory
-                                        :show="data.showHistory"
-                                        :approval="data.historyApproval"
+                                        :show="data.showHistoryApplication"
+                                        :approval="data.historyApprovalApplication"
                                         :all-approvals="application_approvals"
-                                        @close="data.showHistory = false"
+                                        @close="data.showHistoryApplication = false"
                                     />
                                 </div>
                             </div>
@@ -584,9 +585,15 @@ const data = reactive({
     cancelApproval: false,
     deleteUserOpen: false,
     selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
-    showHistory: false,
-    historyApproval: null,
+
+    // Разделение состояний
+    showHistoryContract: false,
+    historyApprovalContract: null,
+
+    showHistoryApplication: false,
+    historyApprovalApplication: null,
 });
+
 
 const emit = defineEmits(["close"]);
 
@@ -643,15 +650,14 @@ const userApproval = computed(() =>
 const confirmDialogRef = ref();
 
 const openApprovalHistory = (approval) => {
-    data.historyApproval = approval;
-    data.showHistory = true;
+    data.historyApprovalContract = approval;
+    data.showHistoryContract = true;
 };
 
 const openHistory = (approval) => {
-    data.historyApproval = approval;
-    data.showHistory = true;
+    data.historyApprovalApplication = approval;
+    data.showHistoryApplication = true;
 };
-
 
 const uniqueApprovals = computed(() => {
     const sorted = [...props.application_approvals].sort(
