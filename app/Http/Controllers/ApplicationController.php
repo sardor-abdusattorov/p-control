@@ -355,6 +355,7 @@ class ApplicationController extends Controller
         try {
             $user = auth()->user();
 
+            // Найти approval текущего пользователя
             $approval = Approvals::where('approvable_type', Application::class)
                 ->where('approvable_id', $application->id)
                 ->where('user_id', $user->id)
@@ -365,16 +366,18 @@ class ApplicationController extends Controller
                 return redirect()->back()->with('error', __('app.label.not_recipient'));
             }
 
-            if ($approval->approved === false && $approval->reason) {
+            if ($approval->approved === Approvals::STATUS_REJECTED && $approval->reason) {
                 return redirect()->back()->with('error', __('app.label.already_rejected'));
             }
 
+            // Обновляем текущего согласующего
             $approval->update([
                 'approved' => Approvals::STATUS_REJECTED,
                 'reason' => $request->input('reason'),
                 'approved_at' => now(),
             ]);
 
+            // Лог: пользователь отказал
             activity('application')
                 ->causedBy($user)
                 ->performedOn($application)
@@ -384,9 +387,10 @@ class ApplicationController extends Controller
                     'rejected_by' => $user->id,
                     'rejected_at' => now()->format('d.m.Y H:i'),
                 ])
-                ->log('Пользователь отменил заявку');
+                ->log('Пользователь отклонил заявку');
 
-            if ($application->status_id !== 1) {
+            // Обновляем статус заявки
+            if ($application->status_id !== Application::STATUS_NEW) {
                 $application->update(['status_id' => Application::STATUS_REJECTED]);
 
                 activity('application')
@@ -395,10 +399,21 @@ class ApplicationController extends Controller
                     ->withProperties([
                         'application_id' => $application->id,
                         'previous_status' => $application->status_id,
-                        'new_status' => -1,
+                        'new_status' => Application::STATUS_REJECTED,
                     ])
-                    ->log('Заявка отменена после отклонения пользователем');
+                    ->log('Заявка отклонена после отказа согласующего');
             }
+
+            // Массово отклоняем остальных согласующих
+            Approvals::where('approvable_type', Application::class)
+                ->where('approvable_id', $application->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('approved', Approvals::STATUS_NEW)
+                ->update([
+                    'approved' => Approvals::STATUS_REJECTED,
+                    'reason' => 'Автоматически отклонено после отказа одного из согласующих',
+                    'approved_at' => now(),
+                ]);
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.cancelled_successfully', ['name' => $application->title]));
@@ -412,7 +427,7 @@ class ApplicationController extends Controller
                     'application_id' => $application->id,
                     'title' => $application->title,
                 ])
-                ->log('Ошибка при отмене заявки');
+                ->log('Ошибка при отклонении заявки');
 
             return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $application->title]));
         }
