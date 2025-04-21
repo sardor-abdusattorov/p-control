@@ -39,7 +39,7 @@ const historyList = computed(() =>
         @hide="close"
     >
 
-        <DataTable :value="historyList" class="p-datatable-sm">
+        <DataTable :value="historyList" class="p-datatable-sm whitespace-nowrap">
             <Column :header="lang().label.user_id">
                 <template #body="slotProps">
                     <div class="flex items-center gap-3">

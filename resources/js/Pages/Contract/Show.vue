@@ -387,7 +387,7 @@
                         class="shadow-md"
                     >
                         <template #content>
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="flex flex-col md:flex-row gap-4 w-full md:justify-between md:items-center">
                                 <div>
                                     <h3 class="text-lg font-semibold mb-3">👤 {{ approval.user_name }}</h3>
                                     <div class="mb-3">
