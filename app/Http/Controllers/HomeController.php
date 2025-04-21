@@ -48,16 +48,13 @@ class HomeController extends Controller
             return Contract::where('user_id', $user->id);
         }
 
-        if ($user->hasAnyRole(['lawyer', 'accountant', 'accounting'])) {
-            $approvableIds = Approvals::where('approvable_type', Contract::class)
-                ->where('user_id', $user->id)
-                ->pluck('approvable_id');
+        // Остальные роли
+        $approvableIds = Approvals::where('approvable_type', Contract::class)
+            ->where('user_id', $user->id)
+            ->pluck('approvable_id');
 
-            return Contract::whereIn('id', $approvableIds)
-                ->where('status', '!=', Contract::STATUS_NEW);
-        }
-
-        return Contract::whereRaw('1 = 0'); // ничего не возвращаем
+        return Contract::whereIn('id', $approvableIds)
+            ->where('status', '!=', Contract::STATUS_NEW);
     }
 
 
@@ -71,21 +68,13 @@ class HomeController extends Controller
             return Application::where('user_id', $user->id);
         }
 
-        if ($user->hasAnyRole(['lawyer', 'accountant', 'accounting'])) {
-            $approvableIds = Approvals::where('approvable_type', Application::class)
-                ->where('user_id', $user->id)
-                ->pluck('approvable_id');
+        // Остальные роли
+        $approvableIds = Approvals::where('approvable_type', Application::class)
+            ->where('user_id', $user->id)
+            ->pluck('approvable_id');
 
-            return Application::where(function ($q) use ($approvableIds) {
-                $q->whereIn('id', $approvableIds)
-                    ->orWhere(function ($q2) {
-                        $q2->where('type', 2)
-                            ->where('status_id', '!=', Application::STATUS_NEW);
-                    });
-            });
-        }
-
-        return Application::whereRaw('1 = 0');
+        return Application::whereIn('id', $approvableIds)
+            ->where('status_id', '!=', Application::STATUS_NEW);
     }
 
 
