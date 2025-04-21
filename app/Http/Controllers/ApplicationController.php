@@ -389,10 +389,8 @@ class ApplicationController extends Controller
                 ])
                 ->log('Пользователь отклонил заявку');
 
-            // Обновляем статус заявки
-            if ($application->status_id !== Application::STATUS_NEW) {
+            if ($application->status_id === Application::STATUS_IN_PROGRESS) {
                 $application->update(['status_id' => Application::STATUS_REJECTED]);
-
                 activity('application')
                     ->causedBy($user)
                     ->performedOn($application)
@@ -403,12 +401,10 @@ class ApplicationController extends Controller
                     ])
                     ->log('Заявка отклонена после отказа согласующего');
             }
-
-            // Массово отклоняем остальных согласующих
             Approvals::where('approvable_type', Application::class)
                 ->where('approvable_id', $application->id)
                 ->where('user_id', '!=', $user->id)
-                ->where('approved', Approvals::STATUS_NEW)
+                ->where('approved', Approvals::STATUS_PENDING)
                 ->update([
                     'approved' => Approvals::STATUS_REJECTED,
                     'reason' => 'Автоматически отклонено после отказа одного из согласующих',

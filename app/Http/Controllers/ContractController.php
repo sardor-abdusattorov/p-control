@@ -452,7 +452,6 @@ class ContractController extends Controller
         try {
             $user = auth()->user();
 
-            // Найти approval текущего пользователя
             $approval = Approvals::where('approvable_type', Contract::class)
                 ->where('approvable_id', $contract->id)
                 ->where('user_id', $user->id)
@@ -467,14 +466,12 @@ class ContractController extends Controller
                 return redirect()->back()->with('error', __('app.label.already_rejected'));
             }
 
-            // Обновляем текущего согласующего
             $approval->update([
                 'approved' => Approvals::STATUS_REJECTED,
                 'reason' => $request->input('reason'),
                 'approved_at' => now(),
             ]);
 
-            // Лог: пользователь отказал
             activity('contract')
                 ->causedBy($user)
                 ->performedOn($contract)
@@ -486,8 +483,7 @@ class ContractController extends Controller
                 ])
                 ->log('Пользователь отклонил контракт');
 
-            // Обновляем статус контракта
-            if ($contract->status !== Contract::STATUS_NEW) {
+            if ($contract->status === Contract::STATUS_IN_PROGRESS) {
                 $contract->update(['status' => Contract::STATUS_REJECTED]);
 
                 activity('contract')
@@ -501,11 +497,10 @@ class ContractController extends Controller
                     ->log('Контракт отклонён после отказа согласующего');
             }
 
-            // Массово отклоняем остальных согласующих
             Approvals::where('approvable_type', Contract::class)
                 ->where('approvable_id', $contract->id)
                 ->where('user_id', '!=', $user->id)
-                ->where('approved', Approvals::STATUS_NEW)
+                ->where('approved', Approvals::STATUS_PENDING)
                 ->update([
                     'approved' => Approvals::STATUS_REJECTED,
                     'reason' => 'Автоматически отклонено после отказа одного из согласующих',
@@ -626,6 +621,7 @@ class ContractController extends Controller
             ]
         ]);
     }
+
 
     /**
      * Update the specified resource in storage.
@@ -910,5 +906,6 @@ class ContractController extends Controller
             return;
         }
     }
+
 
 }

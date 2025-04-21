@@ -71,7 +71,7 @@
                         />
 
                         <Approve
-                            v-if="userApproval"
+                            v-if="userApproval && props.contract.status === 2"
                             :show="can(['approve contract']) && data.approveOpen"
                             @close="data.approveOpen = false"
                             :contract="data.contract"
@@ -79,7 +79,7 @@
                         />
 
                         <CancelApproval
-                            v-if="userApproval"
+                            v-if="userApproval && props.contract.status === 2"
                             :show="can(['approve contract']) && data.cancelApproval"
                             @close="data.cancelApproval = false"
                             :contract="data.contract"

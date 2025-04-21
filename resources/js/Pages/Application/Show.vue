@@ -72,7 +72,7 @@
                         />
 
                         <Approve
-                            v-if="userApproval && application.type !== 2"
+                            v-if="userApproval && application.type !== 2 && props.application.status_id === 2"
                             :show="can(['approve application']) && data.approveOpen"
                             @close="data.approveOpen = false"
                             :application="data.application"
@@ -80,7 +80,7 @@
                         />
 
                         <CancelApproval
-                            v-if="userApproval && application.type !== 2"
+                            v-if="userApproval && application.type !== 2 && props.application.status_id === 2"
                             :show="can(['approve application']) && data.cancelApproval"
                             @close="data.cancelApproval = false"
                             :application="data.application"
