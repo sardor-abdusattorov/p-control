@@ -48,7 +48,7 @@ class HomeController extends Controller
             return Contract::where('user_id', $user->id);
         }
 
-        if ($user->hasRole(['lawyer', 'accountant', 'accounting'])) {
+        if ($user->hasAnyRole(['lawyer', 'accountant', 'accounting'])) {
             $approvableIds = Approvals::where('approvable_type', Contract::class)
                 ->where('user_id', $user->id)
                 ->pluck('approvable_id');
@@ -57,8 +57,9 @@ class HomeController extends Controller
                 ->where('status', '!=', Contract::STATUS_NEW);
         }
 
-        return Contract::where('id', 0);
+        return Contract::whereRaw('1 = 0'); // ничего не возвращаем
     }
+
 
     private function getVisibleApplicationsQuery(User $user)
     {
@@ -70,7 +71,7 @@ class HomeController extends Controller
             return Application::where('user_id', $user->id);
         }
 
-        if ($user->hasRole(['lawyer', 'accountant', 'accounting'])) {
+        if ($user->hasAnyRole(['lawyer', 'accountant', 'accounting'])) {
             $approvableIds = Approvals::where('approvable_type', Application::class)
                 ->where('user_id', $user->id)
                 ->pluck('approvable_id');
@@ -84,11 +85,7 @@ class HomeController extends Controller
             });
         }
 
-        return Application::where('type', 2)
-            ->where(function ($q) {
-                $q->where('status_id', '!=', Application::STATUS_NEW)
-                    ->orWhere('type', 2);
-            });
+        return Application::whereRaw('1 = 0');
     }
 
 
