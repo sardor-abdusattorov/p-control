@@ -77,10 +77,10 @@ class HomeController extends Controller
 
             return Application::where(function ($q) use ($approvableIds) {
                 $q->whereIn('id', $approvableIds)
-                    ->orWhere('type', 2);
-            })->where(function ($q) {
-                $q->where('status_id', '!=', Application::STATUS_NEW)
-                    ->orWhere('type', 2);
+                    ->orWhere(function ($q2) {
+                        $q2->where('type', 2)
+                            ->where('status_id', '!=', Application::STATUS_NEW);
+                    });
             });
         }
 
