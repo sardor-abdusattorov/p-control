@@ -7,6 +7,12 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
+        'contacts_group'       => "Aloqalar",
+        'contacts'             => "Aloqalar",
+        'contact_categories'   => "Toifalar",
+        'contact_subcategories'=> "Kichik toifalar",
+        'info'                 => "Maʼlumot",
+
         'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
         'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
         'submit_failed' => 'Arizani yuborishda xatolik yuz berdi.',

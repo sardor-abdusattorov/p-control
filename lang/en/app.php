@@ -7,6 +7,12 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'contacts_group'       => "Contacts",
+        'contacts'             => "Contacts",
+        'contact_categories'   => "Categories",
+        'contact_subcategories'=> "Subcategories",
+        'info'                 => "Information",
+
         'cannot_submit_non_draft' => 'Only draft applications can be submitted.',
         'submitted_successfully' => 'Application successfully submitted for approval.',
         'submit_failed' => 'Failed to submit the application.',

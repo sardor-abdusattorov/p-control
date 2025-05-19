@@ -1,8 +1,10 @@
 <?php
 
-use App\Http\Controllers\{
-    ActivityLogController,
+use App\Http\Controllers\{ActivityLogController,
     ApplicationController,
+    ContactCategoryController,
+    ContactController,
+    ContactSubcategoryController,
     ContractController,
     CurrencyController,
     DepartmentsController,
@@ -15,8 +17,7 @@ use App\Http\Controllers\{
     RoleController,
     StatusController,
     TaskController,
-    UserController
-};
+    UserController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -99,6 +100,16 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/permission/destroy-bulk', [PermissionController::class, 'destroyBulk'])->name('permission.destroy-bulk');
 
     Route::resource('logs', ActivityLogController::class);
+
+    Route::resource('contacts', ContactController::class);
+    Route::post('/contacts/destroy-bulk', [ContactController::class, 'destroyBulk'])->name('contacts.destroy-bulk');
+
+    Route::resource('contact-categories', ContactCategoryController::class);
+    Route::post('/contact-categories/destroy-bulk', [ContactCategoryController::class, 'destroyBulk'])->name('contact-categories.destroy-bulk');
+
+    Route::resource('contact-subcategories', ContactSubcategoryController::class);
+    Route::post('/contact-subcategories/destroy-bulk', [ContactSubcategoryController::class, 'destroyBulk'])->name('contact-subcategories.destroy-bulk');
+
 });
 
 require __DIR__.'/auth.php';

@@ -7,6 +7,13 @@ return [
     ],
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+
+        'contacts_group' => "Контакты",
+        'contacts' => "Контакты",
+        'contact_categories' => "Категории",
+        'contact_subcategories' => "Подкатегории",
+        'info' => "Информация",
+
         'cannot_submit_non_draft' => 'Можно отправить только черновик.',
         'submitted_successfully' => 'Заявка успешно отправлена на согласование.',
         'submit_failed' => 'Ошибка при отправке заявки.',
