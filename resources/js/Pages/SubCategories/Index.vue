@@ -266,7 +266,7 @@ const items = computed(() => {
 
     return [
         {
-            label: lang().actions || "Действия",
+            label: lang().label.actions || "Действия",
             items: [
                 {
                     label: lang().tooltip.show,

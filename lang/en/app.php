@@ -1,18 +1,62 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Basic Information',
+        'contact'  => 'Contact Information',
+        'company'  => 'Company Information',
+        'address'  => 'Address Information',
+        'category' => 'Category Selection',
+    ],
+
     'type' => [
         'request' => 'Application',
         'memo' => 'Internal memo',
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'firstname'       => "First Name",
+        'lastname'       => "Last Name",
+        'company'       => "Company Name",
+        'phone'       => "Phone",
+        'cellphone'       => "Cellphone",
+        'language'       => "Language",
+        'city'       => "City",
+        'address'       => "Address",
+        'address2'       => "Address (additional)",
+        'post_box'       => "Post Box",
+        'zip_code'       => "Zip Code",
+        'subcategory'       => "Sub Category",
+        'select_category'      => "Select Category",
+        'select_subcategory'      => "Select Sub Category",
+        'prefix'      => "Prefix",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         'contacts_group'       => "Contacts",
         'contacts'             => "Contacts",
         'contact_categories'   => "Categories",
         'contact_subcategories'=> "Subcategories",
         'info'                 => "Information",
-        'select_category'      => "Select Category",
         'category'      => "Category",
         'country'      => "Country",
 

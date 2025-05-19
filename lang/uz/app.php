@@ -7,12 +7,30 @@ return [
     ],
     'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
     'label' => [
-        'contacts_group'       => "Aloqalar",
-        'contacts'             => "Aloqalar",
-        'contact_categories'   => "Toifalar",
-        'contact_subcategories'=> "Kichik toifalar",
+
+
+        'firstname'        => "Ism",
+        'lastname'         => "Familiya",
+        'company'          => "Kompaniya nomi",
+        'phone'            => "Telefon raqami",
+        'cellphone'        => "Mobil telefon",
+        'language'         => "Til",
+        'city'             => "Shahar",
+        'address'          => "Manzil",
+        'address2'         => "Qo‘shimcha manzil",
+        'post_box'         => "Pochta qutisi",
+        'zip_code'         => "Pochta indeksi",
+        'subcategory'      => "Subkategoriya",
+        'select_category'  => "Kategoriyani tanlang",
+        'select_subcategory' => "Subkategoriyani tanlang",
+        'prefix'      => "Prefiks",
+
+
+        'contacts_group'       => "Kontaktlar",
+        'contacts'             => "Kontaktlar",
+        'contact_categories'   => "Kategoriyalar",
+        'contact_subcategories'=> "Subkategoriyalar",
         'info'                 => "Maʼlumot",
-        'select_category'      => "Kategoriyani tanlang",
         'category'      => "Kategoriya",
         'country'      => "Davlat",
 

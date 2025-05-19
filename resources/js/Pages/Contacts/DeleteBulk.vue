@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 const destroy = () => {
-    form.post(route("application.destroy-bulk"), {
+    form.post(route("contacts.destroy-bulk"), {
         preserveScroll: true,
         onSuccess: () => {
             emit("close");

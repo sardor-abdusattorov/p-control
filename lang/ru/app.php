@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Basic Information',
+        'contact'  => 'Contact Information',
+        'company'  => 'Company Information',
+        'address'  => 'Address Information',
+        'category' => 'Category Selection',
+    ],
+
     'type' => [
         'request' => 'Заявка',
         'memo' => 'Служебная записка',
@@ -8,12 +16,27 @@ return [
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
 
+        'firstname'        => "Имя",
+        'lastname'         => "Фамилия",
+        'company'          => "Название компании",
+        'phone'            => "Телефон",
+        'cellphone'        => "Мобильный телефон",
+        'language'         => "Язык",
+        'city'             => "Город",
+        'address'          => "Адрес",
+        'address2'         => "Дополнительный адрес",
+        'post_box'         => "Почтовый ящик",
+        'zip_code'         => "Почтовый индекс",
+        'subcategory'      => "Подкатегория",
+        'select_category'  => "Выберите категорию",
+        'select_subcategory' => "Выберите подкатегорию",
+        'prefix'      => "Префикс",
+
         'contacts_group' => "Контакты",
         'contacts' => "Контакты",
         'contact_categories' => "Категории",
         'contact_subcategories' => "Подкатегории",
         'info' => "Информация",
-        'select_category'      => "Выберите категорию",
         'category'      => "Категория",
         'country'      => "Страна",
 

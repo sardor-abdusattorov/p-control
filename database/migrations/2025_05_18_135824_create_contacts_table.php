@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('phone', 255)->nullable();
             $table->string('cellphone', 255)->nullable();
             $table->text('address')->nullable();
-            $table->text('address_2')->nullable();
+            $table->text('address2')->nullable();
             $table->string('post_box', 255)->nullable();
             $table->string('zip_code', 255)->nullable();
             $table->string('country', 255)->nullable();
