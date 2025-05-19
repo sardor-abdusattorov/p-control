@@ -12,6 +12,9 @@ return [
         'contact_categories'   => "Toifalar",
         'contact_subcategories'=> "Kichik toifalar",
         'info'                 => "Maʼlumot",
+        'select_category'      => "Kategoriyani tanlang",
+        'category'      => "Kategoriya",
+        'country'      => "Davlat",
 
         'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
         'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
@@ -283,6 +286,7 @@ return [
         'guard_name' => 'Xavfsizlik',
         'enter_note' => 'Izoh kiriting',
         'select_project' => 'Loyihani tanlang...',
+        'select_country' => 'Davlatni tanlang',
     ],
     'tooltip' => [
         'show' => 'Ko‘rsatish',

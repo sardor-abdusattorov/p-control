@@ -35,6 +35,26 @@
                 </div>
 
                 <div class="form-group mb-3">
+                    <InputLabel for="category_id" :value="lang().label.contact_categories" />
+                    <Select
+                        v-model="form.category_id"
+                        :options="categories"
+                        optionLabel="title"
+                        optionValue="id"
+                        :placeholder="lang().label.select_category"
+                        class="w-full"
+                        checkmark
+                        :highlightOnSelect="false"
+                        :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                    />
+                    <InputError class="mt-2" :message="form.errors.category_id" />
+                </div>
+
+                <div class="form-group mb-3">
                     <InputLabel for="status" :value="lang().label.status" />
                     <Select
                         v-model="form.status"
@@ -55,7 +75,7 @@
                 </div>
 
                 <div class="flex justify-start">
-                    <BackLink :href="route('contact-categories.index')" />
+                    <BackLink :href="route('contact-subcategories.index')" />
                     <PrimaryButton
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
@@ -88,6 +108,7 @@ const props = defineProps({
     title: String,
     breadcrumbs: Object,
     statuses: Array,
+    categories: Object,
 });
 
 const emit = defineEmits(["close"]);
@@ -95,11 +116,12 @@ const emit = defineEmits(["close"]);
 const form = useForm({
     title: "",
     info: "",
+    category_id: null,
     status: 1,
 });
 
 const create = () => {
-    form.post(route("contact-categories.store"), {
+    form.post(route("contact-subcategories.store"), {
     });
 };
 

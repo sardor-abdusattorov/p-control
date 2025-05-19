@@ -12,6 +12,9 @@ return [
         'contact_categories'   => "Categories",
         'contact_subcategories'=> "Subcategories",
         'info'                 => "Information",
+        'select_category'      => "Select Category",
+        'category'      => "Category",
+        'country'      => "Country",
 
         'cannot_submit_non_draft' => 'Only draft applications can be submitted.',
         'submitted_successfully' => 'Application successfully submitted for approval.',
@@ -282,6 +285,7 @@ return [
         'guard_name' => 'Guard',
         'enter_note' => 'Enter note',
         'select_project' => 'Select Project...',
+        'select_country' => 'Select country',
     ],
     'tooltip' => [
         'show' => 'Show',

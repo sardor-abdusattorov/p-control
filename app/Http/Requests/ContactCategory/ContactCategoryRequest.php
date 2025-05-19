@@ -24,9 +24,12 @@ class ContactCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,info,status,created_at,'],
-            'order' => ['in:asc,desc'],
-            'perPage' => ['numeric'],
+            'title'    => ['nullable', 'string'],
+            'info'     => ['nullable', 'string'],
+            'status'   => ['nullable', 'in:0,1'],
+            'field'    => ['nullable', 'in:title,info,status,created_at'],
+            'order'    => ['nullable', 'in:asc,desc'],
+            'perPage'  => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

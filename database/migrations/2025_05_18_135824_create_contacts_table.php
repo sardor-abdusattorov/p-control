@@ -21,11 +21,13 @@ return new class extends Migration
             $table->string('phone', 255)->nullable();
             $table->string('cellphone', 255)->nullable();
             $table->text('address')->nullable();
+            $table->text('address_2')->nullable();
             $table->string('post_box', 255)->nullable();
             $table->string('zip_code', 255)->nullable();
             $table->string('country', 255)->nullable();
             $table->string('city', 255)->nullable();
             $table->string('language', 255)->nullable();
+            $table->string('email', 255)->unique()->nullable();
             $table->integer('owner_id')->nullable();
             $table->unsignedInteger('category_id')->nullable();
             $table->unsignedInteger('subcategory_id')->nullable();
@@ -33,6 +35,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
+
     }
 
     /**

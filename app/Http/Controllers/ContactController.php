@@ -6,6 +6,7 @@ use App\Http\Requests\Contacts\ContactIndexRequest;
 use App\Models\Contact;
 use App\Models\ContactCategory;
 use App\Models\ContactSubcategory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -27,24 +28,49 @@ class ContactController extends Controller
     public function index(ContactIndexRequest $request)
     {
         $contacts = Contact::query();
-        if ($request->has('search')) {
-            $contacts->where('name', 'LIKE', "%" . $request->search . "%");
+
+        if ($request->filled('title')) {
+            $contacts->where('title', 'like', '%' . $request->title . '%');
         }
-        if ($request->has(['field', 'order'])) {
+
+        if ($request->filled('email')) {
+            $contacts->where('mail', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('category_id')) {
+            $contacts->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('country')) {
+            $contacts->where('country', $request->country);
+        }
+
+        if ($request->filled('city')) {
+            $contacts->where('city', $request->city);
+        }
+
+        if ($request->filled('owner_id')) {
+            $contacts->where('owner_id', $request->owner_id);
+        }
+
+        if ($request->filled('field') && $request->filled('order')) {
             $contacts->orderBy($request->field, $request->order);
+        } else {
+            $contacts->latest();
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+
+        $perPage = $request->get('perPage', 10);
 
         return Inertia::render('Contacts/Index', [
-            'title'       => __('app.label.contacts'),
-            'filters'     => $request->all(['search', 'field', 'order']),
-            'perPage'     => (int) $perPage,
-            'contacts'    => $contacts->paginate($perPage)->withQueryString(),
-            'breadcrumbs' => [['label' => __('app.label.contacts'), 'href' => route('contacts.index')]],
-            'categories'  => ContactCategory::all(),
-            'subcategories' => ContactSubcategory::all(),
-        ]);
+            'title'        => __('app.label.contacts'),
+            'filters'      => $request->only(['title', 'email', 'category_id', 'country', 'city', 'owner_id', 'field', 'order', 'perPage']),
+            'perPage'      => (int) $perPage,
+            'contacts'     => $contacts->paginate($perPage)->withQueryString(),
+            'categories' => ContactCategory::where('status', 1)->get(),
 
+            'users' => User::where('status', 1)->select('id', 'name')->get(),
+            'breadcrumbs'  => [['label' => __('app.label.contacts'), 'href' => route('contacts.index')]],
+        ]);
     }
 
     /**

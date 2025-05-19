@@ -7,12 +7,12 @@
             <div class="px-0">
                 <div class="rounded-lg overflow-hidden w-fit">
                     <div>
-                        <CreateLink :href="route('contact-categories.create')" v-show="can(['manage contacts'])"/>
+                        <CreateLink :href="route('contact-subcategories.create')" v-show="can(['manage contacts'])"/>
                     </div>
                     <Delete
                         :show="data.deleteOpen"
                         @close="data.deleteOpen = false"
-                        :category="data.category"
+                        :subCategory="data.subCategory"
                         :title="props.title"
                         v-show="can(['manage contacts'])"
                     />
@@ -55,7 +55,7 @@
                         <thead class="text-sm border-t border-slate-200 dark:border-slate-700">
                         <tr class="dark:bg-slate-900/50 text-left border-b border-slate-300 dark:border-slate-600">
                             <th class="px-2 py-4 text-center w-10">
-                                <Checkbox v-if="props.categories?.data?.length > 0" v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['manage contacts'])"
+                                <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['manage contacts'])"
                                 />
                             </th>
                             <th class="px-2 py-4 w-10">#</th>
@@ -68,6 +68,12 @@
                             <th class="px-2 py-4 cursor-pointer w-40" v-on:click="order('info')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.info }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer w-40" v-on:click="order('category_id')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.contact_categories }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
@@ -86,7 +92,7 @@
                             <th class="px-2 py-4 text-center w-40">{{ lang().label.actions }}</th>
                         </tr>
 
-                        <tr v-if="props.categories?.data?.length > 0" class="dark:bg-slate-900/50 text-left">
+                        <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4"></th>
                             <th class="px-2 py-4"></th>
                             <th class="px-2 py-4">
@@ -110,6 +116,25 @@
                             <th class="px-2 py-4">
                                 <Select
                                     showClear
+                                    v-model="data.params.category_id"
+                                    :options="props.categories"
+                                    optionLabel="title"
+                                    optionValue="id"
+                                    filter
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :placeholder="lang().label.select_category"
+                                    class="w-full"
+                                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                                />
+                            </th>
+                            <th class="px-2 py-4">
+                                <Select
+                                    showClear
                                     v-model="data.params.status"
                                     :options="props.statuses"
                                     optionLabel="label"
@@ -126,37 +151,42 @@
                             }"
                                 />
                             </th>
+                            <th class="px-2 py-4"></th>
                             <th class="px-2 py-4 text-center"></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr v-for="(category, index) in categories.data" :key="index" class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20">
+                        <tr v-for="(subCategory, index) in subCategories.data" :key="index" class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-200/30 hover:dark:bg-slate-900/20">
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-10">
-                                <input v-show="can(['manage contacts'])" type="checkbox" @change="select" :value="category.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
+                                <input v-show="can(['manage contacts'])" type="checkbox" @change="select" :value="subCategory.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ (props.categories.current_page - 1) * props.categories.per_page + index + 1 }}
+                                {{ (props.subCategories.current_page - 1) * props.subCategories.per_page + index + 1 }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                <Link :href="route('contact-categories.show', { contact_category: category.id })" class="text-blue-500 hover:underline dark:text-white">
-                                    {{ category?.title || lang().label.no_available }}
+                                <Link :href="route('contact-subcategories.show', { contact_subcategory: subCategory.id })" class="text-blue-500 hover:underline dark:text-white">
+                                    {{ subCategory?.title || lang().label.no_available }}
                                 </Link>
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                {{ category?.info || lang().label.no_available }}
+                                {{ subCategory?.info || lang().label.no_available }}
                             </td>
+                            <td class="whitespace-pre-wrap py-4 px-2 w-40">
+                                {{ subCategory.category?.title || lang().label.no_available }}
+                            </td>
+
                             <td class="whitespace-pre-wrap py-4 px-2 w-32">
-                                <Badge :value="getStatusLabel(category.status)" :severity="getStatusSeverity(category.status)" />
+                                <Badge :value="getStatusLabel(subCategory.status)" :severity="getStatusSeverity(subCategory.status)" />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ category.created_at }}
+                                {{ subCategory.created_at }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-24">
                                 <div class="gap-1 flex justify-center">
                                     <Button
                                         type="button"
                                         icon="pi pi-ellipsis-v"
-                                        @click="toggleMenu($event, category)"
+                                        @click="toggleMenu($event, subCategory)"
                                         aria-haspopup="true"
                                         aria-controls="menu"
                                         severity="secondary"
@@ -170,7 +200,7 @@
                 <div
                     class="flex justify-between items-center p-2 border-t border-slate-200 dark:border-slate-700"
                 >
-                    <Pagination :links="props.categories" :filters="data.params" />
+                    <Pagination :links="props.subCategories" :filters="data.params" />
                 </div>
             </div>
         </div>
@@ -188,8 +218,8 @@ import Breadcrumb from "@/Components/Breadcrumb.vue";
 import CreateLink from "@/Components/CreateLink.vue";
 import Pagination from "@/Components/Pagination.vue";
 import DangerButton from "@/Components/DangerButton.vue";
-import Delete from "@/Pages/ContactCategory/Delete.vue";
-import DeleteBulk from "@/Pages/ContactCategory/DeleteBulk.vue";
+import Delete from "@/Pages/SubCategories/Delete.vue";
+import DeleteBulk from "@/Pages/SubCategories/DeleteBulk.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
@@ -202,6 +232,7 @@ const props = defineProps({
     title: String,
     filters: Object,
     categories: Object,
+    subCategories: Object,
     breadcrumbs: Object,
     perPage: Number,
     statuses: Object,
@@ -213,7 +244,8 @@ const data = reactive({
     params: {
         title: props.filters.title ?? "",
         info: props.filters.info ?? "",
-        status: props.filters.status ?? null,
+        category_id: props.filters.category_id !== undefined ? Number(props.filters.category_id) : null,
+        status: props.filters.status !== undefined ? Number(props.filters.status) : null,
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
@@ -239,18 +271,18 @@ const items = computed(() => {
                 {
                     label: lang().tooltip.show,
                     icon: "pi pi-eye",
-                    command: () => router.visit(route("contact-categories.show", selectedCategory.value.id)),
+                    command: () => router.visit(route("contact-subcategories.show", selectedCategory.value.id)),
                 },
                 {
                     label: lang().tooltip.edit,
                     icon: "pi pi-pencil",
-                    command: () => router.visit(route("contact-categories.edit", selectedCategory.value.id)),
+                    command: () => router.visit(route("contact-subcategories.edit", selectedCategory.value.id)),
                 },
                 {
                     label: lang().tooltip.delete,
                     icon: "pi pi-trash",
                     command: () => {
-                        data.category = selectedCategory.value;
+                        data.subCategory = selectedCategory.value;
                         data.deleteOpen = true;
                     },
                 },
@@ -272,7 +304,7 @@ watch(
                 ([, value]) => value !== null && value !== undefined && value !== ''
             )
         );
-        router.get(route('contact-categories.index'), query, {
+        router.get(route('contact-subcategories.index'), query, {
             preserveState: true,
             preserveScroll: true,
             replace: true,
@@ -294,14 +326,14 @@ const selectAll = (event) => {
     if (!event.target.checked) {
         data.selectedId = [];
     } else {
-        props.categories.data.forEach((category) => {
+        props.subCategories.data.forEach((category) => {
             data.selectedId.push(category.id);
         });
     }
 };
 
 const select = () => {
-    data.multipleSelect = props.categories.data.length === data.selectedId.length;
+    data.multipleSelect = props.subCategories.data.length === data.selectedId.length;
 };
 
 const getStatusLabel = (statusId) => {

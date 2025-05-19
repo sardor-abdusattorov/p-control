@@ -86,8 +86,9 @@
                             <th class="px-2 py-4 text-center w-40">{{ lang().label.actions }}</th>
                         </tr>
 
-                        <tr v-if="props.categories?.data?.length > 0" class="dark:bg-slate-900/50 text-left">
+                        <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4"></th>
+
                             <th class="px-2 py-4"></th>
                             <th class="px-2 py-4">
                                 <InputText
@@ -127,6 +128,7 @@
                                 />
                             </th>
                             <th class="px-2 py-4 text-center"></th>
+                            <th class="px-2 py-4 text-center"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -134,6 +136,7 @@
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-10">
                                 <input v-show="can(['manage contacts'])" type="checkbox" @change="select" :value="category.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
                             </td>
+
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ (props.categories.current_page - 1) * props.categories.per_page + index + 1 }}
                             </td>
@@ -151,6 +154,7 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ category.created_at }}
                             </td>
+
                             <td class="whitespace-pre-wrap py-4 px-2 text-center w-24">
                                 <div class="gap-1 flex justify-center">
                                     <Button
@@ -213,7 +217,7 @@ const data = reactive({
     params: {
         title: props.filters.title ?? "",
         info: props.filters.info ?? "",
-        status: props.filters.status ?? null,
+        status: props.filters.status !== undefined ? Number(props.filters.status) : null,
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,

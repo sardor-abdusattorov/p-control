@@ -35,6 +35,26 @@
                 </div>
 
                 <div class="form-group mb-3">
+                    <InputLabel for="category_id" :value="lang().label.contact_categories" />
+                    <Select
+                        v-model="form.category_id"
+                        :options="categories"
+                        optionLabel="title"
+                        optionValue="id"
+                        :placeholder="lang().label.select_category"
+                        class="w-full"
+                        checkmark
+                        :highlightOnSelect="false"
+                        :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                    />
+                    <InputError class="mt-2" :message="form.errors.category_id" />
+                </div>
+
+                <div class="form-group mb-3">
                     <InputLabel for="status" :value="lang().label.status" />
                     <Select
                         v-model="form.status"
@@ -55,7 +75,7 @@
                 </div>
 
                 <div class="flex justify-start">
-                    <BackLink :href="route('contact-categories.index')" />
+                    <BackLink :href="route('contact-subcategories.index')" />
                     <PrimaryButton
                         class="ml-3"
                         :class="{ 'opacity-25': form.processing }"
@@ -91,27 +111,30 @@ const props = defineProps({
     show: Boolean,
     title: String,
     breadcrumbs: Object,
-    category: Object,
     statuses: Array,
+    categories: Object,
+    subCategory: Object,
 });
+
 const emit = defineEmits(["close"]);
 
 const form = useForm({
     title: "",
     info: "",
-    status: "",
+    category_id: '',
+    status: '',
 });
 
 const update = () => {
-    form.put(route("contact-categories.update", props.category?.id), {
+    form.put(route("contact-subcategories.update", props.subCategory?.id), {
     });
 };
 
 watchEffect(() => {
     form.errors = {};
-    form.title = props.category?.title;
-    form.info = props.category?.info;
-    form.status = props.category?.status;
+    form.title = props.subCategory?.title;
+    form.info = props.subCategory?.info;
+    form.category_id = props.subCategory?.category_id;
+    form.status = props.subCategory?.status;
 });
-
 </script>

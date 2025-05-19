@@ -5,7 +5,7 @@
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
             <div class="p-4 sm:p-8">
                 <div class="block-header pb-3 mb-5 border-b border-gray-300 dark:border-neutral-600 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-xl md:text-2xl font-bold">{{ category.name }}</h1>
+                    <h1 class="text-xl md:text-2xl font-bold">{{ category.title }}</h1>
                     <div class="actions flex flex-wrap gap-4">
                         <EditLink
                             :href="route('contact-categories.edit', { contact_category: props.category.id })"

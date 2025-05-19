@@ -19,20 +19,34 @@ class ContactCategoryController extends Controller
     {
         $categories = ContactCategory::query();
         $statuses = ContactCategory::getStatuses();
-        if ($request->has('search')) {
-            $categories->where('name', 'LIKE', "%" . $request->search . "%");
+
+        // 🔍 Фильтрация по полям
+        if ($request->filled('title')) {
+            $categories->where('title', 'like', '%' . $request->title . '%');
         }
-        if ($request->has(['field', 'order'])) {
+
+        if ($request->filled('info')) {
+            $categories->where('info', 'like', '%' . $request->info . '%');
+        }
+
+        if ($request->filled('status')) {
+            $categories->where('status', $request->status);
+        }
+
+        if ($request->filled('field') && $request->filled('order')) {
             $categories->orderBy($request->field, $request->order);
+        } else {
+            $categories->latest();
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
+
+        $perPage = $request->get('perPage', 10);
 
         return Inertia::render('ContactCategory/Index', [
             'title'       => __('app.label.contact_categories'),
-            'filters'     => $request->all(['search', 'field', 'order']),
+            'filters'     => $request->only(['title', 'info', 'status', 'field', 'order', 'perPage']),
             'perPage'     => (int) $perPage,
-            'statuses'     => $statuses,
-            'categories'    => $categories->paginate($perPage)->withQueryString(),
+            'statuses'    => $statuses,
+            'categories'  => $categories->paginate($perPage)->withQueryString(),
             'breadcrumbs' => [['label' => __('app.label.contact_categories'), 'href' => route('contact-categories.index')]],
         ]);
     }

@@ -5,10 +5,10 @@
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
             <div class="p-4 sm:p-8">
                 <div class="block-header pb-3 mb-5 border-b border-gray-300 dark:border-neutral-600 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <h1 class="text-xl md:text-2xl font-bold">{{ category.name }}</h1>
+                    <h1 class="text-xl md:text-2xl font-bold">{{ subCategory.title }}</h1>
                     <div class="actions flex flex-wrap gap-4">
                         <EditLink
-                            :href="route('contact-categories.edit', { contact_category: props.category.id })"
+                            :href="route('contact-subcategories.edit', { contact_subcategory: props.subCategory.id })"
                             class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.edit"
                         >
@@ -16,7 +16,7 @@
                         </EditLink>
                         <DangerButton
                             type="button"
-                            @click="(data.deleteOpen = true), (data.category = category)"
+                            @click="(data.deleteOpen = true), (data.subCategory = subCategory)"
                             class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.delete"
                         >
@@ -26,7 +26,7 @@
                         <Delete
                             :show="data.deleteOpen"
                             @close="data.deleteOpen = false"
-                            :category="data.category"
+                            :subCategory="data.subCategory"
                             :title="props.title"
                         />
                     </div>
@@ -38,36 +38,45 @@
                         <tbody>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">ID</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ category.id }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ subCategory.id }}</td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.title }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ category.title }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ subCategory.title }}</td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.info }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ category.info }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ subCategory.info }}</td>
                         </tr>
+                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                {{ lang().label.contact_categories }}
+                            </td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                {{ category?.title || lang().label.no_available }}
+                            </td>
+                        </tr>
+
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.status }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                             <span
                                 :class="[
                                     'inline-flex items-center rounded-md px-2 py-1 text-sm font-medium ring-1 ring-inset',
-                                    category.status === 1 ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'
+                                    subCategory.status === 1 ? 'bg-green-50 text-green-700 ring-green-600/20' : 'bg-red-50 text-red-700 ring-red-600/20'
                                 ]"
                             >
-                                {{ category.status === 1 ? lang().label.active : lang().label.inactive }}
+                                {{ subCategory.status === 1 ? lang().label.active : lang().label.inactive }}
                             </span>
                             </td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.created }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ category.created_at }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ subCategory.created_at }}</td>
                         </tr>
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.updated }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ category.updated_at }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ subCategory.updated_at }}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -85,7 +94,7 @@ import Breadcrumb from "@/Components/Breadcrumb.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import {TrashIcon} from "@heroicons/vue/24/solid";
 import EditLink from "@/Components/EditLink.vue";
-import Delete from "@/Pages/ContactCategory/Delete.vue";
+import Delete from "@/Pages/SubCategories/Delete.vue";
 
 const props = defineProps({
     category: {
@@ -97,6 +106,10 @@ const props = defineProps({
         required: true,
     },
     breadcrumbs: {
+        type: Object,
+        required: true,
+    },
+    subCategory: {
         type: Object,
         required: true,
     },

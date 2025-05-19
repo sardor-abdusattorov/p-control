@@ -13,6 +13,9 @@ return [
         'contact_categories' => "Категории",
         'contact_subcategories' => "Подкатегории",
         'info' => "Информация",
+        'select_category'      => "Выберите категорию",
+        'category'      => "Категория",
+        'country'      => "Страна",
 
         'cannot_submit_non_draft' => 'Можно отправить только черновик.',
         'submitted_successfully' => 'Заявка успешно отправлена на согласование.',
@@ -285,6 +288,7 @@ return [
         'guard_name' => 'Страж',
         'enter_note' => 'Введите заметку',
         'select_project' => 'Выберите проект...',
+        'select_country' => 'Выберите страну',
     ],
     'tooltip' => [
         'send_for_approval' => 'Отправить на согласование',
