@@ -32,7 +32,8 @@ class ContactController extends Controller
      */
     public function index(ContactIndexRequest $request)
     {
-        $contacts = Contact::query();
+        $contacts = Contact::query()
+            ->with(['country', 'owner', 'category']);
 
         if ($request->filled('title')) {
             $contacts->where('title', 'like', '%' . $request->title . '%');
@@ -91,6 +92,25 @@ class ContactController extends Controller
             'statuses' => Contact::getStatuses(),
         ]);
     }
+
+    public function findByEmail(Request $request)
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $contact = Contact::where('email', $request->email)
+            ->where('owner_id', auth()->id())
+            ->where('status', 1)
+            ->first();
+
+        if (!$contact) {
+            return response()->json(null);
+        }
+
+        return response()->json($contact);
+    }
+
 
     public function getCities(Request $request)
     {
@@ -162,6 +182,51 @@ class ContactController extends Controller
                 ->with('error', __('app.label.created_error', ['name' => __('app.label.contacts')]) . ' ' . $th->getMessage());
         }
     }
+
+
+    public function storeModal(ContactStoreRequest $request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $contact = new Contact();
+
+            $contact->title          = $request->input('title');
+            $contact->prefix         = $request->input('prefix');
+            $contact->firstname      = $request->input('firstname');
+            $contact->lastname       = $request->input('lastname');
+            $contact->phone          = $request->input('phone');
+            $contact->cellphone      = $request->input('cellphone');
+            $contact->email          = $request->input('email');
+            $contact->company        = $request->input('company');
+            $contact->language       = $request->input('language');
+            $contact->country        = $request->input('country');
+            $contact->city           = $request->input('city');
+            $contact->post_box       = $request->input('post_box');
+            $contact->zip_code       = $request->input('zip_code');
+            $contact->address        = $request->input('address');
+            $contact->address2       = $request->input('address2');
+            $contact->category_id    = $request->input('category_id');
+            $contact->subcategory_id = $request->input('subcategory_id');
+            $contact->status         = $request->input('status');
+            $contact->owner_id       = auth()->id();
+
+            $contact->save();
+
+            DB::commit();
+
+            return back()->with([
+                'success' => __('app.label.created_successfully', ['name' => $contact->title]),
+                'new_contact_id' => $contact->id,
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return back()->with([
+                'error' => __('app.label.created_error', ['name' => __('app.label.contacts')]) . ' ' . $th->getMessage(),
+            ]);
+        }
+    }
+
 
     /**
      * Display the specified resource.

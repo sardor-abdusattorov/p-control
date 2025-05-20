@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Altwaireb\World\Models\Country;
 use App\Http\Requests\Contract\ContractApproversUpdateRequest;
 use App\Http\Requests\Contract\ContractIndexRequest;
 use App\Http\Requests\Contract\ContractScanRequest;
@@ -11,6 +12,9 @@ use App\Http\Requests\Contract\ContractUserDeleteRequest;
 use App\Models\Application;
 use App\Models\Approvals;
 
+use App\Models\Contact;
+use App\Models\ContactCategory;
+use App\Models\ContactSubcategory;
 use App\Models\Contract;
 use App\Models\Currency;
 use App\Models\Project;
@@ -164,6 +168,11 @@ class ContractController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
+        $contacts = Contact::where('owner_id', auth()->id())
+            ->select('id', 'title')
+            ->orderBy('title')
+            ->get();
+
         if (auth()->user()->can('view all applications')) {
             $applications = Application::all();
         } else {
@@ -183,7 +192,12 @@ class ContractController extends Controller
             'applications' => $applications,
             'users' => $users,
             'application_types' => $types,
-            'recipients' => $recipients
+            'recipients' => $recipients,
+            'contacts'          => $contacts,
+            'categories'      => ContactCategory::where('status', 1)->get(),
+            'subCategories'   => ContactSubcategory::where('status', 1)->get(),
+            'countries'       => Country::select('id', 'name')->orderBy('name')->get(),
+            'statuses' => Contact::getStatuses(),
         ]);
     }
 

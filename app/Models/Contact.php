@@ -41,6 +41,15 @@ class Contact extends Model
     {
         return $this->belongsTo(ContactSubcategory::class, 'subcategory_id');
     }
+    public function country()
+    {
+        return $this->belongsTo(Country::class, 'country');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
 
     public function getCreatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['created_at']));

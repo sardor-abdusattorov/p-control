@@ -28,8 +28,14 @@ return [
         'zip_code'       => "Zip Code",
         'subcategory'       => "Sub Category",
         'select_category'      => "Select Category",
+        'select_contact'      => "Select Contact",
         'select_subcategory'      => "Select Sub Category",
         'prefix'      => "Prefix",
+        'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
+        'contact_found' => 'Контакт найден. Вы можете подтвердить его или создать новый.',
+        'confirm_contact' => 'Подтвердить',
+        'create_new_contact' => 'Создать новый',
+
 
 
 

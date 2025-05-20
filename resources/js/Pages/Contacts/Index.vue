@@ -155,8 +155,8 @@
                         </thead>
                         <tbody>
                         <tr v-for="(contact, index) in contacts.data" :key="contact.id">
-                            <td class="text-center">
-                                <input type="checkbox" v-model="data.selectedId" :value="contact.id" />
+                            <td class="whitespace-pre-wrap py-4 px-2 text-center w-10">
+                                <input type="checkbox" @change="select" :value="contact.id" v-model="data.selectedId" class="rounded border-slate-300 dark:border-slate-700" />
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ (contacts.current_page - 1) * contacts.per_page + index + 1 }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">

@@ -105,6 +105,8 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/contacts/destroy-bulk', [ContactController::class, 'destroyBulk'])->name('contacts.destroy-bulk');
     Route::post('/contacts/cities', [ContactController::class, 'getCities'])->name('contacts.cities');
     Route::post('/contacts/subcategories', [ContactController::class, 'getSubcategories'])->name('contacts.subcategories');
+    Route::post('/contacts/find', [ContactController::class, 'findByEmail'])->name('contacts.find');
+    Route::post('/contacts/store-modal', [ContactController::class, 'storeModal'])->name('contacts.storeModal');
 
     Route::resource('contact-categories', ContactCategoryController::class);
     Route::post('/contact-categories/destroy-bulk', [ContactCategoryController::class, 'destroyBulk'])->name('contact-categories.destroy-bulk');

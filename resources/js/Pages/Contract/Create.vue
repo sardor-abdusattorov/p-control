@@ -66,6 +66,29 @@
                         <InputError class="mt-2" :message="form.errors.project_id" />
                     </div>
 
+                    <div class="form-group mb-5">
+                        <InputLabel for="contact_id" :value="lang().section.contact" />
+                        <div class="flex gap-2">
+                            <Select
+                                id="contact_id"
+                                v-model="form.contact_id"
+                                :options="props.contacts"
+                                optionLabel="title"
+                                optionValue="id"
+                                filter
+                                checkmark
+                                class="w-full"
+                                :placeholder="lang().label.select_contact"
+                            />
+                            <Button outlined @click="showContactModal = true">
+                                <i class="pi pi-plus mr-2"></i>
+                                {{ lang().label.add }}
+                            </Button>
+
+                        </div>
+                        <InputError class="mt-2" :message="form.errors.contact_id" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select
@@ -104,10 +127,10 @@
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-                option: { class: 'custom-option' },
-                dropdown: { style: { maxWidth: '300px' } },
-                overlay: { class: 'parent-wrapper-class' }
-            }"
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
@@ -263,6 +286,14 @@
             </form>
         </section>
 
+        <ContactCreate
+            :show="showContactModal"
+            :categories="props.categories"
+            :countries="props.countries"
+            :statuses="props.statuses"
+            @close="showContactModal = false"
+        />
+
     </AuthenticatedLayout>
 </template>
 
@@ -270,8 +301,8 @@
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import {Head, useForm} from "@inertiajs/vue3";
-import {computed, watch, watchEffect} from "vue";
+import {Head, router, useForm, usePage} from "@inertiajs/vue3";
+import {computed, reactive, ref, watch, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
@@ -285,6 +316,7 @@ import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
 import {Textarea} from "primevue";
 import { onMounted } from 'vue';
+import ContactCreate from "@/Pages/Contract/ContactCreate.vue";
 
 const props = defineProps({
     show: Boolean,
@@ -294,8 +326,12 @@ const props = defineProps({
     projects: Array,
     applications: Array,
     currency: Array,
+    contacts: Object,
     recipients: Array,
     application_types: Object,
+    categories: Object,
+    countries: Object,
+    statuses: Object,
 });
 
 const allowedFileTypes = [
@@ -305,6 +341,30 @@ const allowedFileTypes = [
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
+
+const showContactModal = ref(false);
+
+
+const newContact = reactive({
+    title: '',
+    email: '',
+});
+
+const saveContact = () => {
+    router.post(route('contacts.storeModal'), newContact, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            showContactModal.value = false;
+            form.contact_id = usePage().props.flash.new_contact_id;
+            newContact.title = '';
+            newContact.email = '';
+        },
+        onError: () => {
+
+        }
+    });
+};
 
 const form = useForm({
     contract_number: "",
@@ -317,6 +377,7 @@ const form = useForm({
     currency_id: 1,
     budget_sum: 0,
     deadline: new Date(new Date().getFullYear(), 11, 31),
+    contact_id: null,
 });
 
 const filteredApplications = computed(() => {

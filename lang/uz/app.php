@@ -24,6 +24,17 @@ return [
         'select_category'  => "Kategoriyani tanlang",
         'select_subcategory' => "Subkategoriyani tanlang",
         'prefix'      => "Prefiks",
+        'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
+        'contact_found' => 'Контакт найден. Вы можете подтвердить его или создать новый.',
+        'confirm_contact' => 'Подтвердить',
+        'create_new_contact' => 'Создать новый',
+        'select_contact'      => "Select Contact",
+
+
+
+
+
+
 
 
         'contacts_group'       => "Kontaktlar",
