@@ -99,7 +99,7 @@
                             </th>
                             <th class="px-2 py-4 text-center min-w-28">{{ lang().label.actions }}</th>
                         </tr>
-                            <tr class="dark:bg-slate-900/50 text-left">
+                        <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4 text-center">
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
@@ -190,12 +190,12 @@
                         >
                             <td class="whitespace-nowrap py-4 px-2 text-center">
                                 <input v-show="can(['delete contract'])"
-                                    class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
-                                    type="checkbox"
-                                    @change="select"
-                                    :value="contract.id"
-                                    v-model="data.selectedId"
-                                    v-if="isAdmin"
+                                       class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
+                                       type="checkbox"
+                                       @change="select"
+                                       :value="contract.id"
+                                       v-model="data.selectedId"
+                                       v-if="isAdmin"
                                 />
                             </td>
 
@@ -328,68 +328,77 @@ const selectedContract = ref(null);
 const lang = () => usePage().props.language;
 const user = usePage().props.auth.user;
 
+const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
 
 const items = computed(() => {
     const baseItems = [];
-    if (!selectedContract.value) return [];
+    const contract = selectedContract.value;
+
+    if (!contract) return [];
+
+    // Отправить на согласование
     if (
-        selectedContract.value.status === 1 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 1 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.send_for_approval || 'Отправить на согласование',
             icon: 'pi pi-send',
             command: () => {
-                confirmDialogRef.value.open(selectedContract.value);
+                confirmDialogRef.value.open(contract);
             },
         });
     }
 
+    // Просмотр
     baseItems.push({
         label: lang().tooltip.show,
         icon: 'pi pi-eye',
         command: () => {
-            router.visit(route('contract.show', { contract: selectedContract.value.id }));
+            router.visit(route('contract.show', { contract: contract.id }));
         },
     });
 
+    // Загрузить скан
     if (
-        selectedContract.value.status === 3 &&
-        selectedContract.value.type !== 2 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 3 &&
+        contract.type !== 2 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().label.upload_scan,
             icon: 'pi pi-upload',
             command: () => {
-                router.visit(route('contract.upload-scan', { contract: selectedContract.value.id }));
+                router.visit(route('contract.upload-scan', { contract: contract.id }));
             },
         });
     }
 
+    // Редактировать
     if (
-        selectedContract.value.status !== 3 &&
-        selectedContract.value.user_id === user.id
+        contract.status !== 3 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.edit,
             icon: 'pi pi-pencil',
             command: () => {
-                router.visit(route('contract.edit', { contract: selectedContract.value.id }));
+                router.visit(route('contract.edit', { contract: contract.id }));
             },
         });
     }
 
+    // Удалить
     if (
-        selectedContract.value.status === 1 &&
-        selectedContract.value.user_id === user.id
+        contract.status === 1 &&
+        (contract.user_id === user.id || isAdmin)
     ) {
         baseItems.push({
             label: lang().tooltip.delete,
             icon: 'pi pi-trash',
             command: () => {
                 data.deleteOpen = true;
-                data.contract = selectedContract.value;
+                data.contract = contract;
             },
         });
     }
@@ -401,6 +410,7 @@ const items = computed(() => {
         },
     ];
 });
+
 
 const toggleMenu = (event, contract) => {
     selectedContract.value = contract;
@@ -428,11 +438,11 @@ const data = reactive({
         field: props.filters.field ?? "",
         order: props.filters.order ?? "asc",
         perPage: props.perPage ?? 10,
-        user_id: props.filters.user_id ?? null,
+        user_id: props.filters.user_id ? Number(props.filters.user_id) : null,
         status: props.filters.status ? Number(props.filters.status) : null,
         title: props.filters.title ?? null,
         contract_number: props.filters.contract_number ?? null,
-        currency_id: props.filters.currency_id ?? null,
+        currency_id: props.filters.currency_id ? Number(props.filters.currency_id) : null,
     },
     selectedId: [],
     multipleSelect: false,
@@ -510,8 +520,6 @@ const formatNumber = (amount) => {
     return formattedAmount;
 };
 
-const isAdmin = usePage().props.auth.user.roles?.some(role => role.name === 'superadmin');
-
 const historyVisible = ref(false);
 const selectedApproval = ref(null);
 const approvalContextId = ref(null);
@@ -535,4 +543,3 @@ const getUniqueApprovals = (list) => {
 
 
 </script>
-
