@@ -20,10 +20,20 @@ class ContactController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            if (!auth()->user() || !auth()->user()->can('manage contacts')) {
+            $user = auth()->user();
+
+            if (!$user) {
                 return redirect()->route('dashboard')->with('error', __('app.deny_access'));
             }
-            return $next($request);
+            if ($user->can('manage contacts')) {
+                return $next($request);
+            }
+
+            if ($request->routeIs('contacts.storeModal') && $user->can('store contacts')) {
+                return $next($request);
+            }
+
+            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
         });
     }
 
@@ -183,7 +193,6 @@ class ContactController extends Controller
         }
     }
 
-
     public function storeModal(ContactStoreRequest $request)
     {
         DB::beginTransaction();
@@ -208,7 +217,7 @@ class ContactController extends Controller
             $contact->address2       = $request->input('address2');
             $contact->category_id    = $request->input('category_id');
             $contact->subcategory_id = $request->input('subcategory_id');
-            $contact->status         = $request->input('status');
+            $contact->status         = Contact::STATUS_ACTIVE;
             $contact->owner_id       = auth()->id();
 
             $contact->save();

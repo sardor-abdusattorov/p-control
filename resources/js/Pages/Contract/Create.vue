@@ -67,27 +67,28 @@
                     </div>
 
                     <div class="form-group mb-5">
-                        <InputLabel for="contact_id" :value="lang().section.contact" />
-                        <div class="flex gap-2">
-                            <Select
-                                id="contact_id"
-                                v-model="form.contact_id"
-                                :options="props.contacts"
-                                optionLabel="title"
-                                optionValue="id"
-                                filter
-                                checkmark
-                                class="w-full"
-                                :placeholder="lang().label.select_contact"
-                            />
-                            <Button outlined @click="showContactModal = true">
-                                <i class="pi pi-plus mr-2"></i>
-                                {{ lang().label.add }}
-                            </Button>
+                            <InputLabel for="contact_id" :value="lang().section.contact" />
+                            <div class="flex gap-2">
+                                <Select
+                                    id="contact_id"
+                                    v-model="form.contact_id"
+                                    :options="formattedContacts"
+                                    optionLabel="display"
+                                    optionValue="id"
+                                    filter
+                                    showClear
+                                    checkmark
+                                    class="w-full"
+                                    :placeholder="lang().label.select_contact"
+                                />
+                                <Button outlined @click="showContactModal = true">
+                                    <i class="pi pi-plus mr-2"></i>
+                                    {{ lang().label.add }}
+                                </Button>
 
-                        </div>
-                        <InputError class="mt-2" :message="form.errors.contact_id" />
-                    </div>
+                            </div>
+                            <InputError class="mt-2" :message="form.errors.contact_id" />
+                </div>
 
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
@@ -344,28 +345,6 @@ const allowedFileTypes = [
 
 const showContactModal = ref(false);
 
-
-const newContact = reactive({
-    title: '',
-    email: '',
-});
-
-const saveContact = () => {
-    router.post(route('contacts.storeModal'), newContact, {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: () => {
-            showContactModal.value = false;
-            form.contact_id = usePage().props.flash.new_contact_id;
-            newContact.title = '';
-            newContact.email = '';
-        },
-        onError: () => {
-
-        }
-    });
-};
-
 const form = useForm({
     contract_number: "",
     files: [],
@@ -434,6 +413,16 @@ const formattedProjects = computed(() => {
         display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
     }));
 });
+
+const formattedContacts = computed(() => {
+    return props.contacts.map(contact => ({
+        id: contact.id,
+        firstname: contact.firstname || '',
+        lastname: contact.lastname || '',
+        email: contact.email || '',
+        display: `${contact.firstname} ${contact.lastname} – ${contact.email}`.trim()
+    }))
+})
 
 </script>
 

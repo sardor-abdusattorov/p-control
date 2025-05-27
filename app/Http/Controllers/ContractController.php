@@ -169,8 +169,8 @@ class ContractController extends Controller
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
         $contacts = Contact::where('owner_id', auth()->id())
-            ->select('id', 'title')
-            ->orderBy('title')
+            ->select('id', 'firstname', 'lastname', 'email')
+            ->orderBy('firstname')
             ->get();
 
         if (auth()->user()->can('view all applications')) {
@@ -213,6 +213,7 @@ class ContractController extends Controller
                 'contract_number' => $request->contract_number,
                 'title' => $request->title,
                 'project_id' => $request->project_id,
+                'contact_id' => $request->contact_id,
                 'application_id' => $request->application_id ?? null,
                 'currency_id' => $request->currency_id,
                 'user_id' => auth()->id(),
@@ -566,6 +567,10 @@ class ContractController extends Controller
      */
     public function edit(Contract $contract)
     {
+        $contacts = Contact::where('owner_id', auth()->id())
+            ->select('id', 'firstname', 'lastname', 'email')
+            ->orderBy('firstname')
+            ->get();
         $types = Application::getTypes();
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
@@ -580,6 +585,7 @@ class ContractController extends Controller
         return inertia('Contract/Edit', [
             'contract' => $contract,
             'currency' => $currency,
+            'contacts' => $contacts,
             'projects' => $projects,
             'applications' => $applications,
             'application_types' => $types,
@@ -640,6 +646,7 @@ class ContractController extends Controller
                 'contract_number' => $request->contract_number,
                 'title' => $request->title,
                 'project_id' => $request->project_id,
+                'contact_id' => $request->contact_id,
                 'application_id' => $request->application_id,
                 'currency_id' => $request->currency_id,
                 'budget_sum' => $request->budget_sum,

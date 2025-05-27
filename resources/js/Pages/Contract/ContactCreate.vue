@@ -88,6 +88,9 @@ const submit = () => {
         onSuccess: () => {
             emit("close");
             form.reset();
+        },
+        onError: (errors) => {
+            console.log('Validation errors:', errors);
         }
     });
 };
@@ -134,6 +137,26 @@ const submit = () => {
                         <InputLabel for="lastname" :value="lang().label.lastname" />
                         <InputText id="lastname" v-model="form.lastname" class="w-full" :placeholder="lang().label.lastname" :error="form.errors.lastname"  />
                         <InputError :message="form.errors.lastname" />
+                    </div>
+                </div>
+
+                <!-- Язык + Компания -->
+                <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.company}}</h2>
+
+
+                <div class="grid lg:grid-cols-2 gap-4">
+                    <div>
+                        <InputLabel for="company" :value="lang().label.company"/>
+                        <InputText id="company" v-model="form.company" class="w-full" :placeholder="lang().label.company"
+                                   :error="form.errors.company"/>
+                        <InputError :message="form.errors.company"/>
+                    </div>
+
+                    <div>
+                        <InputLabel for="language" :value="lang().label.language"/>
+                        <InputText id="language" v-model="form.language" class="w-full" :placeholder="lang().label.language"
+                                   :error="form.errors.language"/>
+                        <InputError :message="form.errors.language"/>
                     </div>
                 </div>
 
@@ -208,28 +231,6 @@ const submit = () => {
                 </div>
 
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">Адрес</h2>
-                <div class="grid lg:grid-cols-2 gap-4">
-                    <div>
-                        <InputLabel for="country" :value="lang().label.country"/>
-                        <Select filter checkmark showClear v-model="form.country" :options="props.countries" optionLabel="name" optionValue="id" class="w-full"  :placeholder="lang().placeholder.select_country" />
-                        <InputError :message="form.errors.country"/>
-                    </div>
-                    <div>
-                        <InputLabel for="city" :value="lang().label.city" />
-                        <Select filter checkmark showClear v-model="form.city" :options="cities" optionLabel="name" optionValue="id" :disabled="!form.country || !cities.length" class="w-full" :placeholder="lang().label.city" />
-                        <InputError :message="form.errors.city" />
-                    </div>
-                    <div>
-                        <InputLabel for="post_box" :value="lang().label.post_box"/>
-                        <InputText id="post_box" v-model="form.post_box" class="w-full" :placeholder="lang().label.post_box" :error="form.errors.post_box"  />
-                        <InputError :message="form.errors.post_box"/>
-                    </div>
-                    <div>
-                        <InputLabel for="zip_code" :value="lang().label.zip_code"/>
-                        <InputText id="zip_code" v-model="form.zip_code" class="w-full" :placeholder="lang().label.zip_code" :error="form.errors.zip_code"  />
-                        <InputError :message="form.errors.zip_code"/>
-                    </div>
-                </div>
 
                 <div class="grid lg:grid-cols-2 gap-4">
                     <div>
@@ -256,12 +257,6 @@ const submit = () => {
                         <Select filter checkmark showClear v-model="form.subcategory_id" :options="subCategories" optionLabel="title" optionValue="id" :disabled="!form.category_id || !subCategories.length" class="w-full" :placeholder="lang().label.select_subcategory" />
                         <InputError :message="form.errors.subcategory_id"/>
                     </div>
-                </div>
-
-                <div>
-                    <InputLabel for="status" :value="lang().label.status"/>
-                    <Select v-model="form.status" :options="props.statuses" optionLabel="label" optionValue="id" class="w-full"  :placeholder="lang().label.select_status" />
-                    <InputError :message="form.errors.status"/>
                 </div>
 
                 <div class="flex justify-start pt-2">

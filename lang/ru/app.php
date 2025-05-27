@@ -2,11 +2,11 @@
 
 return [
     'section' => [
-        'basic'    => 'Basic Information',
-        'contact'  => 'Contact Information',
-        'company'  => 'Company Information',
-        'address'  => 'Address Information',
-        'category' => 'Category Selection',
+        'basic'    => 'Основная информация',
+        'contact'  => 'Контактная информация',
+        'company'  => 'Информация о компании',
+        'address'  => 'Адресная информация',
+        'category' => 'Выбор категории',
     ],
 
     'type' => [
@@ -30,23 +30,22 @@ return [
         'subcategory'      => "Подкатегория",
         'select_category'  => "Выберите категорию",
         'select_subcategory' => "Выберите подкатегорию",
-        'prefix'      => "Префикс",
+        'prefix'           => "Префикс",
         'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
-        'contact_found' => 'Контакт найден. Вы можете подтвердить его или создать новый.',
-        'confirm_contact' => 'Подтвердить',
+        'contact_found'    => 'Контакт найден. Вы можете подтвердить его или создать новый.',
+        'confirm_contact'  => 'Подтвердить',
         'create_new_contact' => 'Создать новый',
-        'select_contact'      => "Select Contact",
+        'select_contact'   => "Выберите контакт",
+
+        'contacts_group'         => "Группа контактов",
+        'contacts'               => "Контакты",
+        'contact_categories'     => "Категории контактов",
+        'contact_subcategories'  => "Подкатегории контактов",
+        'info'                   => "Информация",
+        'category'               => "Категория",
+        'country'                => "Страна",
 
 
-
-
-        'contacts_group' => "Контакты",
-        'contacts' => "Контакты",
-        'contact_categories' => "Категории",
-        'contact_subcategories' => "Подкатегории",
-        'info' => "Информация",
-        'category'      => "Категория",
-        'country'      => "Страна",
 
         'cannot_submit_non_draft' => 'Можно отправить только черновик.',
         'submitted_successfully' => 'Заявка успешно отправлена на согласование.',

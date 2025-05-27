@@ -1,18 +1,26 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Asosiy maʼlumot',
+        'contact'  => 'Aloqa maʼlumoti',
+        'company'  => 'Kompaniya haqida maʼlumot',
+        'address'  => 'Manzil maʼlumoti',
+        'category' => 'Kategoriya tanlovi',
+    ],
+
     'type' => [
         'request' => 'Ariza',
         'memo' => 'Xizmat yozuvi',
     ],
-    'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
-    'label' => [
 
+    'deny_access' => 'Sizda bu bo‘limga kirish huquqi yo‘q',
+    'label' => [
 
         'firstname'        => "Ism",
         'lastname'         => "Familiya",
         'company'          => "Kompaniya nomi",
-        'phone'            => "Telefon raqami",
+        'phone'            => "Telefon",
         'cellphone'        => "Mobil telefon",
         'language'         => "Til",
         'city'             => "Shahar",
@@ -20,30 +28,24 @@ return [
         'address2'         => "Qo‘shimcha manzil",
         'post_box'         => "Pochta qutisi",
         'zip_code'         => "Pochta indeksi",
-        'subcategory'      => "Subkategoriya",
+        'subcategory'      => "Pastki kategoriya",
         'select_category'  => "Kategoriyani tanlang",
-        'select_subcategory' => "Subkategoriyani tanlang",
-        'prefix'      => "Prefiks",
-        'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
-        'contact_found' => 'Контакт найден. Вы можете подтвердить его или создать новый.',
-        'confirm_contact' => 'Подтвердить',
-        'create_new_contact' => 'Создать новый',
-        'select_contact'      => "Select Contact",
+        'select_subcategory' => "Pastki kategoriyani tanlang",
+        'prefix'           => "Prefiks",
+        'contact_not_found' => "Ko‘rsatilgan email bo‘yicha kontakt topilmadi. Iltimos, shaklni qo‘lda to‘ldiring.",
+        'contact_found'    => "Kontakt topildi. Uni tasdiqlashingiz yoki yangisini yaratishingiz mumkin.",
+        'confirm_contact'  => "Tasdiqlash",
+        'create_new_contact' => "Yangi yaratish",
+        'select_contact'   => "Kontaktni tanlang",
 
+        'contacts_group'         => "Kontaktlar guruhi",
+        'contacts'               => "Kontaktlar",
+        'contact_categories'     => "Kontakt kategoriyalari",
+        'contact_subcategories'  => "Kontakt pastki kategoriyalari",
+        'info'                   => "Maʼlumot",
+        'category'               => "Kategoriya",
+        'country'                => "Davlat",
 
-
-
-
-
-
-
-        'contacts_group'       => "Kontaktlar",
-        'contacts'             => "Kontaktlar",
-        'contact_categories'   => "Kategoriyalar",
-        'contact_subcategories'=> "Subkategoriyalar",
-        'info'                 => "Maʼlumot",
-        'category'      => "Kategoriya",
-        'country'      => "Davlat",
 
         'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
         'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
