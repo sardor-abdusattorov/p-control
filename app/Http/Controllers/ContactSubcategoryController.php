@@ -19,7 +19,7 @@ class ContactSubcategoryController extends Controller
      */
     public function index(ContactSubIndexRequest $request)
     {
-        $query = ContactSubcategory::with('category'); // Загрузка связанной категории
+        $query = ContactSubcategory::with('category');
 
         // 🔍 Фильтрация
         if ($request->filled('title')) {

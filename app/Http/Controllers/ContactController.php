@@ -19,22 +19,10 @@ class ContactController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            $user = auth()->user();
-
-            if (!$user) {
-                return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-            }
-            if ($user->can('manage contacts')) {
-                return $next($request);
-            }
-
-            if ($request->routeIs('contacts.storeModal') && $user->can('store contacts')) {
-                return $next($request);
-            }
-
-            return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-        });
+        $this->middleware('permission:create contact', ['only' => ['create', 'store', 'findByEmail', 'getCities', 'getSubcategories', 'storeModal']]);
+        $this->middleware('permission:read contact', ['only' => ['index', 'show']]);
+        $this->middleware('permission:update contact', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delete contact', ['only' => ['destroy', 'destroyBulk']]);
     }
 
     /**
@@ -235,7 +223,6 @@ class ContactController extends Controller
             ]);
         }
     }
-
 
     /**
      * Display the specified resource.
