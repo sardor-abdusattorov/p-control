@@ -3,7 +3,7 @@
         <p>{{lang().label.submit_confirmation}}</p>
         <template #footer>
             <Button :label="lang().button.cancel" class="p-button-text" @click="visible = false" />
-            <Button :label="lang().button.confirm" class="p-button-danger" @click="send" />
+            <Button :label="lang().button.confirm" class="p-button-success" @click="send" />
         </template>
     </Dialog>
 </template>
