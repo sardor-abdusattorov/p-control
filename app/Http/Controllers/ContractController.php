@@ -46,7 +46,7 @@ class ContractController extends Controller
                 'update contract' => ['contract.edit', 'contract.update', 'contract.remove-approver', 'contract.update-approvers', 'contract.upload-scan', 'contract.upload-scan.store'],
                 'delete contract' => ['contract.destroy', 'contract.destroy-bulk'],
                 'view contract' => ['contract.index', 'contract.show'],
-                'approve contract' => ['contract.approve', 'application.cancel'],
+                'approve contract' => ['contract.approve', 'contract.cancel'],
             ];
 
             foreach ($permissions as $permission => $routes) {
