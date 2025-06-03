@@ -75,7 +75,7 @@ return [
 
 
 
-
+        'cancel_contract'      => "Shartnomani bekor qilish",
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
         'unknown' => 'Nomaʼlum',
