@@ -163,23 +163,37 @@ class ContractController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+
     public function create()
     {
-        $currency = Currency::where(['status' => 1])->get();
+        $currency = Currency::where('status', 1)->get();
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $projects = Project::all();
-        $contacts = Contact::where('owner_id', auth()->id())
-            ->select('id', 'firstname', 'lastname', 'email')
-            ->orderBy('firstname')
-            ->get();
-
-        if (auth()->user()->can('view all applications')) {
-            $applications = Application::all();
-        } else {
-            $applications = auth()->user()->applications;
-        }
-        $users = User::approverOptions();
         $types = Application::getTypes();
+        $users = User::approverOptions();
+        $contacts = Contact::where('owner_id', auth()->id())
+        ->select('id', 'firstname', 'lastname', 'email')
+        ->orderBy('firstname')
+        ->get();
+
+        $applications = auth()->user()->can('view all applications')
+            ? Application::with('currency')->get()
+            : auth()->user()->applications()->with('currency')->get();
+
+        $groupedApplications = $applications
+            ->sortByDesc('created_at')
+            ->groupBy(fn ($app) => 'Валюта - ' . ($app->currency->name ?? '---'))
+            ->map(function ($apps, $currency) {
+                return [
+                    'label' => $currency,
+                    'items' => $apps->map(fn ($app) => [
+                        'id' => $app->id,
+                        'title' => $app->title,
+                        'type' => $app->type,
+                        'created_at' => $app->created_at,
+                    ])->values(),
+                ];
+            })->values();
 
         return Inertia::render('Contract/Create', [
             'title' => __('app.label.contracts'),
@@ -189,7 +203,7 @@ class ContractController extends Controller
             ],
             'currency' => $currency,
             'projects' => $projects,
-            'applications' => $applications,
+            'applications' => $groupedApplications,
             'users' => $users,
             'application_types' => $types,
             'recipients' => $recipients,
@@ -200,6 +214,7 @@ class ContractController extends Controller
             'statuses' => Contact::getStatuses(),
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -484,7 +499,7 @@ class ContractController extends Controller
                 ])
                 ->log('Пользователь отклонил контракт');
 
-            if ($contract->status !== Contract::STATUS_NEW) {
+            if ($contract->status === Contract::STATUS_IN_PROGRESS) {
                 $contract->update(['status' => Contract::STATUS_REJECTED]);
 
                 activity('contract')
@@ -497,6 +512,16 @@ class ContractController extends Controller
                     ])
                     ->log('Контракт отклонён после отказа согласующего');
             }
+
+            Approvals::where('approvable_type', Contract::class)
+                ->where('approvable_id', $contract->id)
+                ->where('user_id', '!=', $user->id)
+                ->where('approved', Approvals::STATUS_PENDING)
+                ->update([
+                    'approved' => Approvals::STATUS_REJECTED,
+                    'reason' => 'Автоматически отклонено после отказа одного из согласующих',
+                    'approved_at' => now(),
+                ]);
 
             return redirect()->route('contract.show', $contract->id)
                 ->with('success', __('app.label.cancelled_successfully', ['name' => $contract->title]));
@@ -515,7 +540,6 @@ class ContractController extends Controller
             return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $contract->title]));
         }
     }
-
 
     public function uploadScan(Contract $contract)
     {
@@ -575,11 +599,24 @@ class ContractController extends Controller
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
-        if (auth()->user()->can('view all applications')) {
-            $applications = Application::all();
-        } else {
-            $applications = auth()->user()->applications;
-        }
+        $applications = auth()->user()->can('view all applications')
+            ? Application::with('currency')->get()
+            : auth()->user()->applications()->with('currency')->get();
+
+        $groupedApplications = $applications
+            ->sortByDesc('created_at')
+            ->groupBy(fn ($app) => 'Валюта - ' . ($app->currency->name ?? '---'))
+            ->map(function ($apps, $currency) {
+                return [
+                    'label' => $currency,
+                    'items' => $apps->map(fn ($app) => [
+                        'id' => $app->id,
+                        'title' => $app->title,
+                        'type' => $app->type,
+                        'created_at' => $app->created_at,
+                    ])->values(),
+                ];
+            })->values();
         $users = User::approverOptions();
 
         return inertia('Contract/Edit', [
@@ -587,7 +624,7 @@ class ContractController extends Controller
             'currency' => $currency,
             'contacts' => $contacts,
             'projects' => $projects,
-            'applications' => $applications,
+            'applications' => $groupedApplications,
             'application_types' => $types,
             'approval_user_ids' => $contract->approvals()
                 ->where('approved', '!=', Approvals::STATUS_INVALIDATED)

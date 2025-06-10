@@ -3,61 +3,93 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\Approvals;
 use App\Models\Contract;
-use App\Models\Task;
+use App\Models\User;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+
     public function index()
     {
         $user = auth()->user();
 
-        // Applications
-        if ($user->can('view all applications')) {
-            $applicationsCount = Application::count();
-            $approvedApplicationsCount = Application::where('status_id', Application::STATUS_APPROVED)->count();
-            $rejectedApplicationsCount = Application::where('status_id', Application::STATUS_REJECTED)->count();
-            $inProgressApplicationsCount = Application::where('status_id', Application::STATUS_IN_PROGRESS)->count();
-            $newApplicationsCount = Application::where('status_id', Application::STATUS_NEW)->count();
-        } else {
-            $applicationsCount = Application::where('user_id', $user->id)->count();
-            $approvedApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_APPROVED)->count();
-            $rejectedApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_REJECTED)->count();
-            $inProgressApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_IN_PROGRESS)->count();
-            $newApplicationsCount = Application::where('user_id', $user->id)->where('status_id', Application::STATUS_NEW)->count();
-        }
-
-        // Contracts
-        if ($user->can('view all contracts')) {
-            $contractsCount = Contract::count();
-            $approvedContractsCount = Contract::where('status', Contract::STATUS_APPROVED)->count();
-            $rejectedContractsCount = Contract::where('status', Contract::STATUS_REJECTED)->count();
-            $inProgressContractsCount = Contract::where('status', Contract::STATUS_IN_PROGRESS)->count();
-            $newContractsCount = Contract::where('status', Contract::STATUS_NEW)->count();
-        } else {
-            $contractsCount = Contract::where('user_id', $user->id)->count();
-            $approvedContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_APPROVED)->count();
-            $rejectedContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_REJECTED)->count();
-            $inProgressContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_IN_PROGRESS)->count();
-            $newContractsCount = Contract::where('user_id', $user->id)->where('status', Contract::STATUS_NEW)->count();
-        }
+        $applicationsQuery = $this->getVisibleApplicationsQuery($user);
+        $contractsQuery = $this->getVisibleContractsQuery($user);
 
         return Inertia::render('Dashboard', [
-            // Applications data
-            'applicationsCount' => $applicationsCount,
-            'approvedApplicationsCount' => $approvedApplicationsCount,
-            'rejectedApplicationsCount' => $rejectedApplicationsCount,
-            'inProgressApplicationsCount' => $inProgressApplicationsCount,
-            'newApplicationsCount' => $newApplicationsCount,
+            'applicationsCount' => $applicationsQuery->count(),
+            'approvedApplicationsCount' => (clone $applicationsQuery)->where('status_id', Application::STATUS_APPROVED)->count(),
+            'rejectedApplicationsCount' => (clone $applicationsQuery)->where('status_id', Application::STATUS_REJECTED)->count(),
+            'inProgressApplicationsCount' => (clone $applicationsQuery)->where('status_id', Application::STATUS_IN_PROGRESS)->count(),
+            'newApplicationsCount' => $user->hasRole('superadmin') || $user->hasRole('manager')
+                ? (clone $applicationsQuery)->where('status_id', Application::STATUS_NEW)->count()
+                : null,
 
-            // Contracts data
-            'contractsCount' => $contractsCount,
-            'approvedContractsCount' => $approvedContractsCount,
-            'rejectedContractsCount' => $rejectedContractsCount,
-            'inProgressContractsCount' => $inProgressContractsCount,
-            'newContractsCount' => $newContractsCount,
+            'contractsCount' => $contractsQuery->count(),
+            'approvedContractsCount' => (clone $contractsQuery)->where('status', Contract::STATUS_APPROVED)->count(),
+            'rejectedContractsCount' => (clone $contractsQuery)->where('status', Contract::STATUS_REJECTED)->count(),
+            'inProgressContractsCount' => (clone $contractsQuery)->where('status', Contract::STATUS_IN_PROGRESS)->count(),
+            'newContractsCount' => $user->hasRole('superadmin') || $user->hasRole('manager')
+                ? (clone $contractsQuery)->where('status', Contract::STATUS_NEW)->count()
+                : null,
         ]);
     }
+
+
+    private function getVisibleContractsQuery(User $user)
+    {
+        if ($user->hasRole('superadmin')) {
+            return Contract::query();
+        }
+
+        if ($user->hasRole('manager')) {
+            return Contract::where('user_id', $user->id);
+        }
+
+        if ($user->hasRole(['lawyer', 'accountant', 'accounting'])) {
+            $approvableIds = Approvals::where('approvable_type', Contract::class)
+                ->where('user_id', $user->id)
+                ->pluck('approvable_id');
+
+            return Contract::whereIn('id', $approvableIds)
+                ->where('status', '!=', Contract::STATUS_NEW);
+        }
+
+        return Contract::where('id', 0);
+    }
+
+    private function getVisibleApplicationsQuery(User $user)
+    {
+        if ($user->hasRole('superadmin')) {
+            return Application::query();
+        }
+
+        if ($user->hasRole('manager')) {
+            return Application::where('user_id', $user->id);
+        }
+
+        if ($user->hasRole(['lawyer', 'accountant', 'accounting'])) {
+            $approvableIds = Approvals::where('approvable_type', Application::class)
+                ->where('user_id', $user->id)
+                ->pluck('approvable_id');
+
+            return Application::where(function ($q) use ($approvableIds) {
+                $q->whereIn('id', $approvableIds)
+                    ->orWhere('type', 2);
+            })->where(function ($q) {
+                $q->where('status_id', '!=', Application::STATUS_NEW)
+                    ->orWhere('type', 2);
+            });
+        }
+
+        return Application::where('type', 2)
+            ->where(function ($q) {
+                $q->where('status_id', '!=', Application::STATUS_NEW)
+                    ->orWhere('type', 2);
+            });
+    }
+
 
 }

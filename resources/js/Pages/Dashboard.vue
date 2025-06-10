@@ -24,7 +24,7 @@ const props = defineProps({
         <Breadcrumb :title="lang().label.dashboard" :breadcrumbs="[]" />
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Applications Block -->
+
             <div class="p-6 rounded-xl shadow-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 relative overflow-hidden flex flex-col justify-between">
                 <div>
                     <InboxIcon class="absolute top-4 right-4 w-16 h-16 opacity-10" />
@@ -35,15 +35,19 @@ const props = defineProps({
                             <strong>{{ props.applicationsCount }}</strong>
                         </p>
 
-                        <!-- Новая -->
-                        <p class="text-lg text-blue-600 dark:text-blue-400">
-                            <Link :href="route('application.index', { status_id: 1, order: 'asc', perPage: 10 })" class="hover:underline">
+                        <p
+                            v-if="props.newApplicationsCount !== null"
+                            class="text-lg text-blue-600 dark:text-blue-400"
+                        >
+                            <Link
+                                :href="route('application.index', { status_id: 1, order: 'asc', perPage: 10 })"
+                                class="hover:underline"
+                            >
                                 {{ lang().status.new }}:
                                 <strong>{{ props.newApplicationsCount }}</strong>
                             </Link>
                         </p>
 
-                        <!-- Отправлена -->
                         <p class="text-lg text-yellow-600 dark:text-yellow-400">
                             <Link :href="route('application.index', { status_id: 2, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.in_progress }}:
@@ -51,7 +55,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Одобрена -->
                         <p class="text-lg text-green-600 dark:text-green-400">
                             <Link :href="route('application.index', { status_id: 3, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.approved }}:
@@ -59,7 +62,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Отказана -->
                         <p class="text-lg text-red-600 dark:text-red-400">
                             <Link :href="route('application.index', { status_id: -1, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.rejected }}:
@@ -67,7 +69,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Аннулирована -->
                         <p class="text-lg text-gray-600 dark:text-gray-400">
                             <Link :href="route('application.index', { status_id: -2, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.invalidated }}:
@@ -85,7 +86,6 @@ const props = defineProps({
                 </Link>
             </div>
 
-            <!-- Contracts Block -->
             <div class="p-6 rounded-xl shadow-lg bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 relative overflow-hidden flex flex-col justify-between">
                 <div>
                     <DocumentTextIcon class="absolute top-4 right-4 w-16 h-16 opacity-10" />
@@ -96,15 +96,19 @@ const props = defineProps({
                             <strong>{{ props.contractsCount }}</strong>
                         </p>
 
-                        <!-- Новые -->
-                        <p class="text-lg text-blue-600 dark:text-blue-400">
-                            <Link :href="route('contract.index', { status: 1, order: 'asc', perPage: 10 })" class="hover:underline">
+                        <p
+                            v-if="props.newContractsCount !== null"
+                            class="text-lg text-blue-600 dark:text-blue-400"
+                        >
+                            <Link
+                                :href="route('contract.index', { status: 1, order: 'asc', perPage: 10 })"
+                                class="hover:underline"
+                            >
                                 {{ lang().status.new }}:
                                 <strong>{{ props.newContractsCount }}</strong>
                             </Link>
                         </p>
 
-                        <!-- В процессе -->
                         <p class="text-lg text-yellow-600 dark:text-yellow-400">
                             <Link :href="route('contract.index', { status: 2, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.in_progress }}:
@@ -112,7 +116,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Одобренные -->
                         <p class="text-lg text-green-600 dark:text-green-400">
                             <Link :href="route('contract.index', { status: 3, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.approved }}:
@@ -120,7 +123,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Отклонённые -->
                         <p class="text-lg text-red-600 dark:text-red-400">
                             <Link :href="route('contract.index', { status: -1, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.rejected }}:
@@ -128,7 +130,6 @@ const props = defineProps({
                             </Link>
                         </p>
 
-                        <!-- Аннулированные, если нужно -->
                         <p class="text-lg text-gray-600 dark:text-gray-400">
                             <Link :href="route('contract.index', { status: -2, order: 'asc', perPage: 10 })" class="hover:underline">
                                 {{ lang().status.invalidated }}:
