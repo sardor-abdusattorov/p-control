@@ -72,7 +72,10 @@ return [
         'cannot_delete_has_progress' => 'Oʻchirish mumkin emas, chunki ariza boʻyicha kelishuv jarayoni boshlangan.',
         'scans' => 'Skaner fayllari',
         "application_contract_notice" => "Kontrakt tuzishdan oldin kontrakt shartlariga mos keladigan to‘g‘ri arizani tanlash zarur. Arizadagi barcha ma'lumotlar to‘g‘ri to‘ldirilganligiga ishonch hosil qiling. Agar mos ariza mavjud bo‘lmasa, davom etishdan oldin uni yaratishingiz kerak.",
-
+        'application_currency_mismatch' => 'Shartnoma valyutasi ariza valyutasi bilan mos bo‘lishi kerak.',
+        'cancelled_successfully' => 'Muvaffaqiyatli rad etildi',
+        'cancel_contract' => 'Shartnomani rad etish',
+        'cancel_approval' => 'Rad etish',
 
 
         'cancel_contract'      => "Shartnomani bekor qilish",

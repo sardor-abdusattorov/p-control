@@ -117,10 +117,13 @@
                         <Select
                             id="application_id"
                             v-model="form.application_id"
+                            :options="filteredApplications"
                             optionLabel="title"
                             optionValue="id"
-                            :options="filteredApplications"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             filter
+                            showClear
                             checkmark
                             :highlightOnSelect="false"
                             class="w-full"
@@ -128,11 +131,12 @@
                             :placeholder="lang().label.application_id"
                             :filterPlaceholder="lang().placeholder.select_application"
                             :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+        option: { class: 'custom-option' },
+        dropdown: { style: { maxWidth: '300px' } },
+        overlay: { class: 'parent-wrapper-class' }
+    }"
                         />
+
                         <InputError class="mt-2" :message="form.errors.application_id" />
                     </div>
 
@@ -360,8 +364,19 @@ const form = useForm({
 });
 
 const filteredApplications = computed(() => {
-    if (!form.application_type) return [];
-    return props.applications.filter(app => app.type === form.application_type);
+    if (!form.application_type || !props.applications) return [];
+
+    return props.applications
+        .map(group => {
+            const filteredItems = group.items
+                .filter(app => app.type === form.application_type);
+
+            return {
+                label: group.label,
+                items: filteredItems,
+            };
+        })
+        .filter(group => group.items.length > 0);
 });
 
 watch(() => form.application_type, () => {
