@@ -90,4 +90,10 @@ class Contract extends Model implements HasMedia
         return $this->belongsTo(Contact::class);
     }
 
+    public function application()
+    {
+        return $this->belongsTo(\App\Models\Application::class, 'application_id');
+    }
+
+
 }

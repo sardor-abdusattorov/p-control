@@ -9,9 +9,9 @@ use App\Http\Controllers\{ActivityLogController,
     CurrencyController,
     DepartmentsController,
     HomeController,
-    NotificationController,
     PermissionController,
     PositionsController,
+    ProductBrandController,
     ProfileController,
     ProjectsController,
     RoleController,
@@ -59,11 +59,18 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::resource('departments', DepartmentsController::class);
     Route::post('/departments/destroy-bulk', [DepartmentsController::class, 'destroyBulk'])->name('departments.destroy-bulk');
 
+    Route::resource('product-brands', ProductBrandController::class)->names('product_brands')->except('update');
+    Route::post('/product-brands/{product_brand}/update', [ProductBrandController::class, 'update'])->name('product_brands.update');
+    Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
+        ->name('product_brands.destroy-bulk');
+
     Route::resource('projects', ProjectsController::class);
     Route::prefix('projects/{project}')->name('projects.')->group(function () {
         Route::get('/related-contracts', [ProjectsController::class, 'relatedContracts'])->name('related-contracts');
     });
     Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
+    Route::get('/projects/{project}/contracts/export', [ProjectsController::class, 'exportContracts'])
+        ->name('projects.contracts.export');
 
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');

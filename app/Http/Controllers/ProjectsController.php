@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ProjectContractsExport;
 use App\Http\Requests\Contract\ContractRelatedRequest;
 use App\Http\Requests\Projects\ProjectsIndexRequest;
 use App\Http\Requests\Projects\ProjectsStoreRequest;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProjectsController extends Controller
 {
@@ -31,7 +33,7 @@ class ProjectsController extends Controller
                 'create project' => ['projects.create', 'projects.store'],
                 'update project' => ['projects.edit', 'projects.update'],
                 'delete project' => ['projects.destroy', 'projects.destroy-bulk'],
-                'view project' => ['projects.index', 'projects.show', 'projects.related-contracts'],
+                'view project' => ['projects.index', 'projects.show', 'projects.related-contracts', 'projects.contracts.export'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -339,6 +341,12 @@ class ProjectsController extends Controller
 
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.projects')]) . $th->getMessage());
         }
+    }
+
+
+    public function exportContracts(Project $project)
+    {
+        return Excel::download(new ProjectContractsExport($project), 'contracts_project_' . $project->id . '.xlsx');
     }
 
 }
