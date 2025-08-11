@@ -140,7 +140,6 @@
                                     {{ project.title }}
                                 </Link>
                             </td>
-
                             <td
                                 v-tooltip="lang().tooltip.detail"
                                 @click="project.contracts.length > 0 ? (data.contractsOpen = true, data.project = project) : null"
@@ -162,11 +161,18 @@
                             </td>
                             <td class="whitespace-nowrap py-4 px-2">
                                 <div class="gap-1 justify-center overflow-hidden flex items-center">
+                                    <ExcelButton
+                                        :disabled="!project.contracts.length"
+                                        aria-label="Экспорт контрактов в Excel"
+                                        @click="exportContractsExcel(project.id)"
+                                        v-tooltip="'Экспорт контрактов в Excel'"
+                                    />
                                     <ViewLink
                                         :href="route('projects.show', { project: project.id })"
                                         v-tooltip="lang().tooltip.show"
                                     />
-                                    <EditLink  v-show="can(['update project'])"
+                                    <EditLink
+                                        v-show="can(['update project'])"
                                         :href="route('projects.edit', { project: project.id })"
                                         v-tooltip="lang().tooltip.edit"
                                     />
@@ -179,6 +185,7 @@
                                         <TrashIcon class="w-4 h-4" />
                                     </DangerButton>
                                 </div>
+
                             </td>
                         </tr>
                         </tbody>
@@ -214,6 +221,7 @@ import Select from "primevue/select";
 import InputText from "primevue/inputtext";
 import Badge from "primevue/badge";
 import Contracts from "@/Pages/Projects/Contracts.vue";
+import ExcelButton from "@/Components/ExcelButton.vue";
 
 const { _, debounce, pickBy } = pkg;
 
@@ -288,5 +296,10 @@ const getStatusSeverity = (statusId) => {
             return 'info';
     }
 };
+
+const exportContractsExcel = (projectId) => {
+    window.open(route('projects.contracts.export', { project: projectId }), '_blank');
+};
+
 
 </script>

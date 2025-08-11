@@ -1,12 +1,61 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Основная информация',
+        'contact'  => 'Контактная информация',
+        'company'  => 'Информация о компании',
+        'address'  => 'Адресная информация',
+        'category' => 'Выбор категории',
+    ],
+
     'type' => [
         'request' => 'Заявка',
         'memo' => 'Служебная записка',
     ],
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'parameters' => 'Параметры',
+        'sort' => 'Порядок сортировки',
+        'product_brands' => 'Бренды продукции',
+        'product_categories'=> 'Категория продуктов',
+        'products' => 'Продукты',
+        'serial_number' => 'Серийный номер',
+        'inventory_number' => 'Инвентарный номер',
+        'brand_id' => 'Бренд',
+        'category_id' => 'Категория',
+
+        'firstname'        => "Имя",
+        'lastname'         => "Фамилия",
+        'company'          => "Название компании",
+        'phone'            => "Телефон",
+        'cellphone'        => "Мобильный телефон",
+        'language'         => "Язык",
+        'city'             => "Город",
+        'address'          => "Адрес",
+        'address2'         => "Дополнительный адрес",
+        'post_box'         => "Почтовый ящик",
+        'zip_code'         => "Почтовый индекс",
+        'subcategory'      => "Подкатегория",
+        'select_category'  => "Выберите категорию",
+        'select_subcategory' => "Выберите подкатегорию",
+        'prefix'           => "Префикс",
+        'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
+        'contact_found'    => 'Контакт найден. Вы можете подтвердить его или создать новый.',
+        'confirm_contact'  => 'Подтвердить',
+        'create_new_contact' => 'Создать новый',
+        'select_contact'   => "Выберите контакт",
+
+        'contacts_group'         => "Группа контактов",
+        'contacts'               => "Контакты",
+        'contact_categories'     => "Категории контактов",
+        'contact_subcategories'  => "Подкатегории контактов",
+        'info'                   => "Информация",
+        'category'               => "Категория",
+        'country'                => "Страна",
+
+
+
         'cannot_submit_non_draft' => 'Можно отправить только черновик.',
         'submitted_successfully' => 'Заявка успешно отправлена на согласование.',
         'submit_failed' => 'Ошибка при отправке заявки.',
@@ -34,7 +83,6 @@ return [
         'application_currency_mismatch' => 'Валюта контракта должна совпадать с валютой заявки.',
         'cancelled_successfully' => 'Успешно отклонено',
         'cancel_contract' => 'Отклонить контракт',
-
 
 
         'delete_user_confirm' => 'Вы действительно хотите удалить пользователя',
@@ -280,6 +328,16 @@ return [
         'guard_name' => 'Страж',
         'enter_note' => 'Введите заметку',
         'select_project' => 'Выберите проект...',
+        'select_country' => 'Выберите страну',
+        'sort' => 'Введите значение сортировки',
+        'product_categories'=> 'Категории продуктов',
+        'products' => 'Продукты',
+        'serial_number' => 'Введите серийный номер',
+        'inventory_number' => 'Введите инвентарный номер',
+        'parameters' => 'Введите параметры',
+        'brand_id' => 'Выберите бренд',
+        'category_id' => 'Выберите категорию',
+
     ],
     'tooltip' => [
         'send_for_approval' => 'Отправить на согласование',

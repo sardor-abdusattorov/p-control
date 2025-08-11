@@ -1,22 +1,25 @@
 <?php
 
-use App\Http\Controllers\{
-    ActivityLogController,
+use App\Http\Controllers\{ActivityLogController,
     ApplicationController,
+    ContactCategoryController,
+    ContactController,
+    ContactSubcategoryController,
     ContractController,
     CurrencyController,
     DepartmentsController,
     HomeController,
-    NotificationController,
     PermissionController,
     PositionsController,
+    ProductBrandController,
+    ProductCategoryController,
+    ProductController,
     ProfileController,
     ProjectsController,
     RoleController,
     StatusController,
     TaskController,
-    UserController
-};
+    UserController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -58,11 +61,18 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::resource('departments', DepartmentsController::class);
     Route::post('/departments/destroy-bulk', [DepartmentsController::class, 'destroyBulk'])->name('departments.destroy-bulk');
 
+    Route::resource('product-brands', ProductBrandController::class)->names('product_brands')->except('update');
+    Route::post('/product-brands/{product_brand}/update', [ProductBrandController::class, 'update'])->name('product_brands.update');
+    Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
+        ->name('product_brands.destroy-bulk');
+
     Route::resource('projects', ProjectsController::class);
     Route::prefix('projects/{project}')->name('projects.')->group(function () {
         Route::get('/related-contracts', [ProjectsController::class, 'relatedContracts'])->name('related-contracts');
     });
     Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
+    Route::get('/projects/{project}/contracts/export', [ProjectsController::class, 'exportContracts'])
+        ->name('projects.contracts.export');
 
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');
@@ -99,6 +109,36 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/permission/destroy-bulk', [PermissionController::class, 'destroyBulk'])->name('permission.destroy-bulk');
 
     Route::resource('logs', ActivityLogController::class);
+
+    Route::resource('contacts', ContactController::class);
+    Route::post('/contacts/destroy-bulk', [ContactController::class, 'destroyBulk'])->name('contacts.destroy-bulk');
+    Route::post('/contacts/cities', [ContactController::class, 'getCities'])->name('contacts.cities');
+    Route::post('/contacts/subcategories', [ContactController::class, 'getSubcategories'])->name('contacts.subcategories');
+    Route::post('/contacts/find', [ContactController::class, 'findByEmail'])->name('contacts.find');
+    Route::post('/contacts/store-modal', [ContactController::class, 'storeModal'])->name('contacts.storeModal');
+
+    Route::resource('contact-categories', ContactCategoryController::class);
+    Route::post('/contact-categories/destroy-bulk', [ContactCategoryController::class, 'destroyBulk'])->name('contact-categories.destroy-bulk');
+
+    Route::resource('contact-subcategories', ContactSubcategoryController::class);
+    Route::post('/contact-subcategories/destroy-bulk', [ContactSubcategoryController::class, 'destroyBulk'])->name('contact-subcategories.destroy-bulk');
+
+
+    Route::resource('product-brands', ProductBrandController::class)->names('product_brands')->except('update');
+    Route::post('/product-brands/{product_brand}/update', [ProductBrandController::class, 'update'])->name('product_brands.update');
+    Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
+        ->name('product_brands.destroy-bulk');
+
+    Route::resource('product-categories', ProductCategoryController::class)->names('product_categories')->except('update');
+    Route::post('/product-categories/{product_category}/update', [ProductCategoryController::class, 'update'])->name('product_categories.update');
+    Route::post('/product-categories/destroy-bulk', [ProductCategoryController::class, 'destroyBulk'])
+        ->name('product_categories.destroy-bulk');
+
+    Route::resource('products', ProductController::class)->names('products')->except('update');
+    Route::post('/products/{product}/update', [ProductController::class, 'update'])->name('products.update');
+    Route::post('/products/destroy-bulk', [ProductController::class, 'destroyBulk'])
+        ->name('products.destroy-bulk');
+
 });
 
 require __DIR__.'/auth.php';

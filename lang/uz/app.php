@@ -1,12 +1,59 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Asosiy maʼlumot',
+        'contact'  => 'Aloqa maʼlumoti',
+        'company'  => 'Kompaniya haqida maʼlumot',
+        'address'  => 'Manzil maʼlumoti',
+        'category' => 'Kategoriya tanlovi',
+    ],
+
     'type' => [
         'request' => 'Ariza',
         'memo' => 'Xizmat yozuvi',
     ],
-    'deny_access' => 'Sizning ushbu bo\'limga kirish huquqingiz yo\'q',
+
+    'deny_access' => 'Sizda bu bo‘limga kirish huquqi yo‘q',
     'label' => [
+        'brand_id' => 'Brend',
+        'category_id' => 'Kategoriya',
+        'inventory_number' => 'Inventar raqami',
+        'parameters' => 'Parametrlar',
+        'products' => 'Maxsulotlar',
+        'product_categories'=> 'Mahsulot kategoriyalari',
+        'product_brands' => 'Mahsulot brendlari',
+        'sort' => 'Saralash tartibi',
+        'firstname'        => "Ism",
+        'lastname'         => "Familiya",
+        'company'          => "Kompaniya nomi",
+        'phone'            => "Telefon",
+        'cellphone'        => "Mobil telefon",
+        'language'         => "Til",
+        'city'             => "Shahar",
+        'address'          => "Manzil",
+        'address2'         => "Qo‘shimcha manzil",
+        'post_box'         => "Pochta qutisi",
+        'zip_code'         => "Pochta indeksi",
+        'subcategory'      => "Pastki kategoriya",
+        'select_category'  => "Kategoriyani tanlang",
+        'select_subcategory' => "Pastki kategoriyani tanlang",
+        'prefix'           => "Prefiks",
+        'contact_not_found' => "Ko‘rsatilgan email bo‘yicha kontakt topilmadi. Iltimos, shaklni qo‘lda to‘ldiring.",
+        'contact_found'    => "Kontakt topildi. Uni tasdiqlashingiz yoki yangisini yaratishingiz mumkin.",
+        'confirm_contact'  => "Tasdiqlash",
+        'create_new_contact' => "Yangi yaratish",
+        'select_contact'   => "Kontaktni tanlang",
+
+        'contacts_group'         => "Kontaktlar guruhi",
+        'contacts'               => "Kontaktlar",
+        'contact_categories'     => "Kontakt kategoriyalari",
+        'contact_subcategories'  => "Kontakt pastki kategoriyalari",
+        'info'                   => "Maʼlumot",
+        'category'               => "Kategoriya",
+        'country'                => "Davlat",
+
+
         'cannot_submit_non_draft' => 'Faqatgina qoralama holatidagi arizani yuborish mumkin.',
         'submitted_successfully' => 'Ariza muvofiqlashtirishga muvaffaqiyatli yuborildi.',
         'submit_failed' => 'Arizani yuborishda xatolik yuz berdi.',
@@ -36,7 +83,6 @@ return [
         'cancelled_successfully' => 'Muvaffaqiyatli rad etildi',
         'cancel_contract' => 'Shartnomani rad etish',
         'cancel_approval' => 'Rad etish',
-
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
         'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
@@ -279,6 +325,15 @@ return [
         'guard_name' => 'Xavfsizlik',
         'enter_note' => 'Izoh kiriting',
         'select_project' => 'Loyihani tanlang...',
+        'sort' => 'Saralash qiymatini kiriting',
+        'select_country' => 'Davlatni tanlang',
+        'product_categories'=> 'Mahsulot kategoriyalari',
+        'products' => 'Mahsulotlar',
+        'serial_number' => 'Seriya raqamini kiriting',
+        'inventory_number' => 'Inventar raqamini kiriting',
+        'parameters' => 'Parametrni kiriting',
+        'brand_id' => 'Brendni tanlang',
+        'category_id' => 'Kategoriyani tanlang',
     ],
     'tooltip' => [
         'show' => 'Ko‘rsatish',

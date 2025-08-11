@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Altwaireb\World\Models\Country;
 use App\Http\Requests\Contract\ContractApproversUpdateRequest;
 use App\Http\Requests\Contract\ContractIndexRequest;
 use App\Http\Requests\Contract\ContractScanRequest;
@@ -11,6 +12,9 @@ use App\Http\Requests\Contract\ContractUserDeleteRequest;
 use App\Models\Application;
 use App\Models\Approvals;
 
+use App\Models\Contact;
+use App\Models\ContactCategory;
+use App\Models\ContactSubcategory;
 use App\Models\Contract;
 use App\Models\Currency;
 use App\Models\Project;
@@ -159,6 +163,7 @@ class ContractController extends Controller
     /**
      * Show the form for creating a new resource.
      */
+
     public function create()
     {
         $currency = Currency::where('status', 1)->get();
@@ -166,6 +171,10 @@ class ContractController extends Controller
         $projects = Project::all();
         $types = Application::getTypes();
         $users = User::approverOptions();
+        $contacts = Contact::where('owner_id', auth()->id())
+        ->select('id', 'firstname', 'lastname', 'email')
+        ->orderBy('firstname')
+        ->get();
 
         $applications = auth()->user()->can('view all applications')
             ? Application::with('currency')->get()
@@ -197,9 +206,15 @@ class ContractController extends Controller
             'applications' => $groupedApplications,
             'users' => $users,
             'application_types' => $types,
-            'recipients' => $recipients
+            'recipients' => $recipients,
+            'contacts'          => $contacts,
+            'categories'      => ContactCategory::where('status', 1)->get(),
+            'subCategories'   => ContactSubcategory::where('status', 1)->get(),
+            'countries'       => Country::select('id', 'name')->orderBy('name')->get(),
+            'statuses' => Contact::getStatuses(),
         ]);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -213,6 +228,7 @@ class ContractController extends Controller
                 'contract_number' => $request->contract_number,
                 'title' => $request->title,
                 'project_id' => $request->project_id,
+                'contact_id' => $request->contact_id,
                 'application_id' => $request->application_id ?? null,
                 'currency_id' => $request->currency_id,
                 'user_id' => auth()->id(),
@@ -333,7 +349,7 @@ class ContractController extends Controller
         $scans = $contract->getMedia('scans');
         $project = Project::find($contract->project_id);
 
-        $application = Application::with(['media', 'user', 'currency'])->find($contract->application_id);
+        $application = Application::with(['media', 'user'])->find($contract->application_id);
 
         if ($application) {
             $applicationFiles = $application->getMedia('documents');
@@ -525,7 +541,6 @@ class ContractController extends Controller
         }
     }
 
-
     public function uploadScan(Contract $contract)
     {
         if ($contract->status !== Contract::STATUS_APPROVED) {
@@ -576,12 +591,14 @@ class ContractController extends Controller
      */
     public function edit(Contract $contract)
     {
+        $contacts = Contact::where('owner_id', auth()->id())
+            ->select('id', 'firstname', 'lastname', 'email')
+            ->orderBy('firstname')
+            ->get();
         $types = Application::getTypes();
-        $currency = Currency::where('status', 1)->get();
+        $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
         $projects = Project::all();
-        $users = User::approverOptions();
-
         $applications = auth()->user()->can('view all applications')
             ? Application::with('currency')->get()
             : auth()->user()->applications()->with('currency')->get();
@@ -600,10 +617,12 @@ class ContractController extends Controller
                     ])->values(),
                 ];
             })->values();
+        $users = User::approverOptions();
 
         return inertia('Contract/Edit', [
             'contract' => $contract,
             'currency' => $currency,
+            'contacts' => $contacts,
             'projects' => $projects,
             'applications' => $groupedApplications,
             'application_types' => $types,
@@ -621,7 +640,6 @@ class ContractController extends Controller
             ]
         ]);
     }
-
 
     /**
      * Update the specified resource in storage.
@@ -665,6 +683,7 @@ class ContractController extends Controller
                 'contract_number' => $request->contract_number,
                 'title' => $request->title,
                 'project_id' => $request->project_id,
+                'contact_id' => $request->contact_id,
                 'application_id' => $request->application_id,
                 'currency_id' => $request->currency_id,
                 'budget_sum' => $request->budget_sum,

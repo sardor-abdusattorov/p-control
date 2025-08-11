@@ -31,6 +31,7 @@ class Contract extends Model implements HasMedia
         'title',
         'budget_sum',
         'deadline',
+        'contact_id',
     ];
 
     public function user()
@@ -83,5 +84,16 @@ class Contract extends Model implements HasMedia
                 'reason' => $approval->reason,
             ]);
     }
+
+    public function contact()
+    {
+        return $this->belongsTo(Contact::class);
+    }
+
+    public function application()
+    {
+        return $this->belongsTo(\App\Models\Application::class, 'application_id');
+    }
+
 
 }

@@ -61,6 +61,25 @@
                         <InputError class="mt-2" :message="form.errors.project_id"/>
                     </div>
 
+                    <div class="form-group mb-5">
+                        <InputLabel for="contact_id" :value="lang().section.contact" />
+                        <div class="flex gap-2">
+                            <Select
+                                id="contact_id"
+                                v-model="form.contact_id"
+                                :options="formattedContacts"
+                                optionLabel="display"
+                                optionValue="id"
+                                filter
+                                showClear
+                                checkmark
+                                class="w-full"
+                                :placeholder="lang().label.select_contact"
+                            />
+                        </div>
+                        <InputError class="mt-2" :message="form.errors.contact_id" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select
@@ -75,10 +94,10 @@
                             :placeholder="lang().placeholder.select_type"
                             :highlightOnSelect="false"
                             :pt="{
-            option: { class: 'custom-option' },
-            dropdown: { style: { maxWidth: '300px' } },
-            overlay: { class: 'parent-wrapper-class' }
-        }"
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
                         />
                         <InputError class="mt-2" :message="form.errors.type" />
                     </div>
@@ -332,6 +351,7 @@ const props = defineProps({
     contract: Object,
     users: Array,
     projects: Array,
+    contacts: Object,
     applications: Array,
     currency: Array,
     files: Array,
@@ -353,6 +373,7 @@ const form = useForm({
     budget_sum: "",
     deadline: "",
     application_type: "",
+    contact_id: null,
 });
 
 const filteredApplications = computed(() => {
@@ -410,6 +431,7 @@ watchEffect(() => {
     form.currency_id = props.contract.currency_id;
     form.title = props.contract.title;
     form.budget_sum = props.contract.budget_sum;
+    form.contact_id = props.contract.contact_id;
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
     form.files = [];
     form.errors = {};
@@ -452,6 +474,16 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
+
+const formattedContacts = computed(() => {
+    return props.contacts.map(contact => ({
+        id: contact.id,
+        firstname: contact.firstname || '',
+        lastname: contact.lastname || '',
+        email: contact.email || '',
+        display: `${contact.firstname} ${contact.lastname} – ${contact.email}`.trim()
+    }))
+})
 
 </script>
 

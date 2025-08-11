@@ -99,7 +99,7 @@
                             </th>
                             <th class="px-2 py-4 text-center min-w-28">{{ lang().label.actions }}</th>
                         </tr>
-                            <tr class="dark:bg-slate-900/50 text-left">
+                        <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4 text-center">
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" v-show="can(['delete application'])" v-if="isAdmin"/>
                             </th>
@@ -190,12 +190,12 @@
                         >
                             <td class="whitespace-nowrap py-4 px-2 text-center">
                                 <input v-show="can(['delete contract'])"
-                                    class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
-                                    type="checkbox"
-                                    @change="select"
-                                    :value="contract.id"
-                                    v-model="data.selectedId"
-                                    v-if="isAdmin"
+                                       class="rounded dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-primary dark:text-primary shadow-sm focus:ring-primary/80 dark:focus:ring-primary dark:focus:ring-offset-slate-800 dark:checked:bg-primary dark:checked:border-primary"
+                                       type="checkbox"
+                                       @change="select"
+                                       :value="contract.id"
+                                       v-model="data.selectedId"
+                                       v-if="isAdmin"
                                 />
                             </td>
 
@@ -543,4 +543,3 @@ const getUniqueApprovals = (list) => {
 
 
 </script>
-

@@ -1,6 +1,11 @@
 <?php
 
+use App\Models\Product;
+use App\Models\ProductBrand;
+use App\Models\ProductCategory;
 use App\Models\User;
+use App\Services\ImagesGenerator;
+use App\Services\UserImageGenerator;
 
 return [
 
@@ -89,7 +94,10 @@ return [
      * Here you can specify which path generator should be used for the given class.
      */
     'custom_path_generators' => [
-        User::class => \App\Services\UserImageGenerator::class,
+        User::class => UserImageGenerator::class,
+        Product::class => ImagesGenerator::class,
+        ProductBrand::class => ImagesGenerator::class,
+        ProductCategory::class => ImagesGenerator::class,
         // Model::class => PathGenerator::class
         // or
         // 'model_morph_alias' => PathGenerator::class

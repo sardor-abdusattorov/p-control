@@ -1,12 +1,85 @@
 <?php
 
 return [
+    'section' => [
+        'basic'    => 'Basic Information',
+        'contact'  => 'Contact Information',
+        'company'  => 'Company Information',
+        'address'  => 'Address Information',
+        'category' => 'Category Selection',
+    ],
+
     'type' => [
         'request' => 'Application',
         'memo' => 'Internal memo',
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'parameters' => 'Parameters',
+        'serial_number' => 'Serial Number',
+        'inventory_number' => 'Inventory Number',
+        'brand_id' => 'Brand',
+        'category_id' => 'Category',
+
+
+        'product_categories'=> 'Product Categories',
+        'product_brands' => 'Product Brands',
+        'sort' => 'Sort order',
+        'products' => 'Products',
+
+
+        'firstname'       => "First Name",
+        'lastname'       => "Last Name",
+        'company'       => "Company Name",
+        'phone'       => "Phone",
+        'cellphone'       => "Cellphone",
+        'language'       => "Language",
+        'city'       => "City",
+        'address'       => "Address",
+        'address2'       => "Address (additional)",
+        'post_box'       => "Post Box",
+        'zip_code'       => "Zip Code",
+        'subcategory'       => "Sub Category",
+        'select_category'      => "Select Category",
+        'select_contact'      => "Select Contact",
+        'select_subcategory'      => "Select Sub Category",
+        'prefix'      => "Prefix",
+        'contact_not_found' => 'Контакт с указанным email не найден. Пожалуйста, заполните форму вручную.',
+        'contact_found' => 'Контакт найден. Вы можете подтвердить его или создать новый.',
+        'confirm_contact' => 'Подтвердить',
+        'create_new_contact' => 'Создать новый',
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        'contacts_group'       => "Contacts",
+        'contacts'             => "Contacts",
+        'contact_categories'   => "Categories",
+        'contact_subcategories'=> "Subcategories",
+        'info'                 => "Information",
+        'category'      => "Category",
+        'country'      => "Country",
+
+        'cancel_contract'      => "Cancel Contract",
         'cannot_submit_non_draft' => 'Only draft applications can be submitted.',
         'submitted_successfully' => 'Application successfully submitted for approval.',
         'submit_failed' => 'Failed to submit the application.',
@@ -32,10 +105,7 @@ return [
         'cannot_delete_has_progress' => 'Cannot delete because the approval process has already started.',
         'scans' => 'Scanned files',
         "application_contract_notice" => "Before creating a contract, you must select a valid application that meets the contract requirements. Make sure all information in the application is filled out correctly. If there is no suitable application, you must create one before proceeding.",
-        'application_currency_mismatch' => 'The contract currency must match the application currency.',
-        'cancelled_successfully ' => 'Cancelled successfully',
-        'cancel_contract' => 'Cancel contract',
-        'cancel_approval' => 'Reject',
+
 
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
@@ -279,6 +349,16 @@ return [
         'guard_name' => 'Guard',
         'enter_note' => 'Enter note',
         'select_project' => 'Select Project...',
+        'select_country' => 'Select country',
+        'sort' => 'Enter sort value',
+        'product_categories'=> 'Product Categories',
+        'products' => 'Products',
+        'serial_number' => 'Enter serial number',
+        'inventory_number' => 'Enter inventory number',
+        'parameters' => 'Enter parameters',
+        'brand_id' => 'Select a brand',
+        'category_id' => 'Select a category',
+
     ],
     'tooltip' => [
         'show' => 'Show',
