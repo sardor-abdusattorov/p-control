@@ -16,6 +16,9 @@ return [
 
     'deny_access' => 'Sizda bu bo‘limga kirish huquqi yo‘q',
     'label' => [
+        'all' => 'Barchasi',
+        'approved_by_me' => 'Men tasdiqlagan',
+        'not_approved_by_me' => 'Men tasdiqlamagan',
         'brand_id' => 'Brend',
         'category_id' => 'Kategoriya',
         'inventory_number' => 'Inventar raqami',
@@ -334,6 +337,7 @@ return [
         'parameters' => 'Parametrni kiriting',
         'brand_id' => 'Brendni tanlang',
         'category_id' => 'Kategoriyani tanlang',
+         'approval_filter' => 'Tasdiqlash filtri',
     ],
     'tooltip' => [
         'show' => 'Ko‘rsatish',

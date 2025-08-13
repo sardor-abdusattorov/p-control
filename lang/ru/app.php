@@ -15,6 +15,9 @@ return [
     ],
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
+        'all' => 'Все',
+        'approved_by_me' => 'Согласовано мной',
+        'not_approved_by_me' => 'Не согласовано мной',
         'parameters' => 'Параметры',
         'sort' => 'Порядок сортировки',
         'product_brands' => 'Бренды продукции',
@@ -337,6 +340,7 @@ return [
         'parameters' => 'Введите параметры',
         'brand_id' => 'Выберите бренд',
         'category_id' => 'Выберите категорию',
+        'approval_filter' => 'Фильтр согласования',
 
     ],
     'tooltip' => [

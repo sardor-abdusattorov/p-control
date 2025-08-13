@@ -124,6 +124,24 @@ class ContractController extends Controller
             $contracts->latest('updated_at');
         }
 
+        if ($request->approval_filter === 'not_approved_by_me') {
+            $contracts->whereHas('approvals', function ($q) {
+                $q->where('user_id', auth()->id())
+                    ->whereIn('approved', [
+                        Approvals::STATUS_NEW,
+                        Approvals::STATUS_PENDING,
+                        Approvals::STATUS_REJECTED,
+                    ]);
+            });
+        }
+
+        if ($request->approval_filter === 'approved_by_me') {
+            $contracts->whereHas('approvals', function ($q) {
+                $q->where('user_id', auth()->id())
+                    ->where('approved', Approvals::STATUS_APPROVED);
+            });
+        }
+
         $perPage = $request->input('perPage', 10);
         $contracts = $contracts->paginate($perPage)->appends($request->query());
 
@@ -148,7 +166,7 @@ class ContractController extends Controller
 
         return Inertia::render('Contract/Index', [
             'title' => __('app.label.contracts'),
-            'filters' => $request->all(['search', 'field', 'order', 'user_id', 'status', 'currency_id', 'contract_number', 'title']),
+            'filters' => $request->all(['search', 'field', 'order', 'user_id', 'status', 'currency_id', 'contract_number', 'title', 'approval_filter']),
             'perPage' => (int)$perPage,
             'contracts' => $contracts,
             'statuses' => $statuses,

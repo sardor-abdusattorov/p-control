@@ -177,7 +177,22 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4 text-center"></th>
+                             <th class="px-2 py-4 cursor-pointer">
+                                <Select
+                                    v-show="can(['approve contract'])"
+                                    showClear
+                                    v-model="data.params.approval_filter"
+                                    :options="[
+                                        { label: lang().label.all, value: null },
+                                        { label: lang().label.approved_by_me, value: 'approved_by_me' },
+                                        { label: lang().label.not_approved_by_me, value: 'not_approved_by_me' },
+                                    ]"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    :placeholder="lang().placeholder.approval_filter"
+                                    class="w-full"
+                                />
+                            </th>
                             <th class="px-2 py-4 text-center"></th>
                         </tr>
 
@@ -443,6 +458,7 @@ const data = reactive({
         title: props.filters.title ?? null,
         contract_number: props.filters.contract_number ?? null,
         currency_id: props.filters.currency_id ? Number(props.filters.currency_id) : null,
+        approval_filter: props.filters.approval_filter ?? null,
     },
     selectedId: [],
     multipleSelect: false,

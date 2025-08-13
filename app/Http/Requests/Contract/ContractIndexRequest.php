@@ -33,6 +33,7 @@ class ContractIndexRequest extends FormRequest
             'user_id' => ['nullable', 'exists:users,id'],
             'status' => ['nullable', 'integer', 'in:1,2,3,-1'],
             'currency_id' => ['nullable', 'exists:currency,id'],
+            'approval_filter' => ['nullable', 'string', 'in:approved_by_me,not_approved_by_me'],
         ];
     }
 }

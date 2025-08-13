@@ -39,7 +39,6 @@ class RoleSeeder extends Seeder
             'delete application',
             'view application',
             'view all applications',
-            'application chat',
 
             'create project',
             'update project',
@@ -51,7 +50,6 @@ class RoleSeeder extends Seeder
             'delete contract',
             'view contract',
             'view all contracts',
-            'contract chat',
         ]);
 
         $manager = Role::create([
@@ -82,12 +80,10 @@ class RoleSeeder extends Seeder
 
             'view application',
             'view all applications',
-            'application chat',
             'view project',
 
             'view contract',
             'view all contracts',
-            'contract chat',
         ]);
         $lawyer = Role::create([
             'name' => 'lawyer'
@@ -99,12 +95,10 @@ class RoleSeeder extends Seeder
 
             'view application',
             'view all applications',
-            'application chat',
             'view project',
 
             'view contract',
             'view all contracts',
-            'contract chat',
         ]);
     }
 }

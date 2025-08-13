@@ -15,6 +15,9 @@ return [
     ],
     'deny_access' => 'You do not have access to this section',
     'label' => [
+        'all' => 'All',
+        'approved_by_me' => 'Approved by me',
+        'not_approved_by_me' => 'Not approved by me',
         'parameters' => 'Parameters',
         'serial_number' => 'Serial Number',
         'inventory_number' => 'Inventory Number',
@@ -358,6 +361,7 @@ return [
         'parameters' => 'Enter parameters',
         'brand_id' => 'Select a brand',
         'category_id' => 'Select a category',
+        'approval_filter' => 'Approval filter',
 
     ],
     'tooltip' => [
