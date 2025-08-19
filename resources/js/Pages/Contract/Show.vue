@@ -40,7 +40,7 @@
                         />
 
                         <SendApproval ref="confirmDialogRef"
-                              v-if="contract.status === 1"
+                                      v-if="contract.status === 1"
                         />
 
                         <Button
@@ -71,7 +71,7 @@
                         />
 
                         <Approve
-                            v-if="userApproval && props.contract.status === 2"
+                            v-if="userApproval"
                             :show="can(['approve contract']) && data.approveOpen"
                             @close="data.approveOpen = false"
                             :contract="data.contract"
@@ -79,7 +79,7 @@
                         />
 
                         <CancelApproval
-                            v-if="userApproval && props.contract.status === 2"
+                            v-if="userApproval"
                             :show="can(['approve contract']) && data.cancelApproval"
                             @close="data.cancelApproval = false"
                             :contract="data.contract"
@@ -115,12 +115,11 @@
                         />
 
                         <ApprovalHistory
-                            :show="data.showHistoryContract"
-                            :approval="data.historyApprovalContract"
+                            :show="data.showHistory"
+                            :approval="data.historyApproval"
                             :all-approvals="approvals"
-                            @close="data.showHistoryContract = false"
+                            @close="data.showHistory = false"
                         />
-
                     </div>
                 </div>
 
@@ -387,7 +386,7 @@
                         class="shadow-md"
                     >
                         <template #content>
-                            <div class="flex flex-col md:flex-row gap-4 w-full md:justify-between md:items-center">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 class="text-lg font-semibold mb-3">👤 {{ approval.user_name }}</h3>
                                     <div class="mb-3">
@@ -441,10 +440,10 @@
                                     />
 
                                     <ApplicationHistory
-                                        :show="data.showHistoryApplication"
-                                        :approval="data.historyApprovalApplication"
+                                        :show="data.showHistory"
+                                        :approval="data.historyApproval"
                                         :all-approvals="application_approvals"
-                                        @close="data.showHistoryApplication = false"
+                                        @close="data.showHistory = false"
                                     />
                                 </div>
                             </div>
@@ -482,12 +481,6 @@
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.user }}</td>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                             {{ props.application?.user?.name ?? 'Не указан' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold"> {{ lang().label.currency_id }}</td>
-                        <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                            {{ props.application.currency.name }}
                         </td>
                     </tr>
                     <tr>
@@ -585,15 +578,9 @@ const data = reactive({
     cancelApproval: false,
     deleteUserOpen: false,
     selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
-
-    // Разделение состояний
-    showHistoryContract: false,
-    historyApprovalContract: null,
-
-    showHistoryApplication: false,
-    historyApprovalApplication: null,
+    showHistory: false,
+    historyApproval: null,
 });
-
 
 const emit = defineEmits(["close"]);
 
@@ -650,14 +637,15 @@ const userApproval = computed(() =>
 const confirmDialogRef = ref();
 
 const openApprovalHistory = (approval) => {
-    data.historyApprovalContract = approval;
-    data.showHistoryContract = true;
+    data.historyApproval = approval;
+    data.showHistory = true;
 };
 
 const openHistory = (approval) => {
-    data.historyApprovalApplication = approval;
-    data.showHistoryApplication = true;
+    data.historyApproval = approval;
+    data.showHistory = true;
 };
+
 
 const uniqueApprovals = computed(() => {
     const sorted = [...props.application_approvals].sort(
