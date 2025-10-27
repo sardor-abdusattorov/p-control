@@ -1,7 +1,7 @@
 <script setup>
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
-import {Bars3CenterLeftIcon, CheckBadgeIcon, ChevronDownIcon,UserIcon, Bars4Icon} from "@heroicons/vue/24/solid";
+import {Bars3CenterLeftIcon, ChevronDownIcon, UserIcon, Bars4Icon} from "@heroicons/vue/24/solid";
 import SwitchDarkModeNavbar from "@/Components/SwitchDarkModeNavbar.vue";
 import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
 
@@ -10,93 +10,118 @@ const emit = defineEmits(["open", "toggleMenu"]);
 
 <template>
     <nav
-        class="bg-slate-900 border-slate-700 text-slate-300 lg:bg-white dark:bg-slate-900 border-b lg:border-slate-100 dark:border-slate-800 lg:text-slate-500 dark:text-slate-300"
+        class="sticky top-0 z-40 bg-white border-b border-slate-200
+               dark:bg-gradient-to-r dark:from-slate-900 dark:to-slate-900 dark:border-slate-700/50
+               shadow-sm transition-all duration-300"
     >
         <div class="mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex">
+                <!-- Left Side -->
+                <div class="flex items-center">
+                    <!-- Desktop Menu Toggle -->
                     <div class="mr-4 shrink-0 items-center hidden lg:flex">
                         <button
                             @click="emit('toggleMenu')"
-                            class="hover:text-slate-400 hover:bg-slate-900 active:bg-transparent
-                           inline-flex items-center justify-center p-2 rounded-md
-                           lg:hover:text-slate-500 dark:hover:text-slate-400
-                           lg:hover:bg-slate-100 dark:hover:bg-slate-900
-                           transition duration-150 ease-in-out"
+                            class="group inline-flex items-center justify-center p-2 rounded-lg
+                                   text-slate-600 hover:text-slate-900 hover:bg-slate-100
+                                   dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50
+                                   transition-all duration-200 ease-in-out"
                         >
-                            <Bars4Icon class="h-5 w-5" />
+                            <Bars4Icon class="h-5 w-5 transition-transform duration-200" />
                         </button>
                     </div>
+
+                    <!-- Mobile Menu Toggle -->
                     <div class="mr-4 shrink-0 flex items-center lg:hidden">
                         <button
-                            v-on:click="emit('open')"
-                            class="hover:text-slate-400 hover:bg-slate-900 focus:bg-slate-900 focus:text-slate-400 inline-flex items-center justify-center p-2 rounded-md lg:hover:text-slate-500 dark:hover:text-slate-400 lg:hover:bg-slate-100 dark:hover:bg-slate-900 focus:outline-none lg:focus:bg-slate-100 dark:focus:bg-slate-900 lg:focus:text-slate-500 dark:focus:text-slate-400 transition duration-150 ease-in-out"
+                            @click="emit('open')"
+                            class="group inline-flex items-center justify-center p-2 rounded-lg
+                                   text-slate-300 hover:text-white hover:bg-slate-800/50
+                                   dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50
+                                   transition-all duration-200 ease-in-out"
                         >
-                            <Bars3CenterLeftIcon class="h-5 w-5" />
+                            <Bars3CenterLeftIcon class="h-5 w-5 transition-transform duration-200" />
                         </button>
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-4">
+                <!-- Right Side -->
+                <div class="flex items-center space-x-2">
+                    <!-- Language Switcher -->
                     <SwitchLangNavbar />
-                    <SwitchDarkModeNavbar />
-                    <div class="">
-                        <div class="relative">
-                            <Dropdown align="right" width="48">
-                                <template #trigger>
-                                    <span class="inline-flex rounded-md">
-                                        <button
-                                            type="button"
-                                            class="hover:text-slate-400 hover:bg-slate-900 focus:bg-slate-900 focus:text-slate-400 inline-flex items-center justify-center p-2 rounded-md lg:hover:text-slate-500 dark:hover:text-slate-400 lg:hover:bg-slate-100 dark:hover:bg-slate-900 focus:outline-none lg:focus:bg-slate-100 dark:focus:bg-slate-900 lg:focus:text-slate-500 dark:focus:text-slate-400 transition duration-150 ease-in-out sm:hidden"
-                                        >
-                                            <UserIcon class="h-5 w-5" />
-                                        </button>
-                                        <button
-                                            type="button"
-                                            class="hover:text-slate-400 hover:bg-slate-900 focus:bg-slate-900 focus:text-slate-400 items-center justify-center p-2 rounded-md lg:hover:text-slate-500 dark:hover:text-slate-400 lg:hover:bg-slate-100 dark:hover:bg-slate-900 focus:outline-none lg:focus:bg-slate-100 dark:focus:bg-slate-900 lg:focus:text-slate-500 dark:focus:text-slate-400 transition duration-150 ease-in-out truncate w-fit hidden sm:inline-flex"
-                                        >
-                                            <span
-                                                class="flex justify-between items-center"
-                                            >
-                                                {{
-                                                    $page.props.auth.user.name.split(
-                                                        " "
-                                                    )[0]
-                                                }}
-                                            </span>
-                                            <ChevronDownIcon
-                                                class="ml-2 h-5 w-5 fill-current"
-                                            />
-                                        </button>
-                                    </span>
-                                </template>
 
-                                <template #content>
-                                    <div
-                                        class="py-3 px-4 border-b border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                    <!-- Dark Mode Toggle -->
+                    <SwitchDarkModeNavbar />
+
+                    <!-- User Dropdown -->
+                    <div class="relative">
+                        <Dropdown align="right" width="48">
+                            <template #trigger>
+                                <span class="inline-flex rounded-lg">
+                                    <!-- Mobile User Button (Icon Only) -->
+                                    <button
+                                        type="button"
+                                        class="inline-flex items-center justify-center p-2 rounded-lg
+                                               text-slate-600 hover:text-slate-900 hover:bg-slate-100
+                                               dark:text-slate-400 dark:hover:text-white dark:hover:bg-slate-800/50
+                                               transition-all duration-200 ease-in-out sm:hidden"
                                     >
-                                        <span
-                                            class="flex items-center justify-start text-sm truncate"
-                                        >
-                                            {{ $page.props.auth.user.name }}
+                                        <UserIcon class="h-5 w-5" />
+                                    </button>
+
+                                    <!-- Desktop User Button (With Name) -->
+                                    <button
+                                        type="button"
+                                        class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg
+                                               text-slate-700 hover:text-slate-900 hover:bg-slate-100
+                                               dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800/50
+                                               transition-all duration-200 ease-in-out font-medium"
+                                    >
+                                        <span class="truncate max-w-[150px]">
+                                            {{ $page.props.auth.user.name.split(" ")[0] }}
                                         </span>
-                                    </div>
-                                    <DropdownLink :href="route('profile.edit')">
-                                        {{ lang().label.profile }}
-                                    </DropdownLink>
-                                    <DropdownLink
-                                        :href="route('logout')"
-                                        method="post"
-                                        as="button"
+                                        <ChevronDownIcon class="h-4 w-4" />
+                                    </button>
+                                </span>
+                            </template>
+
+                            <template #content>
+                                <!-- User Info Header -->
+                                <div
+                                    class="py-3 px-4 border-b border-slate-200 dark:border-slate-700
+                                           bg-slate-50 dark:bg-slate-800/50"
+                                >
+                                    <span
+                                        class="flex items-center justify-start text-sm font-medium
+                                               text-slate-700 dark:text-slate-300 truncate"
                                     >
-                                        {{ lang().label.logout }}
-                                    </DropdownLink>
-                                </template>
-                            </Dropdown>
-                        </div>
+                                        {{ $page.props.auth.user.name }}
+                                    </span>
+                                </div>
+
+                                <!-- Dropdown Links -->
+                                <DropdownLink :href="route('profile.edit')">
+                                    {{ lang().label.profile }}
+                                </DropdownLink>
+                                <DropdownLink
+                                    :href="route('logout')"
+                                    method="post"
+                                    as="button"
+                                >
+                                    {{ lang().label.logout }}
+                                </DropdownLink>
+                            </template>
+                        </Dropdown>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
 </template>
+
+<style scoped>
+/* Ensure smooth transitions */
+nav {
+    will-change: background-color, border-color;
+}
+</style>

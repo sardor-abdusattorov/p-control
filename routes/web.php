@@ -18,7 +18,6 @@ use App\Http\Controllers\{ActivityLogController,
     ProjectsController,
     RoleController,
     StatusController,
-    TaskController,
     UserController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -87,14 +86,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     Route::resource('positions', PositionsController::class);
     Route::post('/positions/destroy-bulk', [PositionsController::class, 'destroyBulk'])->name('positions.destroy-bulk');
-
-    Route::resource('task', TaskController::class)->except(['update']);
-    Route::post('task/destroy-bulk', [TaskController::class, 'destroyBulk'])->name('task.destroy-bulk');
-    Route::prefix('task/{task}')->name('task.')->group(function () {
-        Route::post('/update', [TaskController::class, 'update'])->name('update');
-        Route::post('/start', [TaskController::class, 'start'])->name('start');
-        Route::post('/complete', [TaskController::class, 'complete'])->name('complete');
-    });
 
     Route::resource('user', UserController::class)->except(['update']);
     Route::post('user/destroy-bulk', [UserController::class, 'destroyBulk'])->name('user.destroy-bulk');
