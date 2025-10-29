@@ -285,3 +285,4 @@ const formattedProjects = computed(() => {
     }));
 });
 </script>
+

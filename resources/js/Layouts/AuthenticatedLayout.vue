@@ -66,19 +66,27 @@ const toggleMenu = () => {
     </div>
 </template>
 
-<style scoped>
-:deep(.custom-option) {
+<style>
+/* Убрать scoped */
+.custom-option {
     white-space: pre-wrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
-:deep(.custom-overlay-class) {
-    width: 100%;
-    max-width: 300px;
+.parent-wrapper-class {
+    max-width: 90vw !important;
+    width: auto !important;
 }
 
-:deep(.parent-wrapper-class) {
-    width: 1%;
-    left: 0;
-    right: auto;
+.p-select-overlay {
+    max-width: 90vw !important;
+}
+
+.p-select-option {
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
