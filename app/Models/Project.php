@@ -41,11 +41,6 @@ class Project extends Model
         ];
     }
 
-    public function status()
-    {
-        return $this->belongsTo(Status::class, 'status_id');
-    }
-
     public function contracts()
     {
         return $this->hasMany(Contract::class, 'project_id');
