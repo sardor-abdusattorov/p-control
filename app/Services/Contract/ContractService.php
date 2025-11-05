@@ -29,7 +29,7 @@ class ContractService
                 'contract_number' => $data['contract_number'],
                 'title' => $data['title'],
                 'project_id' => $data['project_id'],
-                'contact_id' => $data['contact_id'],
+                'contact_id' => $data['contact_id'] ?? null,
                 'application_id' => $data['application_id'] ?? null,
                 'currency_id' => $data['currency_id'],
                 'user_id' => auth()->id(),
@@ -110,7 +110,7 @@ class ContractService
                 'contract_number' => $data['contract_number'],
                 'title' => $data['title'],
                 'project_id' => $data['project_id'],
-                'contact_id' => $data['contact_id'],
+                'contact_id' => $data['contact_id'] ?? null,
                 'application_id' => $data['application_id'] ?? null,
                 'currency_id' => $data['currency_id'],
                 'budget_sum' => $data['budget_sum'],
@@ -289,9 +289,16 @@ class ContractService
     {
         $status = $status ?? Approvals::STATUS_NEW;
 
+        // Load users with their departments to determine approval order
+        $users = User::whereIn('id', $recipientIds)->get()->keyBy('id');
+
         foreach ($recipientIds as $recipientId) {
+            $user = $users->get($recipientId);
+            $approvalOrder = $user ? Approvals::getApprovalOrder($user->department_id) : 1;
+
             $contract->approvals()->create([
                 'user_id' => $recipientId,
+                'approval_order' => $approvalOrder,
                 'approved' => $status,
             ]);
         }

@@ -23,6 +23,7 @@ class Approvals extends Model
         'approvable_type',
         'approvable_id',
         'user_id',
+        'approval_order',
         'approved',
         'reason',
         'approved_at',
@@ -68,6 +69,21 @@ class Approvals extends Model
     public function scopeActive($query)
     {
         return $query->whereNotIn('approved', [self::STATUS_INVALIDATED, self::STATUS_NEW]);
+    }
+
+    /**
+     * Get approval order based on user's department
+     * Department 8 (Financial) = order 1 (first)
+     * Department 7 (Legal) = order 2 (second)
+     * Others = order 1 (default)
+     */
+    public static function getApprovalOrder(int $departmentId): int
+    {
+        return match($departmentId) {
+            8 => 1, // Financial department goes first
+            7 => 2, // Legal department goes second
+            default => 1,
+        };
     }
 
 }

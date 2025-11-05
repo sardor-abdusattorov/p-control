@@ -177,6 +177,7 @@ class ContractController extends Controller
         $user = auth()->user();
         $approvals = $contract->getFormattedApprovals();
         $canApprove = $this->approvalService->canApprove($contract, $user);
+        $blockInfo = $this->approvalService->isBlockedByPreviousOrder($contract, $user);
 
         return Inertia::render('Contract/Show', [
             'title' => $contract->title,
@@ -192,6 +193,7 @@ class ContractController extends Controller
             'approvals' => $approvals,
             'application_approvals' => $applicationApprovals,
             'can_approve' => $canApprove,
+            'block_info' => $blockInfo,
             'breadcrumbs' => [
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
                 ['label' => $contract->title]

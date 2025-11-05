@@ -337,7 +337,15 @@ return [
         'parameters' => 'Parametrni kiriting',
         'brand_id' => 'Brendni tanlang',
         'category_id' => 'Kategoriyani tanlang',
-         'approval_filter' => 'Tasdiqlash filtri',
+        'approval_filter' => 'Tasdiqlash filtri',
+    ],
+    'approval' => [
+        'blocked_by_previous_order' => 'Siz shartnomani tasdiqlay olmaysiz. Oldingi tasdiqlovchilarning tasdiqini kuting.',
+        'waiting_for_approval_from' => 'Tasdiqlanishini kutmoqda: :departments',
+        'unknown_department' => 'Noma\'lum bo\'lim',
+        'can_approve_after' => 'Siz oldingi bosqichlar tugagandan so\'ng tasdiqlay olasiz',
+        'can_approve_now' => 'Siz shartnomani hozir tasdiqlay olasiz',
+        'sequential_approval_info' => 'Ketma-ket tasdiqlash: avval moliya bo\'limi, keyin yuridik bo\'lim',
     ],
     'tooltip' => [
         'show' => 'Ko‘rsatish',
@@ -410,5 +418,19 @@ return [
         "task_completed"=> "Vazifa tugatildi",
 
         "application_received"=> "Ariza qabul qilindi"
-    ]
+    ],
+    'activity_log' => [
+        'contract_submitted_for_approval' => 'Shartnoma tasdiqlanish uchun yuborildi',
+        'user_approved_contract' => 'Foydalanuvchi shartnomani tasdiqladi',
+        'user_rejected_contract' => 'Foydalanuvchi shartnomani rad etdi',
+        'contract_rejected_after_disapproval' => 'Shartnoma rad etilgandan keyin bekor qilindi',
+        'project_created' => 'Loyiha yaratildi',
+        'project_creation_failed' => 'Loyiha yaratishda xatolik',
+        'project_updated' => 'Loyiha yangilandi',
+        'project_update_failed' => 'Loyihani yangilashda xatolik',
+        'project_deleted' => 'Loyiha o\'chirildi',
+        'project_deletion_failed' => 'Loyihani o\'chirishda xatolik',
+        'projects_bulk_deleted' => 'Loyihalar ommaviy o\'chirildi',
+        'projects_bulk_deletion_failed' => 'Loyihalarni ommaviy o\'chirishda xatolik',
+    ],
 ];

@@ -73,15 +73,19 @@ class Contract extends Model implements HasMedia
     public function getFormattedApprovals()
     {
         return $this->approvals()
-            ->with('user')
+            ->with('user.department')
+            ->orderBy('approval_order')
             ->get()
             ->map(fn($approval) => [
                 'user_id' => $approval->user_id,
                 'user_name' => optional($approval->user)->name,
+                'user_avatar' => optional($approval->user)->profile_image ?? '/images/no_image.png',
                 'approved' => $approval->approved,
                 'approved_at' => optional($approval->approved_at)?->format('d.m.Y H:i'),
                 'updated_at' => optional($approval->updated_at)?->format('d.m.Y H:i'),
                 'reason' => $approval->reason,
+                'approval_order' => $approval->approval_order,
+                'department_name' => optional(optional($approval->user)->department)->name ?? __('app.label.unknown_department'),
             ]);
     }
 

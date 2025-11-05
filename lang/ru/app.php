@@ -416,6 +416,29 @@ return [
 
 
         "application_received"=> "Заявка получена"
+    ],
+
+    'approval' => [
+        'blocked_by_previous_order' => 'Вы не можете одобрить контракт. Дождитесь одобрения от предыдущих согласующих.',
+        'waiting_for_approval_from' => 'Ожидает одобрения от: :departments',
+        'unknown_department' => 'Неизвестный отдел',
+        'can_approve_after' => 'Вы сможете одобрить после завершения предыдущих этапов',
+        'can_approve_now' => 'Вы можете одобрить контракт сейчас',
+        'sequential_approval_info' => 'Последовательное согласование: сначала финансовый отдел, затем юридический',
+    ],
+    'activity_log' => [
+        'contract_submitted_for_approval' => 'Контракт отправлен на согласование',
+        'user_approved_contract' => 'Пользователь подтвердил контракт',
+        'user_rejected_contract' => 'Пользователь отклонил контракт',
+        'contract_rejected_after_disapproval' => 'Контракт отклонён после отказа согласующего',
+        'project_created' => 'Создан проект',
+        'project_creation_failed' => 'Ошибка при создании проекта',
+        'project_updated' => 'Проект обновлен',
+        'project_update_failed' => 'Ошибка при обновлении проекта',
+        'project_deleted' => 'Проект удален',
+        'project_deletion_failed' => 'Ошибка при удалении проекта',
+        'projects_bulk_deleted' => 'Массовое удаление проектов',
+        'projects_bulk_deletion_failed' => 'Ошибка при массовом удалении проектов',
     ]
 
 ];

@@ -27,6 +27,8 @@ class ContractApprovalService
         try {
             $contract->update(['status' => Contract::STATUS_IN_PROGRESS]);
 
+            // Activate ALL approvers (make them visible in the list)
+            // But they can only approve when their order comes (checked in canApprove)
             $contract->approvals()
                 ->where('approved', Approvals::STATUS_NEW)
                 ->update([
@@ -59,12 +61,20 @@ class ContractApprovalService
             throw new \Exception(__('app.label.already_approved'));
         }
 
+        // Check if user can approve based on order (previous orders must be completed)
+        if (!$this->canApprove($contract, $user)) {
+            $blockInfo = $this->isBlockedByPreviousOrder($contract, $user);
+            throw new \Exception($blockInfo['message'] ?: __('app.approval.blocked_by_previous_order'));
+        }
+
         $approval->update([
             'approved' => Approvals::STATUS_APPROVED,
             'approved_at' => now(),
             'reason' => $comment,
         ]);
 
+        // All approvers are already PENDING from submit
+        // Next order approvers can now approve (checked in canApprove)
         $this->checkAndUpdateContractStatus($contract);
 
         $this->logActivity('Пользователь подтвердил контракт', $contract, [
@@ -143,12 +153,19 @@ class ContractApprovalService
         $usersToAdd = $newUserIds->diff($existingApprovals->keys());
         $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
 
+        // Load users with departments to determine approval order
+        $users = User::whereIn('id', $usersToAdd)->get()->keyBy('id');
+
         // Add new approvers
         foreach ($usersToAdd as $userId) {
+            $user = $users->get($userId);
+            $approvalOrder = $user ? Approvals::getApprovalOrder($user->department_id) : 1;
+
             Approvals::create([
                 'approvable_type' => Contract::class,
                 'approvable_id'   => $contract->id,
                 'user_id'         => $userId,
+                'approval_order'  => $approvalOrder,
                 'approved'        => $contract->status === Contract::STATUS_NEW
                     ? Approvals::STATUS_NEW
                     : Approvals::STATUS_PENDING,
@@ -200,14 +217,74 @@ class ContractApprovalService
 
     /**
      * Check if user can approve the contract
+     * User can approve if:
+     * 1. They have PENDING status
+     * 2. All previous approval orders are completed
      */
     public function canApprove(Contract $contract, User $user): bool
     {
-        return Approvals::where('approvable_type', Contract::class)
+        // Find user's approval
+        $userApproval = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $user->id)
             ->where('approved', Approvals::STATUS_PENDING)
+            ->first();
+
+        if (!$userApproval) {
+            return false;
+        }
+
+        // Check if all previous orders are approved
+        $previousOrdersIncomplete = Approvals::where('approvable_type', Contract::class)
+            ->where('approvable_id', $contract->id)
+            ->where('approval_order', '<', $userApproval->approval_order)
+            ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
+            ->where('approved', '!=', Approvals::STATUS_APPROVED)
             ->exists();
+
+        // Can approve only if no previous orders are incomplete
+        return !$previousOrdersIncomplete;
+    }
+
+    /**
+     * Check if user's approval is blocked by previous order
+     * Returns info about blocking: ['blocked' => bool, 'message' => string]
+     */
+    public function isBlockedByPreviousOrder(Contract $contract, User $user): array
+    {
+        // Find user's approval
+        $userApproval = Approvals::where('approvable_type', Contract::class)
+            ->where('approvable_id', $contract->id)
+            ->where('user_id', $user->id)
+            ->where('approved', Approvals::STATUS_PENDING)
+            ->first();
+
+        if (!$userApproval) {
+            return ['blocked' => false, 'message' => ''];
+        }
+
+        // Check if there are incomplete previous orders
+        $incompleteOrders = Approvals::where('approvable_type', Contract::class)
+            ->where('approvable_id', $contract->id)
+            ->where('approval_order', '<', $userApproval->approval_order)
+            ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
+            ->where('approved', '!=', Approvals::STATUS_APPROVED)
+            ->with('user.department')
+            ->get();
+
+        if ($incompleteOrders->isEmpty()) {
+            return ['blocked' => false, 'message' => ''];
+        }
+
+        // Build message about who is blocking
+        $departments = $incompleteOrders->map(fn($a) => optional(optional($a->user)->department)->name ?? __('app.approval.unknown_department'))
+            ->unique()
+            ->join(', ');
+
+        return [
+            'blocked' => true,
+            'message' => __('app.approval.waiting_for_approval_from', ['departments' => $departments])
+        ];
     }
 
     /**

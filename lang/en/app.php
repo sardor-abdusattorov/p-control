@@ -108,7 +108,8 @@ return [
         'cannot_delete_has_progress' => 'Cannot delete because the approval process has already started.',
         'scans' => 'Scanned files',
         "application_contract_notice" => "Before creating a contract, you must select a valid application that meets the contract requirements. Make sure all information in the application is filled out correctly. If there is no suitable application, you must create one before proceeding.",
-
+        'application_currency_mismatch' => 'The contract currency must match the application currency.',
+        'cancelled_successfully' => 'Successfully cancelled',
 
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
@@ -140,6 +141,7 @@ return [
         'type_shorten' => 'Contract basis',
         'application_details' => 'Application details',
         'show_application' => 'Show application',
+        "cancel_approval"=> "Cancel",
 
         'approval_status' => 'Approval status',
         'approval_users' => 'Approval users',
@@ -433,5 +435,28 @@ return [
         "task_started"=> "A task has been started",
         "task_completed"=> "The task is completed",
         "application_received"=> "Application received"
+    ],
+
+    'approval' => [
+        'blocked_by_previous_order' => 'You cannot approve the contract. Please wait for approval from previous approvers.',
+        'waiting_for_approval_from' => 'Waiting for approval from: :departments',
+        'unknown_department' => 'Unknown department',
+        'can_approve_after' => 'You will be able to approve after completion of previous stages',
+        'can_approve_now' => 'You can approve the contract now',
+        'sequential_approval_info' => 'Sequential approval: first financial department, then legal department',
+    ],
+    'activity_log' => [
+        'contract_submitted_for_approval' => 'Contract submitted for approval',
+        'user_approved_contract' => 'User approved the contract',
+        'user_rejected_contract' => 'User rejected the contract',
+        'contract_rejected_after_disapproval' => 'Contract rejected after disapproval',
+        'project_created' => 'Project created',
+        'project_creation_failed' => 'Error creating project',
+        'project_updated' => 'Project updated',
+        'project_update_failed' => 'Error updating project',
+        'project_deleted' => 'Project deleted',
+        'project_deletion_failed' => 'Error deleting project',
+        'projects_bulk_deleted' => 'Bulk projects deleted',
+        'projects_bulk_deletion_failed' => 'Error bulk deleting projects',
     ]
 ];

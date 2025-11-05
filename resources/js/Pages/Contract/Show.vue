@@ -147,49 +147,102 @@
                             {{ lang().label.min_approvers_warning }}
                         </Message>
 
+                        <Message
+                            v-if="contract.status === 2 && activeApprovals.length > 1"
+                            severity="info"
+                            :closable="false"
+                            class="mb-2"
+                        >
+                            <i class="pi pi-info-circle mr-2"></i>
+                            {{ lang().approval.sequential_approval_info }}
+                        </Message>
+
                         <div v-if="activeApprovals.length" class="flex flex-col gap-4">
                             <Card
                                 v-for="approval in activeApprovals"
                                 :key="approval.user_id"
                                 class="shadow-md"
+                                :class="{
+                                    'border-2 border-green-400': approval.user_id === authUser.id && approval.approved === 2 && can_approve,
+                                    'border-2 border-orange-300': approval.user_id === authUser.id && approval.approved === 2 && !can_approve,
+                                }"
                             >
                                 <template #content>
                                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                        <div>
-                                            <h3 class="text-lg font-semibold mb-3">👤 {{ approval.user_name }}</h3>
+                                        <div class="flex-1">
+                                            <!-- Header with avatar and order badge -->
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <div class="relative">
+                                                    <img
+                                                        :src="approval.user_avatar"
+                                                        :alt="approval.user_name"
+                                                        class="w-14 h-14 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                                                        @error="(e) => e.target.src = '/images/no_image.png'"
+                                                    />
+                                                    <span class="absolute -bottom-1 -right-1 text-sm font-bold bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center border-2 border-white dark:border-gray-800">
+                                                        {{ approval.approval_order }}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h3 class="text-lg font-semibold">{{ approval.user_name }}</h3>
+                                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ approval.department_name }}</p>
+                                                </div>
+                                            </div>
 
-                                            <!-- Статус -->
+                                            <!-- Status -->
                                             <div class="mb-3">
-                                            <span
-                                                class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
-                                                :class="{
-                                              'bg-green-100 text-green-800': approval.approved === 3,
-                                              'bg-red-100 text-red-800': approval.approved === -1,
-                                              'bg-gray-200 text-gray-700': approval.approved === -2,
-                                              'bg-yellow-100 text-yellow-800': approval.approved === 2,
-                                              'bg-blue-100 text-blue-800': approval.approved === 1
-                                            }"
-                                            >
-                                              {{
-                                                    contract.status === 1 && approval.approved === 1
-                                                        ? lang().status.not_sent
-                                                        : approval.approved === 3
-                                                            ? lang().status.approved
-                                                            : approval.approved === -1
-                                                                ? lang().status.rejected
-                                                                : approval.approved === -2
-                                                                    ? lang().status.invalidated
-                                                                    : lang().status.in_progress
-                                                }}
-
-                                        </span>
+                                                <span
+                                                    class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                                    :class="{
+                                                        'bg-green-100 text-green-800': approval.approved === 3,
+                                                        'bg-red-100 text-red-800': approval.approved === -1,
+                                                        'bg-gray-200 text-gray-700': approval.approved === -2,
+                                                        'bg-yellow-100 text-yellow-800': approval.approved === 2,
+                                                        'bg-blue-100 text-blue-800': approval.approved === 1
+                                                    }"
+                                                >
+                                                    {{
+                                                        contract.status === 1 && approval.approved === 1
+                                                            ? lang().status.not_sent
+                                                            : approval.approved === 3
+                                                                ? lang().status.approved
+                                                                : approval.approved === -1
+                                                                    ? lang().status.rejected
+                                                                    : approval.approved === -2
+                                                                        ? lang().status.invalidated
+                                                                        : lang().status.in_progress
+                                                    }}
+                                                </span>
                                                 <span
                                                     v-if="approval.approved_at"
                                                     class="text-sm text-gray-500 ml-2"
                                                 >
-                                                ({{ approval.approved_at }})
-                                            </span>
+                                                    ({{ approval.approved_at }})
+                                                </span>
                                             </div>
+
+                                            <!-- Blocking message for current user -->
+                                            <Message
+                                                v-if="approval.user_id === authUser.id && block_info?.blocked && approval.approved === 2"
+                                                severity="warn"
+                                                :closable="false"
+                                                class="mb-2"
+                                            >
+                                                <i class="pi pi-lock mr-2"></i>
+                                                {{ block_info.message }}
+                                            </Message>
+
+                                            <!-- Can approve now indicator -->
+                                            <Message
+                                                v-if="approval.user_id === authUser.id && can_approve && approval.approved === 2"
+                                                severity="success"
+                                                :closable="false"
+                                                class="mb-2"
+                                            >
+                                                <i class="pi pi-check-circle mr-2"></i>
+                                                {{ lang().approval.can_approve_now }}
+                                            </Message>
+
                                             <p v-if="approval.reason" class="text-base">
                                                 <span class="font-semibold text-gray-800 dark:text-gray-200">
                                                     {{ lang().label.comment }}:
@@ -217,13 +270,10 @@
                                                 :disabled="approval.approved === 3"
                                                 @click="() => confirmRemoveApprover(approval)"
                                             />
-
                                         </div>
                                     </div>
                                 </template>
-
                             </Card>
-
                         </div>
 
                     </div>
@@ -435,15 +485,8 @@
                                         icon="pi pi-eye"
                                         severity="info"
                                         class="p-button-sm"
-                                        @click="openHistory(approval)"
+                                        @click="openApplicationHistory(approval)"
                                         v-tooltip.bottom="lang().tooltip.view_details"
-                                    />
-
-                                    <ApplicationHistory
-                                        :show="data.showHistory"
-                                        :approval="data.historyApproval"
-                                        :all-approvals="application_approvals"
-                                        @close="data.showHistory = false"
                                     />
                                 </div>
                             </div>
@@ -453,6 +496,14 @@
 
                 </div>
             </div>
+
+            <!-- ApplicationHistory moved outside the loop to prevent duplicates -->
+            <ApplicationHistory
+                :show="data.showApplicationHistory"
+                :approval="data.applicationHistoryApproval"
+                :all-approvals="application_approvals"
+                @close="data.showApplicationHistory = false"
+            />
 
             <div class="overflow-x-auto">
                 <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
@@ -568,6 +619,7 @@ const props = defineProps({
     types: Object,
     files: Array,
     scans: Array,
+    block_info: Object,
 });
 
 const data = reactive({
@@ -580,6 +632,8 @@ const data = reactive({
     selectedApprovers: computed(() => props.approvals.map(a => a.user_id)),
     showHistory: false,
     historyApproval: null,
+    showApplicationHistory: false,
+    applicationHistoryApproval: null,
 });
 
 const emit = defineEmits(["close"]);
@@ -641,9 +695,9 @@ const openApprovalHistory = (approval) => {
     data.showHistory = true;
 };
 
-const openHistory = (approval) => {
-    data.historyApproval = approval;
-    data.showHistory = true;
+const openApplicationHistory = (approval) => {
+    data.applicationHistoryApproval = approval;
+    data.showApplicationHistory = true;
 };
 
 
