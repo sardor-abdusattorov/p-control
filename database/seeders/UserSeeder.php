@@ -25,14 +25,9 @@ class UserSeeder extends Seeder
 
         $departments = Department::all();
         $itDepartment = $departments->where("name", DepartmentEnum::IT_DEPARTMENT->value)->first();
-        $creativeProjectsDepartment = $departments->where("name", DepartmentEnum::CREATIVE_PROJECTS->value)->first();
-        $accountantDepartment = $departments->where("name", DepartmentEnum::ACCOUNTING->value)->first();
 
         $positions = Position::all();
         $adminPosition = $positions->where("name", PositionEnum::ADMIN->value)->first();
-        $managerPosition = $positions->where("name", PositionEnum::PROJECT_MANAGER->value)->first();
-        $staffPosition = $positions->where("name", PositionEnum::STAFF->value)->first();
-
         $superadmin = User::create([
             'name'              => 'Sardor Abdusattorov',
             'email'             => 'mr.silverwind1998@gmail.com',
@@ -42,27 +37,5 @@ class UserSeeder extends Seeder
             'email_verified_at' => date('Y-m-d H:i')
         ]);
         $superadmin->assignRole('superadmin');
-//
-//        $manager = User::create([
-//            'name'              => 'Manager',
-//            'email'             => 'manager@company.com',
-//            'department_id'     => $creativeProjectsDepartment->id,
-//            'position_id'       => $managerPosition->id,
-//            'password'          => bcrypt('manager123'),
-//            'email_verified_at' => date('Y-m-d H:i')
-//        ]);
-//        $manager->assignRole('manager');
-//
-//        $accountant = User::create([
-//            'name'              => 'Accountant',
-//            'email'             => 'accountant@company.com',
-//            'department_id'     => $accountantDepartment->id,
-//            'position_id'       => $staffPosition->id,
-//            'password'          => bcrypt('accountant123'),
-//            'email_verified_at' => date('Y-m-d H:i')
-//        ]);
-//        $accountant->assignRole('lawyer');
-//
-
     }
 }

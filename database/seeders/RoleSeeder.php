@@ -20,7 +20,6 @@ class RoleSeeder extends Seeder
         $superadmin->givePermissionTo([
             'manage rbac',
             'manage currency',
-            'manage status',
             'manage position',
             'manage department',
 

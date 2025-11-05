@@ -17,7 +17,6 @@ class PermissionSeeder extends Seeder
     {
         Permission::create(['name' => 'manage rbac']);
         Permission::create(['name' => 'manage currency']);
-        Permission::create(['name' => 'manage status']);
         Permission::create(['name' => 'manage position']);
         Permission::create(['name' => 'manage department']);
 
