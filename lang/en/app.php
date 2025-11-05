@@ -23,6 +23,7 @@ return [
         'inventory_number' => 'Inventory Number',
         'brand_id' => 'Brand',
         'category_id' => 'Category',
+        'dictionaries' => 'Directories',
 
 
         'product_categories'=> 'Product Categories',

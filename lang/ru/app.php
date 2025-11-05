@@ -27,6 +27,7 @@ return [
         'inventory_number' => 'Инвентарный номер',
         'brand_id' => 'Бренд',
         'category_id' => 'Категория',
+        'dictionaries' => 'Справочники',
 
         'firstname'        => "Имя",
         'lastname'         => "Фамилия",

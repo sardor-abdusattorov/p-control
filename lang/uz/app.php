@@ -47,6 +47,7 @@ return [
         'confirm_contact'  => "Tasdiqlash",
         'create_new_contact' => "Yangi yaratish",
         'select_contact'   => "Kontaktni tanlang",
+        'dictionaries' => 'Ma’lumotnomalar',
 
         'contacts_group'         => "Kontaktlar guruhi",
         'contacts'               => "Kontaktlar",
