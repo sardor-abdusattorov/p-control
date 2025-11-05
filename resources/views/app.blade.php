@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
-    <meta name="description" content="{{ __('meta.description') }}">
-    <meta name="keywords" content="{{ __('meta.keywords') }}">
-    <meta name="author" content="{{ __('meta.author') }}">
-    <meta name="robots" content="noindex, nofollow">
-
-    <meta property="og:title" content="{{ __('meta.og_title') }}">
-    <meta property="og:description" content="{{ __('meta.og_description') }}">
-    <meta property="og:image" content="{{ asset('images/main-logo.png') }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="website">
-
     <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
