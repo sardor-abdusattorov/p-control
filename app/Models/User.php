@@ -114,6 +114,11 @@ class User extends Authenticatable implements HasMedia
         return $this->belongsTo(Position::class);
     }
 
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
     public static function approverOptions()
     {
         $mainDepartments = [7, 8, 9];

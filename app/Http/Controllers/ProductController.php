@@ -8,66 +8,41 @@ use App\Http\Requests\Product\ProductUpdateRequest;
 use App\Models\Product;
 use App\Models\ProductBrand;
 use App\Models\ProductCategory;
-use App\Models\User;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProductController extends Controller
 {
+    protected ProductRepository $repository;
 
-    public function __construct()
+    public function __construct(ProductRepository $repository)
     {
-        $this->middleware(function ($request, $next) {
-            if (!auth()->user() || !auth()->user()->can('manage products')) {
-                return redirect()->route('dashboard')->with('error', __('app.deny_access'));
-            }
-            return $next($request);
-        });
+        $this->repository = $repository;
     }
 
     public function index(ProductIndexRequest $request)
     {
-        $products = Product::query()->with('user', 'category');
+        $this->authorize('viewAny', Product::class);
 
-        if ($request->filled(['field', 'order'])) {
-            $products->orderBy($request->field, $request->order);
-        }
-
-        if ($request->filled('title')) {
-            $products->where('title', 'like', '%' . $request->title . '%');
-        }
-
-        if ($request->filled('inventory_number')) {
-            $products->where('inventory_number', 'like', '%' . $request->inventory_number . '%');
-        }
-
-        if ($request->filled('category_id')) {
-            $products->where('category_id', $request->category_id);
-        }
-
-        if ($request->filled('user_id')) {
-            $products->where('user_id', $request->user_id);
-        }
-
-        if ($request->filled('status')) {
-            $products->whereIn('status', (array) $request->status);
-        }
-
-        $statuses = Product::getStatuses();
-        $users = User::where('status', 1)->get();
-        $categories = ProductCategory::orderBy('sort', 'asc')->get();
-
+        $user = auth()->user();
+        $filters = $request->only(['title', 'inventory_number', 'serial_number', 'category_id', 'brand_id', 'user_id', 'status', 'field', 'order']);
         $perPage = (int) $request->get('perPage', 10);
+
+        $products = $this->repository->paginateWithFilters($filters, $user, $perPage);
+        $users = $this->repository->getAvailableUsers($user);
+        $categories = ProductCategory::orderBy('sort', 'asc')->get();
+        $statuses = Product::getStatuses();
 
         return Inertia::render('Product/Index', [
             'title'       => __('app.label.products'),
-            'filters'     => $request->only(['search', 'field', 'order']),
+            'filters'     => $filters,
             'perPage'     => $perPage,
-            'products'      => $products->paginate($perPage),
-            'statuses'     => $statuses,
-            'categories'   => $categories,
-            'users'        => $users,
+            'products'    => $products,
+            'statuses'    => $statuses,
+            'categories'  => $categories,
+            'users'       => $users,
             'breadcrumbs' => [
                 ['label' => __('app.label.products'), 'href' => route('products.index')],
             ],
@@ -79,14 +54,18 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $users = User::where('status', 1)->get();
+        $this->authorize('create', Product::class);
+
+        $user = auth()->user();
+        $users = $this->repository->getAvailableUsers($user);
         $categories = ProductCategory::orderBy('sort', 'asc')->get();
         $brands = ProductBrand::orderBy('sort', 'asc')->get();
+
         return Inertia::render('Product/Create', [
-            'title'         => __('app.label.products'),
-            'categories'    => $categories,
-            'brands'        => $brands,
-            'users'         => $users,
+            'title'       => __('app.label.products'),
+            'categories'  => $categories,
+            'brands'      => $brands,
+            'users'       => $users,
             'breadcrumbs' => [
                 ['label' => __('app.label.products'), 'href' => route('products.index')],
                 ['label' => __('app.label.create')]
@@ -94,13 +73,14 @@ class ProductController extends Controller
         ]);
     }
 
-
     public function store(ProductStoreRequest $request)
     {
+        $this->authorize('create', Product::class);
+
         DB::beginTransaction();
 
         try {
-            $product = Product::create([
+            $product = $this->repository->create([
                 'title' => $request->title,
                 'description' => $request->description,
                 'serial_number' => $request->serial_number,
@@ -128,6 +108,8 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
+        $this->authorize('view', $product);
+
         return Inertia::render('Product/Show', [
             'product' => $product->load('category', 'brand', 'user'),
             'title' => __('app.label.products'),
@@ -143,9 +125,13 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $users = User::where('status', 1)->get();
+        $this->authorize('update', $product);
+
+        $user = auth()->user();
+        $users = $this->repository->getAvailableUsers($user);
         $categories = ProductCategory::orderBy('sort', 'asc')->get();
         $brands = ProductBrand::orderBy('sort', 'asc')->get();
+
         return inertia('Product/Edit', [
             'product' => $product,
             'title' => __('app.label.products'),
@@ -162,10 +148,12 @@ class ProductController extends Controller
 
     public function update(ProductUpdateRequest $request, Product $product)
     {
+        $this->authorize('update', $product);
+
         DB::beginTransaction();
 
         try {
-            $product->update([
+            $this->repository->update($product, [
                 'title' => $request->title,
                 'description' => $request->description,
                 'serial_number' => $request->serial_number,
@@ -174,7 +162,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'brand_id' => $request->brand_id,
                 'user_id' => $request->user_id,
-                'sort' => $request->sort ,
+                'sort' => $request->sort,
                 'status' => $request->status,
             ]);
 
@@ -199,9 +187,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $this->authorize('delete', $product);
+
         DB::beginTransaction();
         try {
-            $product->delete();
+            $this->repository->delete($product);
             DB::commit();
             return redirect()
                 ->route('products.index')
@@ -218,12 +208,16 @@ class ProductController extends Controller
      */
     public function destroyBulk(Request $request)
     {
+        $this->authorize('deleteAny', Product::class);
+
         try {
-            $products = Product::whereIn('id', $request->id)->get();
+            $products = $this->repository->findByIds($request->id);
 
             foreach ($products as $product) {
-                $product->delete();
+                $this->authorize('delete', $product);
             }
+
+            $this->repository->deleteBulk($request->id);
 
             return back()->with('success', __('app.label.deleted_successfully', [
                 'name' => count($request->id) . ' ' . __('app.label.products')
@@ -234,6 +228,4 @@ class ProductController extends Controller
                 ]) . $th->getMessage());
         }
     }
-
-
 }

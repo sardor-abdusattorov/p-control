@@ -129,7 +129,7 @@
             </li>
 
             <!-- Products Dropdown -->
-            <li v-show="can(['manage products'])">
+            <li v-show="can(['view products', 'manage products'])">
                 <button @click="toggleMenu('products')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
                         :class="expandedMenus.products.expanded
@@ -143,7 +143,7 @@
                                      :class="{ 'rotate-180': expandedMenus.products.expanded }" />
                 </button>
                 <ul v-show="expandedMenus.products.expanded" class="space-y-1 mt-1 ml-4 pl-4 border-l-2 border-slate-700/50">
-                    <li>
+                    <li v-show="can(['manage products'])">
                         <Link :href="route('product_brands.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('product_brands.*')
@@ -153,7 +153,7 @@
                             <span class="ml-2">{{ lang().label.product_brands }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['manage products'])">
                         <Link :href="route('product_categories.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('product_categories.*')
@@ -163,7 +163,7 @@
                             <span class="ml-2">{{ lang().label.product_categories }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['view products', 'manage products'])">
                         <Link :href="route('products.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('products.*')

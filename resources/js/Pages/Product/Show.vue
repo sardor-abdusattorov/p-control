@@ -43,6 +43,7 @@ const data = reactive({
                     <h1 class="text-xl md:text-2xl font-bold">{{ product.title }}</h1>
                     <div class="actions flex flex-wrap gap-4">
                         <EditLink
+                            v-show="can(['edit product'])"
                             :href="route('products.edit', { product: product.id })"
                             class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.edit"
@@ -51,6 +52,7 @@ const data = reactive({
                         </EditLink>
                         <DangerButton
                             type="button"
+                            v-show="can(['delete product'])"
                             @click="(data.deleteOpen = true), (data.product = props.product)"
                             class="px-4 py-2 rounded-md bg-red-500 text-white hover:bg-red-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.delete"

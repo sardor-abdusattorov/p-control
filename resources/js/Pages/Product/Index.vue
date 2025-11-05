@@ -6,7 +6,7 @@
         <div class="space-y-4">
             <div class="px-0">
                 <div class="rounded-lg overflow-hidden w-fit">
-                    <div>
+                    <div v-if="can(['create products', 'manage products'])">
                         <CreateLink :href="route('products.create')"/>
                     </div>
                     <Delete
@@ -39,6 +39,7 @@
                             optionValue="value"
                         />
                         <DangerButton
+                            v-if="can(['delete products', 'manage products'])"
                             @click="data.deleteBulkOpen = true"
                             v-show="data.selectedId.length !== 0"
                             class="px-3 py-1.5"
@@ -274,6 +275,11 @@ const props = defineProps({
     users: Array,
 });
 
+const can = (permissions) => {
+    const allPermissions = usePage().props.auth.can;
+    return permissions.some(permission => allPermissions[permission]);
+};
+
 const items = computed(() => {
     const baseItems = [];
 
@@ -285,22 +291,26 @@ const items = computed(() => {
         },
     });
 
-    baseItems.push({
-        label: lang().tooltip.edit,
-        icon: 'pi pi-pencil',
-        command: () => {
-            router.visit(route('products.edit', { product: selectedProduct.value.id }));
-        },
-    });
+    if (can(['update products', 'manage products'])) {
+        baseItems.push({
+            label: lang().tooltip.edit,
+            icon: 'pi pi-pencil',
+            command: () => {
+                router.visit(route('products.edit', { product: selectedProduct.value.id }));
+            },
+        });
+    }
 
-    baseItems.push({
-        label: lang().tooltip.delete,
-        icon: 'pi pi-trash',
-        command: () => {
-            data.deleteOpen = true;
-            data.product = selectedProduct.value;
-        },
-    });
+    if (can(['delete products', 'manage products'])) {
+        baseItems.push({
+            label: lang().tooltip.delete,
+            icon: 'pi pi-trash',
+            command: () => {
+                data.deleteOpen = true;
+                data.product = selectedProduct.value;
+            },
+        });
+    }
     return [
         {
             label: lang().actions || 'Действия',
