@@ -5,7 +5,12 @@ export function useMeta() {
     const page = usePage();
 
     // Получаем метатеги из shared props
-    const meta = computed(() => page.props.meta || {});
+    const meta = computed(() => {
+        const metaData = page.props.meta || {};
+        // Отладка - выведем что приходит
+        console.log('Meta data from props:', metaData);
+        return metaData;
+    });
 
     // Вспомогательная функция для получения конкретного метатега
     const getMeta = (key, defaultValue = '') => {
