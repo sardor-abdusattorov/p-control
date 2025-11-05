@@ -27,8 +27,7 @@ const submit = () => {
 
 
 <template>
-    <GuestLayout>
-        <Head :title="lang().label.reset_password" />
+    <GuestLayout :title="props.title">
 
         <form @submit.prevent="submit">
             <div>

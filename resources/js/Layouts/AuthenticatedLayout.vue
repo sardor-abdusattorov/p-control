@@ -4,7 +4,20 @@ import NavbarVue from "@/Components/Navbar.vue";
 import SideBarVue from "@/Components/SideBar.vue";
 import Toast from "@/Components/Toast.vue";
 import Footer from "@/Components/Footer.vue";
+import MetaTags from "@/Components/MetaTags.vue";
 import { usePage } from "@inertiajs/vue3";
+
+defineProps({
+    title: {
+        type: String,
+        default: null,
+    },
+    description: {
+        type: String,
+        default: null,
+    },
+});
+
 const sidebarOpened = ref(false);
 const authUserProp = usePage().props.auth.user;
 const is_expanded = ref(
@@ -22,6 +35,8 @@ provide("globalUser", authUser);
 </script>
 
 <template>
+    <MetaTags :title="title" :description="description" />
+
     <div class="flex w-full overflow-hidden">
         <SideBarVue :open="sidebarOpened" :is_expanded="is_expanded" @close="sidebarOpened = false" @toggleMenu="toggleMenu"/>
 

@@ -32,8 +32,7 @@ const data = reactive({
 
 
 <template>
-    <AuthenticatedLayout>
-        <Head :title="title" />
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="position.name" :breadcrumbs="breadcrumbs" />
 
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">

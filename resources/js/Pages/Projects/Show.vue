@@ -1,6 +1,5 @@
 <template>
-    <Head :title="props.title"/>
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
             <!-- Header -->
@@ -122,7 +121,7 @@
 <script setup>
 import {defineProps, reactive} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head, Link} from "@inertiajs/vue3";
+import {Link} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import {DocumentTextIcon, TrashIcon} from "@heroicons/vue/24/solid";

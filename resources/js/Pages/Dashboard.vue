@@ -13,8 +13,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head :title="lang().label.dashboard" />
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="lang().label.dashboard">
         <Breadcrumb :title="lang().label.dashboard" :breadcrumbs="[]" />
 
         <!-- Widgets -->

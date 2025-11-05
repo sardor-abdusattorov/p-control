@@ -2,11 +2,25 @@
 import {Link, usePage} from "@inertiajs/vue3";
 import SwitchDarkMode from "@/Components/SwitchDarkMode.vue";
 import SwitchLangNavbar from "@/Components/SwitchLangNavbar.vue";
+import MetaTags from "@/Components/MetaTags.vue";
+
+defineProps({
+    title: {
+        type: String,
+        default: null,
+    },
+    description: {
+        type: String,
+        default: null,
+    },
+});
 
 const currentLang = usePage().props.locale;
 </script>
 
 <template>
+    <MetaTags :title="title" :description="description" />
+
     <div
         class="min-h-screen flex flex-col-2 sm:justify-center items-center pt-6 sm:pt-0 px-4 sm:px-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 text-slate-700 dark:text-slate-200"
     >

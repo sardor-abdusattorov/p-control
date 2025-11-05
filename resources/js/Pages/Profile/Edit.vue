@@ -1,7 +1,6 @@
 <template>
-        <Head :title="lang().label.profile" />
 
-        <AuthenticatedLayout>
+        <AuthenticatedLayout :title="lang().label.profile">
             <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
 
             <div class="space-y-4">

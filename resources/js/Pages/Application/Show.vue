@@ -1,6 +1,5 @@
 <template>
-    <Head :title="props.title" />
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
             <div class="mt-3 p-4">

@@ -60,8 +60,7 @@ watchEffect(() => {
 
 
 <template>
-    <Head :title="props.product.title" />
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
 
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
