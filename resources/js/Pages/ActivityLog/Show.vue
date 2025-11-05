@@ -81,12 +81,7 @@ import { defineProps, computed } from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head } from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
-import DangerButton from "@/Components/DangerButton.vue";
-import { TrashIcon } from "@heroicons/vue/24/solid";
-import EditLink from "@/Components/EditLink.vue";
-import Delete from "@/Pages/Status/Delete.vue";
 
-// Получаем пропсы
 const props = defineProps({
     activityLog: {
         type: Object,

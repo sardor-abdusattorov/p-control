@@ -130,22 +130,16 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head, Link} from "@inertiajs/vue3";
+import {Head} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import { reactive, watch } from "vue";
-import DangerButton from "@/Components/DangerButton.vue";
 import pkg from "lodash";
 import { router } from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
-import {ChevronUpDownIcon, TrashIcon,} from "@heroicons/vue/24/solid";
-import Delete from "@/Pages/Application/Delete.vue";
-import DeleteBulk from "@/Pages/Application/DeleteBulk.vue";
-import Checkbox from "@/Components/Checkbox.vue";
+import {ChevronUpDownIcon} from "@heroicons/vue/24/solid";
 import { usePage } from "@inertiajs/vue3";
-import CreateLink from "@/Components/CreateLink.vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
-import EditLink from "@/Components/EditLink.vue";
 import ViewLink from "@/Components/ViewLink.vue";
 
 const { _, debounce, pickBy } = pkg;
