@@ -2,7 +2,7 @@
 <script setup>
 import {defineProps, reactive} from 'vue';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import {Head} from "@inertiajs/vue3";
+import {Head, usePage} from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import DangerButton from "@/Components/DangerButton.vue";
 import {TrashIcon} from "@heroicons/vue/24/solid";
@@ -29,6 +29,13 @@ const data = reactive({
     product: null,
 });
 
+
+const can = (permissions) => {
+    const allPermissions = usePage().props.auth.can;
+    return permissions.some(permission => allPermissions[permission]);
+};
+
+
 </script>
 
 <template>
@@ -43,7 +50,7 @@ const data = reactive({
                     <h1 class="text-xl md:text-2xl font-bold">{{ product.title }}</h1>
                     <div class="actions flex flex-wrap gap-4">
                         <EditLink
-                            v-show="can(['edit products'])"
+                            v-show="can(['update products'])"
                             :href="route('products.edit', { product: product.id })"
                             class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-400 transition-all duration-300"
                             v-tooltip="lang().tooltip.edit"
