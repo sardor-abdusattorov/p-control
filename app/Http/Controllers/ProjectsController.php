@@ -56,7 +56,7 @@ class ProjectsController extends Controller
         $user = auth()->user();
         $statuses = Contract::getStatuses();
         $currencies = Currency::where(['status' => 1])->get();
-        $projectsQuery = Project::query()->with(['user', 'currency', 'status', 'contracts']);
+        $projectsQuery = Project::query()->with(['user', 'currency', 'contracts']);
         $contractsQuery = Contract::query();
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
@@ -201,7 +201,7 @@ class ProjectsController extends Controller
     {
         $statuses = Contract::getStatuses();
         return Inertia::render('Projects/Show', [
-            'project' => $project->load(['user', 'status', 'currency']),
+            'project' => $project->load(['user', 'currency']),
             'statuses' => $statuses,
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
