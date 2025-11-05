@@ -31,6 +31,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request)
     {
+        // Установим локаль сразу, до того как начнем получать переводы
+        if(session()->has('locale')) {
+            app()->setLocale(session('locale'));
+        }
+
         return array_merge(parent::share($request), [
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
@@ -52,20 +57,9 @@ class HandleInertiaRequests extends Middleware
                     ['label' => '100', 'value' => 100],
                 ],
             ],
-            'locale' => function () {
-                if(session()->has('locale')) {
-                    app()->setLocale(session('locale'));
-                }
-                return app()->getLocale();
-            },
-            'language' => function () {
-                return __('app'); // ✅ Просто верни массив — это то, что ожидает Inertia
-            },
-            'meta' => function () {
-                $meta = __('meta');
-                \Log::info('Meta tags from lang:', ['meta' => $meta]);
-                return $meta; // Метатеги для динамического обновления
-            },
+            'locale' => app()->getLocale(),
+            'language' => __('app'),
+            'meta' => __('meta'), // Убрали closure - теперь данные будут передаваться напрямую
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
                     'location' => $request->url(),
