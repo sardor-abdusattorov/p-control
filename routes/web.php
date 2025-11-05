@@ -17,7 +17,6 @@ use App\Http\Controllers\{ActivityLogController,
     ProfileController,
     ProjectsController,
     RoleController,
-    StatusController,
     UserController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -50,9 +49,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::get('/application/{application}/upload-scan', [ApplicationController::class, 'uploadScan'])->name('application.upload-scan');
     Route::post('/application/{application}/upload-scan', [ApplicationController::class, 'uploadScanFiles'])->name('application.upload-scan.store');
     Route::post('/application/{application}/approve', [ApplicationController::class, 'confirmApplication'])->name('application.approve');
-
-    Route::resource('status', StatusController::class);
-    Route::post('/status/destroy-bulk', [StatusController::class, 'destroyBulk'])->name('status.destroy-bulk');
 
     Route::resource('currency', CurrencyController::class);
     Route::post('/currency/destroy-bulk', [CurrencyController::class, 'destroyBulk'])->name('currency.destroy-bulk');

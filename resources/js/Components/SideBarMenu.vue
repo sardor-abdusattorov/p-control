@@ -102,18 +102,6 @@
                         </Link>
                     </li>
 
-                    <!-- Status -->
-                    <li v-show="can(['manage status'])">
-                        <Link :href="route('status.index')"
-                              class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
-                              :class="route().current('status.*')
-                                ? 'bg-sky-600/20 text-sky-400 font-medium'
-                                : 'text-slate-400 hover:text-white hover:bg-slate-800/30'">
-                            <ExclamationCircleIcon class="w-4 h-4" />
-                            <span class="ml-2">{{ lang().label.status }}</span>
-                        </Link>
-                    </li>
-
                     <!-- Currency -->
                     <li v-show="can(['manage currency'])">
                         <Link :href="route('currency.index')"
