@@ -81,9 +81,10 @@ import { Head, Link, useForm } from "@inertiajs/vue3";
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 
-defineProps({
+const props = defineProps({
     canResetPassword: Boolean,
     status: String,
+    title: String,
 });
 
 const form = useForm({

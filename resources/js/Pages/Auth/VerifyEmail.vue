@@ -6,6 +6,7 @@ import { Head, Link, useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
     status: String,
+    title: String,
 });
 
 const form = useForm();

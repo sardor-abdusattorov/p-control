@@ -6,8 +6,9 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, useForm } from "@inertiajs/vue3";
 import InputText from "primevue/inputtext"; // Новый импорт
 
-defineProps({
+const props = defineProps({
     status: String,
+    title: String,
 });
 
 const form = useForm({

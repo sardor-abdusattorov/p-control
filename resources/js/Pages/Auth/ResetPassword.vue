@@ -9,6 +9,7 @@ import InputText from 'primevue/inputtext';
 const props = defineProps({
     email: String,
     token: String,
+    title: String,
 });
 
 const form = useForm({
