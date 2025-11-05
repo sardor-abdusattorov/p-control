@@ -20,8 +20,7 @@ const verificationLinkSent = computed(
 </script>
 
 <template>
-    <GuestLayout>
-        <Head :title="lang().label.email_verification" />
+    <GuestLayout :title="props.title">
         <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
             {{ lang().label.verify_email }}
         </div>

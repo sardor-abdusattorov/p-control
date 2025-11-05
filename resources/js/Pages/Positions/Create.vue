@@ -40,9 +40,8 @@ watchEffect(() => {
 </script>
 
 <template>
-    <Head :title="props.title"/>
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
             <form class="p-6" @submit.prevent="create">

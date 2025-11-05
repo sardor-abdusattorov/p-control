@@ -1,6 +1,5 @@
 <template>
-    <Head :title="props.title"/>
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg">
             <form class="p-3 sm:p-6" @submit.prevent="create" enctype="multipart/form-data">

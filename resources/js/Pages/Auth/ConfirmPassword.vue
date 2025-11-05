@@ -19,8 +19,7 @@ const submit = () => {
 
 
 <template>
-    <GuestLayout>
-        <Head :title="lang().label.password_confirmation" />
+    <GuestLayout :title="props.title">
 
         <div class="mb-4 text-sm text-slate-600 dark:text-slate-400">
             {{ lang().label.confirm_password }}

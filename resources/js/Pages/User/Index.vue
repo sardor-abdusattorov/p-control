@@ -77,9 +77,8 @@ const select = () => {
 </script>
 
 <template>
-    <Head :title="props.title" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <div class="space-y-4">
             <div class="px-4 sm:px-0">

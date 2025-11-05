@@ -1,7 +1,6 @@
 <template>
-    <Head :title="props.title" />
 
-    <AuthenticatedLayout>
+    <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
         <div class="space-y-4">
             <div class="px-0">
@@ -260,7 +259,7 @@
 
 <script setup>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { Head, Link } from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import {computed, reactive, ref, watch} from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
