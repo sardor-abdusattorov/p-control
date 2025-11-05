@@ -62,7 +62,9 @@ class HandleInertiaRequests extends Middleware
                 return __('app'); // ✅ Просто верни массив — это то, что ожидает Inertia
             },
             'meta' => function () {
-                return __('meta'); // Метатеги для динамического обновления
+                $meta = __('meta');
+                \Log::info('Meta tags from lang:', ['meta' => $meta]);
+                return $meta; // Метатеги для динамического обновления
             },
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
