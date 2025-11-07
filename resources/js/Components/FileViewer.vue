@@ -221,7 +221,7 @@ watch(() => props.visible, (newVal) => {
 
         <div v-if="file" class="file-viewer-content">
             <!-- Zoom Controls -->
-            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2 border-b border-gray-200 dark:border-gray-700">
                 <Button
                     icon="pi pi-search-minus"
                     @click="zoomOut"
@@ -449,6 +449,19 @@ watch(() => props.visible, (newVal) => {
 
 .file-viewer-content {
     /* Dialog сам обрабатывает скролл */
+}
+
+.zoom-controls {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+}
+
+.dark .zoom-controls {
+    background: #1f2937;
 }
 
 .pdf-container {
