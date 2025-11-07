@@ -388,7 +388,7 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', transition: 'transform 0.2s' }">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
                         <vue-office-docx
                             :src="fileData"
                             @rendered="handleOfficeLoad"
@@ -411,7 +411,7 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', transition: 'transform 0.2s' }">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
                         <vue-office-excel
                             :src="fileData"
                             @rendered="handleOfficeLoad"
@@ -502,11 +502,11 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
-    overflow: visible;
+    overflow: auto;
     position: relative;
     padding: 1rem;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
 }
 
@@ -520,11 +520,11 @@ watch(() => props.visible, (newVal) => {
 }
 
 .word-viewer .office-embed {
-    min-height: auto;
+    max-height: 70vh;
 }
 
 .excel-viewer .office-embed {
-    min-height: auto;
+    max-height: 70vh;
 }
 
 .dark .office-embed {
@@ -533,8 +533,8 @@ watch(() => props.visible, (newVal) => {
 }
 
 .office-zoom-wrapper {
-    display: block;
-    width: 100%;
+    display: inline-block;
+    min-width: 100%;
 }
 
 /* Улучшение отображения Excel таблиц */
@@ -608,11 +608,11 @@ watch(() => props.visible, (newVal) => {
 }
 
 .fullscreen-dialog .word-viewer .office-embed {
-    min-height: auto;
+    max-height: calc(100vh - 180px);
 }
 
 .fullscreen-dialog .excel-viewer .office-embed {
-    min-height: auto;
+    max-height: calc(100vh - 180px);
 }
 
 .fullscreen-dialog .image-scroll-container {
@@ -777,14 +777,10 @@ watch(() => props.visible, (newVal) => {
     }
 
     /* Уменьшаем размеры контента на мобилке */
-    .image-scroll-container {
-        max-height: 60vh;
-    }
-
+    .image-scroll-container,
     .word-viewer .office-embed,
     .excel-viewer .office-embed {
-        min-height: auto;
-        max-height: none;
+        max-height: 60vh;
     }
 
     .pdf-container {
