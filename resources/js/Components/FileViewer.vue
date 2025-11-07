@@ -502,7 +502,7 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
-    overflow: auto;
+    overflow: visible;
     position: relative;
     padding: 1rem;
     display: flex;
@@ -520,11 +520,11 @@ watch(() => props.visible, (newVal) => {
 }
 
 .word-viewer .office-embed {
-    min-height: 70vh;
+    min-height: auto;
 }
 
 .excel-viewer .office-embed {
-    max-height: 70vh;
+    min-height: auto;
 }
 
 .dark .office-embed {
@@ -533,7 +533,8 @@ watch(() => props.visible, (newVal) => {
 }
 
 .office-zoom-wrapper {
-    display: inline-block;
+    display: block;
+    width: 100%;
 }
 
 /* Улучшение отображения Excel таблиц */
@@ -607,11 +608,11 @@ watch(() => props.visible, (newVal) => {
 }
 
 .fullscreen-dialog .word-viewer .office-embed {
-    min-height: calc(100vh - 180px);
+    min-height: auto;
 }
 
 .fullscreen-dialog .excel-viewer .office-embed {
-    max-height: calc(100vh - 180px);
+    min-height: auto;
 }
 
 .fullscreen-dialog .image-scroll-container {
@@ -776,10 +777,14 @@ watch(() => props.visible, (newVal) => {
     }
 
     /* Уменьшаем размеры контента на мобилке */
-    .image-scroll-container,
+    .image-scroll-container {
+        max-height: 60vh;
+    }
+
     .word-viewer .office-embed,
     .excel-viewer .office-embed {
-        max-height: 60vh;
+        min-height: auto;
+        max-height: none;
     }
 
     .pdf-container {
