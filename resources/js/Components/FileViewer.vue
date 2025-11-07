@@ -228,6 +228,34 @@ watch(() => props.visible, (newVal) => {
                         <i :class="fileIcon" class="text-2xl"></i>
                         <span class="file-name font-semibold">{{ file?.name || lang().file_viewer.file }}</span>
                     </div>
+
+                    <!-- Кнопки зума для мобилки (в одной строке) -->
+                    <div v-if="canPreview" class="zoom-controls-mobile">
+                        <Button
+                            icon="pi pi-search-minus"
+                            @click="zoomOut"
+                            :disabled="zoomLevel <= 0.5"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.zoom_out"
+                        />
+                        <Button
+                            :label="`${Math.round(zoomLevel * 100)}%`"
+                            @click="resetZoom"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.reset_zoom"
+                        />
+                        <Button
+                            icon="pi pi-search-plus"
+                            @click="zoomIn"
+                            :disabled="zoomLevel >= 3"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.zoom_in"
+                        />
+                    </div>
+
                     <Button
                         :icon="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
                         @click="toggleFullscreen"
@@ -238,7 +266,7 @@ watch(() => props.visible, (newVal) => {
                     />
                 </div>
 
-                <!-- Zoom Controls в отдельной строке -->
+                <!-- Zoom Controls в отдельной строке для десктопа -->
                 <div v-if="canPreview" class="header-row-2">
                     <div class="zoom-controls">
                         <Button
@@ -654,6 +682,11 @@ watch(() => props.visible, (newVal) => {
     gap: 0.5rem;
 }
 
+/* Мобильные кнопки зума - скрыты на десктопе */
+.zoom-controls-mobile {
+    display: none;
+}
+
 /* Mobile optimization */
 @media (max-width: 767px) {
     .file-viewer-dialog :deep(.p-dialog) {
@@ -667,20 +700,34 @@ watch(() => props.visible, (newVal) => {
     }
 
     .file-info {
-        gap: 0.5rem;
-    }
-
-    .file-info i {
         display: none;
     }
 
-    .zoom-controls {
+    /* Скрываем вторую строку с кнопками зума на мобилке */
+    .header-row-2 {
+        display: none;
+    }
+
+    /* Показываем мобильные кнопки зума */
+    .zoom-controls-mobile {
+        display: flex;
+        align-items: center;
         gap: 0.25rem;
     }
 
-    .zoom-controls :deep(.p-button) {
+    .zoom-controls-mobile :deep(.p-button) {
         padding: 0.375rem 0.5rem;
         font-size: 0.75rem;
+    }
+
+    /* Выравниваем все кнопки справа */
+    .header-row-1 {
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+
+    .file-viewer-header {
+        gap: 0;
     }
 
     .fullscreen-btn {
