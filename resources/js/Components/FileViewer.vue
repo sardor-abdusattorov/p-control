@@ -416,10 +416,17 @@ watch(() => props.visible, (newVal) => {
 
 .office-embed {
     width: 100%;
-    min-height: 70vh;
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
+}
+
+.word-viewer .office-embed {
+    min-height: 70vh;
+}
+
+.excel-viewer .office-embed {
+    height: 70vh;
 }
 
 .dark .office-embed {
@@ -430,7 +437,8 @@ watch(() => props.visible, (newVal) => {
 /* Улучшение отображения Excel таблиц */
 .excel-viewer :deep(.office-excel-container) {
     width: 100% !important;
-    height: 100% !important;
+    max-height: 70vh !important;
+    overflow: auto !important;
 }
 
 .excel-viewer :deep(canvas) {
