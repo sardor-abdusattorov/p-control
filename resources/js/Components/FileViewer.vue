@@ -25,6 +25,7 @@ const loading = ref(true);
 const error = ref(null);
 const currentPage = ref(1);
 const pageCount = ref(0);
+const isFullscreen = ref(false);
 
 const dialogVisible = computed({
     get: () => props.visible,
@@ -35,11 +36,33 @@ const fileType = computed(() => {
     if (!props.file) return null;
 
     const mimeType = props.file.mime_type.toLowerCase();
+    const fileName = props.file.name.toLowerCase();
 
+    // PDF
     if (mimeType === 'application/pdf') return 'pdf';
+
+    // Images
     if (mimeType.startsWith('image/')) return 'image';
-    if (mimeType.includes('word') || mimeType.includes('document')) return 'word';
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'excel';
+
+    // Word documents
+    if (mimeType.includes('word') ||
+        mimeType.includes('document') ||
+        mimeType === 'application/msword' ||
+        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        fileName.endsWith('.doc') ||
+        fileName.endsWith('.docx')) {
+        return 'word';
+    }
+
+    // Excel spreadsheets
+    if (mimeType.includes('excel') ||
+        mimeType.includes('spreadsheet') ||
+        mimeType === 'application/vnd.ms-excel' ||
+        mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        fileName.endsWith('.xls') ||
+        fileName.endsWith('.xlsx')) {
+        return 'excel';
+    }
 
     return 'other';
 });
@@ -106,11 +129,17 @@ const downloadFile = () => {
     }
 };
 
+const toggleFullscreen = () => {
+    isFullscreen.value = !isFullscreen.value;
+};
+
 watch(() => props.visible, (newVal) => {
     if (newVal) {
         loading.value = true;
         error.value = null;
         currentPage.value = 1;
+    } else {
+        isFullscreen.value = false;
     }
 });
 </script>
@@ -121,13 +150,22 @@ watch(() => props.visible, (newVal) => {
         :modal="true"
         :closable="true"
         :draggable="false"
-        :style="{ width: canPreview ? '90vw' : '50vw' }"
-        class="file-viewer-dialog"
+        :style="{ width: isFullscreen ? '100vw' : (canPreview ? '90vw' : '50vw'), height: isFullscreen ? '100vh' : 'auto' }"
+        :class="['file-viewer-dialog', { 'fullscreen-dialog': isFullscreen }]"
     >
         <template #header>
-            <div class="flex items-center gap-3">
-                <i :class="fileIcon" class="text-2xl"></i>
-                <span class="font-semibold">{{ file?.name || 'Файл' }}</span>
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-3">
+                    <i :class="fileIcon" class="text-2xl"></i>
+                    <span class="font-semibold">{{ file?.name || 'Файл' }}</span>
+                </div>
+                <Button
+                    :icon="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+                    @click="toggleFullscreen"
+                    text
+                    rounded
+                    v-tooltip.bottom="isFullscreen ? 'Выйти из полноэкранного режима' : 'Полноэкранный режим'"
+                />
             </div>
         </template>
 
@@ -311,6 +349,19 @@ watch(() => props.visible, (newVal) => {
 .file-viewer-content {
     max-height: 80vh;
     overflow-y: auto;
+}
+
+.fullscreen-dialog .file-viewer-content {
+    max-height: calc(100vh - 150px);
+}
+
+.fullscreen-dialog .pdf-embed,
+.fullscreen-dialog .office-embed {
+    min-height: calc(100vh - 200px);
+}
+
+.fullscreen-dialog .image-viewer img {
+    max-height: calc(100vh - 200px);
 }
 
 .image-viewer img {

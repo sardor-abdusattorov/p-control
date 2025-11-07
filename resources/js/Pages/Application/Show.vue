@@ -279,7 +279,7 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <div v-if="props.files.length > 0">
                                     <ul class="list-none p-0 flex flex-col gap-2">
-                                        <li v-for="(file, index) in props.files" :key="index" class="flex items-center gap-2">
+                                        <li v-for="(file, index) in props.files" :key="index">
                                             <Button
                                                 icon="pi pi-eye"
                                                 :label="file.name"
@@ -289,15 +289,6 @@
                                                 severity="info"
                                                 class="text-left"
                                             />
-                                            <a
-                                                :href="file.original_url"
-                                                target="_blank"
-                                                download
-                                                v-tooltip="lang().tooltip.download"
-                                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                            >
-                                                <i class="pi pi-download"></i>
-                                            </a>
                                         </li>
                                     </ul>
                                 </div>
@@ -315,7 +306,7 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <div v-if="props.scans.length > 0">
                                     <ul class="list-none p-0 flex flex-col gap-2">
-                                        <li v-for="(file, index) in props.scans" :key="index" class="flex items-center gap-2">
+                                        <li v-for="(file, index) in props.scans" :key="index">
                                             <Button
                                                 icon="pi pi-eye"
                                                 :label="file.name"
@@ -325,15 +316,6 @@
                                                 severity="success"
                                                 class="text-left"
                                             />
-                                            <a
-                                                :href="file.original_url"
-                                                target="_blank"
-                                                download
-                                                v-tooltip="lang().tooltip.download"
-                                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                                            >
-                                                <i class="pi pi-download"></i>
-                                            </a>
                                         </li>
                                     </ul>
                                 </div>
