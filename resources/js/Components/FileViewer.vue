@@ -204,11 +204,39 @@ watch(() => props.visible, (newVal) => {
         :class="['file-viewer-dialog', { 'fullscreen-dialog': isFullscreen }]"
     >
         <template #header>
-            <div class="flex items-center justify-between w-full">
+            <div class="flex items-center justify-between w-full gap-4">
                 <div class="flex items-center gap-3">
                     <i :class="fileIcon" class="text-2xl"></i>
                     <span class="font-semibold">{{ file?.name || 'Файл' }}</span>
                 </div>
+
+                <!-- Zoom Controls в шапке -->
+                <div v-if="canPreview" class="flex items-center gap-2">
+                    <Button
+                        icon="pi pi-search-minus"
+                        @click="zoomOut"
+                        :disabled="zoomLevel <= 0.5"
+                        size="small"
+                        outlined
+                        v-tooltip.bottom="'Уменьшить'"
+                    />
+                    <Button
+                        :label="`${Math.round(zoomLevel * 100)}%`"
+                        @click="resetZoom"
+                        size="small"
+                        outlined
+                        v-tooltip.bottom="'Сбросить масштаб'"
+                    />
+                    <Button
+                        icon="pi pi-search-plus"
+                        @click="zoomIn"
+                        :disabled="zoomLevel >= 3"
+                        size="small"
+                        outlined
+                        v-tooltip.bottom="'Увеличить'"
+                    />
+                </div>
+
                 <Button
                     :icon="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
                     @click="toggleFullscreen"
@@ -219,34 +247,7 @@ watch(() => props.visible, (newVal) => {
             </div>
         </template>
 
-        <div v-if="file" class="file-viewer-content">
-            <!-- Zoom Controls -->
-            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2">
-                <Button
-                    icon="pi pi-search-minus"
-                    @click="zoomOut"
-                    :disabled="zoomLevel <= 0.5"
-                    size="small"
-                    outlined
-                    v-tooltip.bottom="'Уменьшить'"
-                />
-                <Button
-                    :label="`${Math.round(zoomLevel * 100)}%`"
-                    @click="resetZoom"
-                    size="small"
-                    outlined
-                    v-tooltip.bottom="'Сбросить масштаб'"
-                />
-                <Button
-                    icon="pi pi-search-plus"
-                    @click="zoomIn"
-                    :disabled="zoomLevel >= 3"
-                    size="small"
-                    outlined
-                    v-tooltip.bottom="'Увеличить'"
-                />
-            </div>
-
+        <div v-if="file" :class="['file-viewer-content', { 'fullscreen-content': isFullscreen }]">
             <!-- PDF Viewer -->
             <div v-if="fileType === 'pdf'" class="pdf-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
@@ -447,27 +448,6 @@ watch(() => props.visible, (newVal) => {
     height: auto !important;
 }
 
-.file-viewer-content {
-    /* Dialog сам обрабатывает скролл */
-}
-
-.zoom-controls {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: white;
-    margin-bottom: 1rem;
-    padding: 0.75rem 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.dark .zoom-controls {
-    background: #1f2937;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid #374151;
-}
-
 .pdf-container {
     display: flex;
     justify-content: center;
@@ -494,14 +474,39 @@ watch(() => props.visible, (newVal) => {
 }
 
 /* Fullscreen styles */
+.fullscreen-content {
+    padding: 1.5rem !important;
+}
+
+.fullscreen-dialog :deep(.p-dialog) {
+    margin: 0 !important;
+}
+
+.fullscreen-dialog :deep(.p-dialog-content) {
+    padding: 0 !important;
+    overflow: auto;
+    max-height: calc(100vh - 130px);
+}
+
+.fullscreen-dialog :deep(.p-dialog-header) {
+    padding: 1rem 1.5rem;
+}
+
+.fullscreen-dialog :deep(.p-dialog-footer) {
+    padding: 1rem 1.5rem;
+}
 
 .fullscreen-dialog .pdf-embed,
 .fullscreen-dialog .office-embed {
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 180px);
 }
 
 .fullscreen-dialog .image-scroll-container {
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 180px);
+}
+
+.fullscreen-dialog .excel-viewer :deep(.office-excel-container) {
+    max-height: calc(100vh - 180px) !important;
 }
 
 .image-viewer img {
