@@ -329,14 +329,15 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <vue-office-docx
-                    v-if="!loading && !error && fileData"
-                    :src="fileData"
-                    @rendered="handleOfficeLoad"
-                    @error="handleOfficeError"
-                    :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }"
-                    class="office-embed"
-                />
+                <div v-if="!loading && !error && fileData" class="office-embed">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                        <vue-office-docx
+                            :src="fileData"
+                            @rendered="handleOfficeLoad"
+                            @error="handleOfficeError"
+                        />
+                    </div>
+                </div>
             </div>
 
             <!-- Excel Viewer -->
@@ -351,14 +352,15 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <vue-office-excel
-                    v-if="!loading && !error && fileData"
-                    :src="fileData"
-                    @rendered="handleOfficeLoad"
-                    @error="handleOfficeError"
-                    :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }"
-                    class="office-embed"
-                />
+                <div v-if="!loading && !error && fileData" class="office-embed">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                        <vue-office-excel
+                            :src="fileData"
+                            @rendered="handleOfficeLoad"
+                            @error="handleOfficeError"
+                        />
+                    </div>
+                </div>
             </div>
 
             <!-- Other Files -->
@@ -421,6 +423,7 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
+    overflow: auto;
 }
 
 .word-viewer .office-embed {
@@ -428,7 +431,7 @@ watch(() => props.visible, (newVal) => {
 }
 
 .excel-viewer .office-embed {
-    /* Высота контролируется внутренним контейнером */
+    max-height: 70vh;
 }
 
 .dark .office-embed {
@@ -436,13 +439,12 @@ watch(() => props.visible, (newVal) => {
     background: #1f2937;
 }
 
-/* Улучшение отображения Excel таблиц */
-.excel-viewer :deep(.office-excel-container) {
-    width: 100% !important;
-    max-height: 70vh !important;
-    overflow: auto !important;
+.office-zoom-wrapper {
+    display: inline-block;
+    min-width: 100%;
 }
 
+/* Улучшение отображения Excel таблиц */
 .excel-viewer :deep(canvas) {
     width: 100% !important;
     height: auto !important;
@@ -508,17 +510,20 @@ watch(() => props.visible, (newVal) => {
     padding: 1rem 1.5rem;
 }
 
-.fullscreen-dialog .pdf-embed,
-.fullscreen-dialog .office-embed {
+.fullscreen-dialog .pdf-embed {
     min-height: calc(100vh - 180px);
+}
+
+.fullscreen-dialog .word-viewer .office-embed {
+    min-height: calc(100vh - 180px);
+}
+
+.fullscreen-dialog .excel-viewer .office-embed {
+    max-height: calc(100vh - 180px);
 }
 
 .fullscreen-dialog .image-scroll-container {
     max-height: calc(100vh - 180px);
-}
-
-.fullscreen-dialog .excel-viewer :deep(.office-excel-container) {
-    max-height: calc(100vh - 180px) !important;
 }
 
 .image-viewer img {
