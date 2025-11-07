@@ -102,7 +102,7 @@ const handleDocumentLoad = ({ pageCount: count }) => {
 const handleDocumentError = (err) => {
     error.value = lang().file_viewer.error_loading_pdf;
     loading.value = false;
-    console.error('PDF load error:', err);
+
 };
 
 const handleImageLoad = () => {
@@ -121,7 +121,7 @@ const handleOfficeLoad = () => {
 const handleOfficeError = (err) => {
     error.value = lang().file_viewer.error_loading_document;
     loading.value = false;
-    console.error('Office file load error:', err);
+
 };
 
 // Загрузка файла для Office компонентов
@@ -132,27 +132,20 @@ const loadOfficeFile = async () => {
     error.value = null;
 
     try {
-        console.log('Loading office file:', {
-            name: props.file.name,
-            type: fileType.value,
-            mime: props.file.mime_type,
-            url: props.file.original_url
-        });
 
         const response = await fetch(props.file.original_url);
-        console.log('Fetch response:', response.status, response.statusText);
+
 
         if (!response.ok) throw new Error(`Failed to load file: ${response.status} ${response.statusText}`);
 
         const blob = await response.blob();
-        console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
+
 
         fileData.value = blob;
         loading.value = false;
     } catch (err) {
         error.value = `${lang().file_viewer.error_loading_file}: ${err.message}`;
         loading.value = false;
-        console.error('File load error:', err);
     }
 };
 
@@ -223,7 +216,7 @@ watch(() => props.visible, (newVal) => {
         :modal="true"
         :closable="false"
         :draggable="false"
-        :style="{ width: isFullscreen ? '100vw' : (canPreview ? '90vw' : '50vw'), height: isFullscreen ? '100vh' : 'auto' }"
+        :style="{ width: isFullscreen ? '100vw' : (canPreview ? '90vw' : '90vw'), height: isFullscreen ? '100vh' : 'auto' }"
         :class="['file-viewer-dialog', { 'fullscreen-dialog': isFullscreen }]"
     >
         <template #header>
