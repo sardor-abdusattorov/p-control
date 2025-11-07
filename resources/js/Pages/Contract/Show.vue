@@ -368,10 +368,25 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.files }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <div v-if="props.files.length > 0">
-                                    <ul class="list-none p-0 flex flex-col gap-1.5">
-                                        <li v-for="(file, index) in props.files" :key="index" class="flex items-center space-x-2">
-                                            <a v-tooltip="lang().tooltip.download" :href="file.original_url" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                                {{ file.name }}
+                                    <ul class="list-none p-0 flex flex-col gap-2">
+                                        <li v-for="(file, index) in props.files" :key="index" class="flex items-center gap-2">
+                                            <Button
+                                                icon="pi pi-eye"
+                                                :label="file.name"
+                                                @click="openFileViewer(file)"
+                                                size="small"
+                                                outlined
+                                                severity="info"
+                                                class="text-left"
+                                            />
+                                            <a
+                                                :href="file.original_url"
+                                                target="_blank"
+                                                download
+                                                v-tooltip="lang().tooltip.download"
+                                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                            >
+                                                <i class="pi pi-download"></i>
                                             </a>
                                         </li>
                                     </ul>
@@ -389,15 +404,25 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.scans }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <div v-if="props.scans.length > 0">
-                                    <ul class="list-none p-0 flex flex-col gap-1.5">
-                                        <li v-for="(file, index) in props.scans" :key="index" class="flex items-center space-x-2">
+                                    <ul class="list-none p-0 flex flex-col gap-2">
+                                        <li v-for="(file, index) in props.scans" :key="index" class="flex items-center gap-2">
+                                            <Button
+                                                icon="pi pi-eye"
+                                                :label="file.name"
+                                                @click="openFileViewer(file)"
+                                                size="small"
+                                                outlined
+                                                severity="success"
+                                                class="text-left"
+                                            />
                                             <a
-                                                v-tooltip="lang().tooltip.download"
                                                 :href="file.original_url"
                                                 target="_blank"
-                                                class="text-green-600 hover:text-green-800"
+                                                download
+                                                v-tooltip="lang().tooltip.download"
+                                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                                             >
-                                                {{ file.name }}
+                                                <i class="pi pi-download"></i>
                                             </a>
                                         </li>
                                     </ul>
@@ -562,9 +587,24 @@
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600 font-bold">{{ lang().label.files }}</td>
                         <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                             <ul v-if="props.application?.media?.length > 0" class="list-none space-y-2">
-                                <li v-for="(file, index) in props.application.media" :key="index">
-                                    <a v-tooltip="lang().tooltip.download" :href="file.original_url" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                        {{ file.name }}
+                                <li v-for="(file, index) in props.application.media" :key="index" class="flex items-center gap-2">
+                                    <Button
+                                        icon="pi pi-eye"
+                                        :label="file.name"
+                                        @click="openFileViewer(file)"
+                                        size="small"
+                                        outlined
+                                        severity="info"
+                                        class="text-left"
+                                    />
+                                    <a
+                                        :href="file.original_url"
+                                        target="_blank"
+                                        download
+                                        v-tooltip="lang().tooltip.download"
+                                        class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                    >
+                                        <i class="pi pi-download"></i>
                                     </a>
                                 </li>
                             </ul>
@@ -575,6 +615,12 @@
                 </table>
             </div>
         </Dialog>
+
+        <!-- File Viewer Modal -->
+        <FileViewer
+            :file="data.selectedFile"
+            v-model:visible="data.fileViewerVisible"
+        />
     </AuthenticatedLayout>
 </template>
 
@@ -599,6 +645,7 @@ import ApprovalHistory from "@/Pages/Contract/ApprovalHistory.vue";
 import Message from "primevue/message";
 import {Card} from "primevue";
 import ApplicationHistory from "@/Pages/Contract/ApplicationHistory.vue";
+import FileViewer from "@/Components/FileViewer.vue";
 
 const showModal = ref(false);
 
@@ -633,6 +680,8 @@ const data = reactive({
     historyApproval: null,
     showApplicationHistory: false,
     applicationHistoryApproval: null,
+    fileViewerVisible: false,
+    selectedFile: null,
 });
 
 const emit = defineEmits(["close"]);
@@ -697,6 +746,11 @@ const openApprovalHistory = (approval) => {
 const openApplicationHistory = (approval) => {
     data.applicationHistoryApproval = approval;
     data.showApplicationHistory = true;
+};
+
+const openFileViewer = (file) => {
+    data.selectedFile = file;
+    data.fileViewerVisible = true;
 };
 
 

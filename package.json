@@ -29,6 +29,7 @@
         "primevue": "^4.2.1",
         "quill": "^2.0.3",
         "vite": "^7.1.12",
-        "vue-files-preview": "^1.0.38"
+        "vue-files-preview": "^1.0.38",
+        "vue-pdf-embed": "^2.1.3"
     }
 }
