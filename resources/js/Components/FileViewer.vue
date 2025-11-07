@@ -221,7 +221,7 @@ watch(() => props.visible, (newVal) => {
 
         <div v-if="file" class="file-viewer-content">
             <!-- Zoom Controls -->
-            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2">
                 <Button
                     icon="pi pi-search-minus"
                     @click="zoomOut"
@@ -458,10 +458,14 @@ watch(() => props.visible, (newVal) => {
     background: white;
     margin-bottom: 1rem;
     padding: 0.75rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .dark .zoom-controls {
     background: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid #374151;
 }
 
 .pdf-container {
