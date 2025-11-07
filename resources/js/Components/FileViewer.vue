@@ -661,7 +661,7 @@ watch(() => props.visible, (newVal) => {
         max-width: 95vw !important;
     }
 
-    /* Скрываем название файла в header */
+    /* Скрываем название файла и иконку в header */
     .file-name {
         display: none;
     }
@@ -671,7 +671,7 @@ watch(() => props.visible, (newVal) => {
     }
 
     .file-info i {
-        font-size: 1.25rem !important;
+        display: none;
     }
 
     .zoom-controls {
@@ -749,10 +749,6 @@ watch(() => props.visible, (newVal) => {
 
     .file-name {
         font-size: 0.8125rem;
-    }
-
-    .zoom-controls :deep(.p-button-label) {
-        display: none;
     }
 
     .zoom-controls :deep(.p-button) {
