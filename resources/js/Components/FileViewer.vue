@@ -27,6 +27,7 @@ const currentPage = ref(1);
 const pageCount = ref(0);
 const isFullscreen = ref(false);
 const fileData = ref(null); // Для хранения данных файла
+const zoomLevel = ref(1); // Уровень масштаба (1 = 100%)
 
 const dialogVisible = computed({
     get: () => props.visible,
@@ -154,12 +155,29 @@ const toggleFullscreen = () => {
     isFullscreen.value = !isFullscreen.value;
 };
 
+const zoomIn = () => {
+    if (zoomLevel.value < 3) { // Максимум 300%
+        zoomLevel.value += 0.25;
+    }
+};
+
+const zoomOut = () => {
+    if (zoomLevel.value > 0.5) { // Минимум 50%
+        zoomLevel.value -= 0.25;
+    }
+};
+
+const resetZoom = () => {
+    zoomLevel.value = 1;
+};
+
 watch(() => props.visible, (newVal) => {
     if (newVal) {
         loading.value = true;
         error.value = null;
         currentPage.value = 1;
         fileData.value = null;
+        zoomLevel.value = 1;
 
         // Загружаем Office файлы
         if (props.file && ['word', 'excel'].includes(fileType.value)) {
@@ -197,6 +215,33 @@ watch(() => props.visible, (newVal) => {
         </template>
 
         <div v-if="file" class="file-viewer-content">
+            <!-- Zoom Controls -->
+            <div v-if="canPreview" class="zoom-controls flex justify-center items-center gap-2 mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+                <Button
+                    icon="pi pi-search-minus"
+                    @click="zoomOut"
+                    :disabled="zoomLevel <= 0.5"
+                    size="small"
+                    outlined
+                    v-tooltip.bottom="'Уменьшить'"
+                />
+                <Button
+                    :label="`${Math.round(zoomLevel * 100)}%`"
+                    @click="resetZoom"
+                    size="small"
+                    outlined
+                    v-tooltip.bottom="'Сбросить масштаб'"
+                />
+                <Button
+                    icon="pi pi-search-plus"
+                    @click="zoomIn"
+                    :disabled="zoomLevel >= 3"
+                    size="small"
+                    outlined
+                    v-tooltip.bottom="'Увеличить'"
+                />
+            </div>
+
             <!-- PDF Viewer -->
             <div v-if="fileType === 'pdf'" class="pdf-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
@@ -209,13 +254,15 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-show="!loading && !error">
-                    <vue-pdf-embed
-                        :source="file.original_url"
-                        @loaded="handleDocumentLoad"
-                        @rendering-failed="handleDocumentError"
-                        class="pdf-embed"
-                    />
+                <div v-show="!loading && !error" class="pdf-container">
+                    <div :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                        <vue-pdf-embed
+                            :source="file.original_url"
+                            @loaded="handleDocumentLoad"
+                            @rendering-failed="handleDocumentError"
+                            class="pdf-embed"
+                        />
+                    </div>
 
                     <div v-if="pageCount > 1" class="pdf-controls flex justify-center items-center gap-4 mt-4">
                         <Button
@@ -251,14 +298,16 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <img
-                    v-show="!loading && !error"
-                    :src="file.original_url"
-                    :alt="file.name"
-                    @load="handleImageLoad"
-                    @error="handleImageError"
-                    class="max-w-full h-auto mx-auto rounded-lg"
-                />
+                <div v-show="!loading && !error" class="image-container">
+                    <img
+                        :src="file.original_url"
+                        :alt="file.name"
+                        @load="handleImageLoad"
+                        @error="handleImageError"
+                        :style="{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s' }"
+                        class="max-w-full h-auto mx-auto rounded-lg"
+                    />
+                </div>
             </div>
 
             <!-- Word Viewer -->
@@ -273,13 +322,14 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <vue-office-docx
-                    v-if="!loading && !error && fileData"
-                    :src="fileData"
-                    @rendered="handleOfficeLoad"
-                    @error="handleOfficeError"
-                    class="office-embed"
-                />
+                <div v-if="!loading && !error && fileData" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                    <vue-office-docx
+                        :src="fileData"
+                        @rendered="handleOfficeLoad"
+                        @error="handleOfficeError"
+                        class="office-embed"
+                    />
+                </div>
             </div>
 
             <!-- Excel Viewer -->
@@ -294,13 +344,14 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <vue-office-excel
-                    v-if="!loading && !error && fileData"
-                    :src="fileData"
-                    @rendered="handleOfficeLoad"
-                    @error="handleOfficeError"
-                    class="office-embed"
-                />
+                <div v-if="!loading && !error && fileData" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                    <vue-office-excel
+                        :src="fileData"
+                        @rendered="handleOfficeLoad"
+                        @error="handleOfficeError"
+                        class="office-embed"
+                    />
+                </div>
             </div>
 
             <!-- Other Files -->
@@ -388,6 +439,14 @@ watch(() => props.visible, (newVal) => {
 .file-viewer-content {
     max-height: 80vh;
     overflow-y: auto;
+}
+
+.pdf-container,
+.image-container {
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 .fullscreen-dialog .file-viewer-content {
