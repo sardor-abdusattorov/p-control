@@ -522,7 +522,9 @@ watch(() => props.visible, (newVal) => {
 }
 
 .excel-viewer .office-embed {
-    max-height: 70vh;
+    max-height: none;
+    overflow: visible;
+    height: 70vh;
 }
 
 .dark .office-embed {
@@ -605,7 +607,8 @@ watch(() => props.visible, (newVal) => {
 }
 
 .fullscreen-dialog .excel-viewer .office-embed {
-    max-height: calc(100vh - 180px);
+    max-height: none;
+    height: calc(100vh - 180px);
 }
 
 .fullscreen-dialog .image-scroll-container {
@@ -771,9 +774,13 @@ watch(() => props.visible, (newVal) => {
 
     /* Уменьшаем размеры контента на мобилке */
     .image-scroll-container,
-    .word-viewer .office-embed,
-    .excel-viewer .office-embed {
+    .word-viewer .office-embed {
         max-height: 60vh;
+    }
+
+    .excel-viewer .office-embed {
+        max-height: none;
+        height: 60vh;
     }
 
     .pdf-container {
