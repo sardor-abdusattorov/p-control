@@ -478,14 +478,26 @@ watch(() => props.visible, (newVal) => {
     padding: 1.5rem !important;
 }
 
+.fullscreen-dialog {
+    padding: 0 !important;
+}
+
+.fullscreen-dialog :deep(.p-dialog-mask) {
+    padding: 0 !important;
+}
+
 .fullscreen-dialog :deep(.p-dialog) {
     margin: 0 !important;
+    max-height: 100vh !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
 }
 
 .fullscreen-dialog :deep(.p-dialog-content) {
     padding: 0 !important;
     overflow: auto;
-    max-height: calc(100vh - 130px);
+    max-height: calc(100vh - 130px) !important;
+    height: calc(100vh - 130px) !important;
 }
 
 .fullscreen-dialog :deep(.p-dialog-header) {
