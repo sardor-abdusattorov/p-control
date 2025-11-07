@@ -330,7 +330,7 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
                         <vue-office-docx
                             :src="fileData"
                             @rendered="handleOfficeLoad"
@@ -353,7 +353,7 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
+                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
                         <vue-office-excel
                             :src="fileData"
                             @rendered="handleOfficeLoad"
@@ -424,6 +424,17 @@ watch(() => props.visible, (newVal) => {
     border-radius: 0.5rem;
     background: white;
     overflow: auto;
+    position: relative;
+    padding: 1rem;
+}
+
+/* Убираем фон из внутренних элементов Office компонентов */
+.office-embed :deep(.docx-wrapper) {
+    background: transparent !important;
+}
+
+.office-embed :deep(.excel-wrapper) {
+    background: transparent !important;
 }
 
 .word-viewer .office-embed {
@@ -440,8 +451,13 @@ watch(() => props.visible, (newVal) => {
 }
 
 .office-zoom-wrapper {
-    display: inline-block;
-    min-width: 100%;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+.office-zoom-wrapper :deep(> *) {
+    transform-origin: top left;
 }
 
 /* Улучшение отображения Excel таблиц */
