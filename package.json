@@ -22,6 +22,8 @@
         "@inertiajs/vue3": "^2.0.0",
         "@primevue/themes": "^4.2.1",
         "@vitejs/plugin-vue": "^6.0.1",
+        "@vue-office/docx": "^1.6.3",
+        "@vue-office/excel": "^1.7.14",
         "@vueuse/core": "^9.12.0",
         "floating-vue": "^2.0.0-beta.20",
         "laravel-vite-plugin": "^2.0.1",

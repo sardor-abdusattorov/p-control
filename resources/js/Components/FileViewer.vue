@@ -3,6 +3,10 @@ import { ref, computed, watch } from 'vue';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import VuePdfEmbed from 'vue-pdf-embed';
+import VueOfficeDocx from '@vue-office/docx';
+import VueOfficeExcel from '@vue-office/excel';
+import '@vue-office/docx/lib/index.css';
+import '@vue-office/excel/lib/index.css';
 
 const props = defineProps({
     file: {
@@ -41,7 +45,7 @@ const fileType = computed(() => {
 });
 
 const canPreview = computed(() => {
-    return fileType.value === 'pdf' || fileType.value === 'image';
+    return ['pdf', 'image', 'word', 'excel'].includes(fileType.value);
 });
 
 const fileIcon = computed(() => {
@@ -72,6 +76,16 @@ const handleImageLoad = () => {
 const handleImageError = () => {
     error.value = 'Ошибка загрузки изображения';
     loading.value = false;
+};
+
+const handleOfficeLoad = () => {
+    loading.value = false;
+};
+
+const handleOfficeError = (err) => {
+    error.value = 'Ошибка загрузки документа';
+    loading.value = false;
+    console.error('Office file load error:', err);
 };
 
 const nextPage = () => {
@@ -182,15 +196,56 @@ watch(() => props.visible, (newVal) => {
                 />
             </div>
 
-            <!-- Word/Excel/Other Files -->
+            <!-- Word Viewer -->
+            <div v-else-if="fileType === 'word'" class="word-viewer">
+                <div v-if="loading" class="flex justify-center items-center py-8">
+                    <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка документа...</span>
+                </div>
+
+                <div v-if="error" class="text-center py-8 text-red-600">
+                    <i class="pi pi-exclamation-circle text-4xl mb-2"></i>
+                    <p>{{ error }}</p>
+                </div>
+
+                <vue-office-docx
+                    v-show="!loading && !error"
+                    :src="file.original_url"
+                    @rendered="handleOfficeLoad"
+                    @error="handleOfficeError"
+                    class="office-embed"
+                />
+            </div>
+
+            <!-- Excel Viewer -->
+            <div v-else-if="fileType === 'excel'" class="excel-viewer">
+                <div v-if="loading" class="flex justify-center items-center py-8">
+                    <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка таблицы...</span>
+                </div>
+
+                <div v-if="error" class="text-center py-8 text-red-600">
+                    <i class="pi pi-exclamation-circle text-4xl mb-2"></i>
+                    <p>{{ error }}</p>
+                </div>
+
+                <vue-office-excel
+                    v-show="!loading && !error"
+                    :src="file.original_url"
+                    @rendered="handleOfficeLoad"
+                    @error="handleOfficeError"
+                    class="office-embed"
+                />
+            </div>
+
+            <!-- Other Files -->
             <div v-else class="unsupported-viewer text-center py-8">
                 <i :class="fileIcon" class="text-6xl text-gray-400 dark:text-gray-500 mb-4"></i>
                 <h3 class="text-xl font-semibold mb-2 dark:text-gray-200">
                     Предварительный просмотр недоступен
                 </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    Для файлов {{ fileType === 'word' ? 'Word' : fileType === 'excel' ? 'Excel' : 'данного типа' }}
-                    предварительный просмотр не поддерживается.
+                    Для файлов данного типа предварительный просмотр не поддерживается.
                 </p>
                 <Button
                     icon="pi pi-download"
@@ -236,6 +291,19 @@ watch(() => props.visible, (newVal) => {
 }
 
 .dark .pdf-embed {
+    border-color: #374151;
+    background: #1f2937;
+}
+
+.office-embed {
+    width: 100%;
+    min-height: 70vh;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: white;
+}
+
+.dark .office-embed {
     border-color: #374151;
     background: #1f2937;
 }
