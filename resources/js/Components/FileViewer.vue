@@ -222,46 +222,50 @@ watch(() => props.visible, (newVal) => {
         :class="['file-viewer-dialog', { 'fullscreen-dialog': isFullscreen }]"
     >
         <template #header>
-            <div class="flex items-center justify-between w-full gap-4">
-                <div class="flex items-center gap-3">
-                    <i :class="fileIcon" class="text-2xl"></i>
-                    <span class="font-semibold">{{ file?.name || lang().file_viewer.file }}</span>
-                </div>
-
-                <!-- Zoom Controls в шапке -->
-                <div v-if="canPreview" class="flex items-center gap-2">
+            <div class="file-viewer-header">
+                <div class="header-row-1">
+                    <div class="file-info">
+                        <i :class="fileIcon" class="text-2xl"></i>
+                        <span class="file-name font-semibold">{{ file?.name || lang().file_viewer.file }}</span>
+                    </div>
                     <Button
-                        icon="pi pi-search-minus"
-                        @click="zoomOut"
-                        :disabled="zoomLevel <= 0.5"
-                        size="small"
-                        outlined
-                        v-tooltip.bottom="lang().file_viewer.zoom_out"
-                    />
-                    <Button
-                        :label="`${Math.round(zoomLevel * 100)}%`"
-                        @click="resetZoom"
-                        size="small"
-                        outlined
-                        v-tooltip.bottom="lang().file_viewer.reset_zoom"
-                    />
-                    <Button
-                        icon="pi pi-search-plus"
-                        @click="zoomIn"
-                        :disabled="zoomLevel >= 3"
-                        size="small"
-                        outlined
-                        v-tooltip.bottom="lang().file_viewer.zoom_in"
+                        :icon="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+                        @click="toggleFullscreen"
+                        text
+                        rounded
+                        class="fullscreen-btn"
+                        v-tooltip.bottom="isFullscreen ? lang().file_viewer.fullscreen_exit : lang().file_viewer.fullscreen_enter"
                     />
                 </div>
 
-                <Button
-                    :icon="isFullscreen ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
-                    @click="toggleFullscreen"
-                    text
-                    rounded
-                    v-tooltip.bottom="isFullscreen ? lang().file_viewer.fullscreen_exit : lang().file_viewer.fullscreen_enter"
-                />
+                <!-- Zoom Controls в отдельной строке -->
+                <div v-if="canPreview" class="header-row-2">
+                    <div class="zoom-controls">
+                        <Button
+                            icon="pi pi-search-minus"
+                            @click="zoomOut"
+                            :disabled="zoomLevel <= 0.5"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.zoom_out"
+                        />
+                        <Button
+                            :label="`${Math.round(zoomLevel * 100)}%`"
+                            @click="resetZoom"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.reset_zoom"
+                        />
+                        <Button
+                            icon="pi pi-search-plus"
+                            @click="zoomIn"
+                            :disabled="zoomLevel >= 3"
+                            size="small"
+                            outlined
+                            v-tooltip.bottom="lang().file_viewer.zoom_in"
+                        />
+                    </div>
+                </div>
             </div>
         </template>
 
@@ -599,5 +603,154 @@ watch(() => props.visible, (newVal) => {
 
 :deep(.dark .p-dialog-footer) {
     border-top-color: #374151;
+}
+
+/* Header styles */
+.file-viewer-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.header-row-1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0; /* Важно для работы text-overflow */
+}
+
+.file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+}
+
+.header-row-2 {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark .header-row-2 {
+    border-top-color: #374151;
+}
+
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .file-viewer-dialog :deep(.p-dialog) {
+        width: 95vw !important;
+        max-width: 95vw !important;
+    }
+
+    .file-info {
+        gap: 0.5rem;
+    }
+
+    .file-info i {
+        font-size: 1.25rem !important;
+    }
+
+    .file-name {
+        font-size: 0.875rem;
+    }
+
+    .zoom-controls {
+        gap: 0.25rem;
+    }
+
+    .zoom-controls :deep(.p-button) {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .fullscreen-btn {
+        padding: 0.375rem !important;
+    }
+
+    :deep(.p-dialog-header) {
+        padding: 0.75rem 1rem !important;
+    }
+
+    :deep(.p-dialog-footer) {
+        padding: 0.75rem 1rem !important;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    :deep(.p-dialog-footer) > div {
+        width: 100%;
+    }
+
+    :deep(.p-dialog-footer .flex) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    :deep(.p-dialog-footer .flex.gap-2) {
+        gap: 0.5rem;
+    }
+
+    :deep(.p-dialog-footer .p-button) {
+        width: 100%;
+    }
+
+    /* Уменьшаем размеры контента на мобилке */
+    .image-scroll-container,
+    .word-viewer .office-embed,
+    .excel-viewer .office-embed {
+        max-height: 60vh;
+    }
+
+    .pdf-container {
+        flex-direction: column;
+    }
+
+    .pdf-embed {
+        width: 100% !important;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .file-viewer-dialog :deep(.p-dialog) {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+    }
+
+    .header-row-2 {
+        padding-top: 0.25rem;
+    }
+
+    .file-name {
+        font-size: 0.8125rem;
+    }
+
+    .zoom-controls :deep(.p-button-label) {
+        display: none;
+    }
+
+    .zoom-controls :deep(.p-button) {
+        padding: 0.25rem 0.375rem;
+    }
 }
 </style>
