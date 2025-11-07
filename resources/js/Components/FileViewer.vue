@@ -254,15 +254,14 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-show="!loading && !error" class="pdf-container">
-                    <div :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
-                        <vue-pdf-embed
-                            :source="file.original_url"
-                            @loaded="handleDocumentLoad"
-                            @rendering-failed="handleDocumentError"
-                            class="pdf-embed"
-                        />
-                    </div>
+                <div v-show="!loading && !error">
+                    <vue-pdf-embed
+                        :source="file.original_url"
+                        @loaded="handleDocumentLoad"
+                        @rendering-failed="handleDocumentError"
+                        :scale="zoomLevel"
+                        class="pdf-embed"
+                    />
 
                     <div v-if="pageCount > 1" class="pdf-controls flex justify-center items-center gap-4 mt-4">
                         <Button
@@ -322,14 +321,14 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-if="!loading && !error && fileData" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
-                    <vue-office-docx
-                        :src="fileData"
-                        @rendered="handleOfficeLoad"
-                        @error="handleOfficeError"
-                        class="office-embed"
-                    />
-                </div>
+                <vue-office-docx
+                    v-if="!loading && !error && fileData"
+                    :src="fileData"
+                    @rendered="handleOfficeLoad"
+                    @error="handleOfficeError"
+                    :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }"
+                    class="office-embed"
+                />
             </div>
 
             <!-- Excel Viewer -->
@@ -344,14 +343,14 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-if="!loading && !error && fileData" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }">
-                    <vue-office-excel
-                        :src="fileData"
-                        @rendered="handleOfficeLoad"
-                        @error="handleOfficeError"
-                        class="office-embed"
-                    />
-                </div>
+                <vue-office-excel
+                    v-if="!loading && !error && fileData"
+                    :src="fileData"
+                    @rendered="handleOfficeLoad"
+                    @error="handleOfficeError"
+                    :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s' }"
+                    class="office-embed"
+                />
             </div>
 
             <!-- Other Files -->
@@ -417,7 +416,6 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
-    overflow: auto;
 }
 
 .dark .office-embed {
@@ -441,9 +439,7 @@ watch(() => props.visible, (newVal) => {
     overflow-y: auto;
 }
 
-.pdf-container,
 .image-container {
-    overflow: auto;
     display: flex;
     justify-content: center;
     align-items: flex-start;
