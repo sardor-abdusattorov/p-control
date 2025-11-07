@@ -303,15 +303,17 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-show="!loading && !error" class="image-container">
-                    <img
-                        :src="file.original_url"
-                        :alt="file.name"
-                        @load="handleImageLoad"
-                        @error="handleImageError"
-                        :style="{ transform: `scale(${zoomLevel})`, transition: 'transform 0.2s' }"
-                        class="max-w-full h-auto mx-auto rounded-lg"
-                    />
+                <div v-show="!loading && !error" class="image-scroll-container">
+                    <div class="image-container">
+                        <img
+                            :src="file.original_url"
+                            :alt="file.name"
+                            @load="handleImageLoad"
+                            @error="handleImageError"
+                            :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center', transition: 'transform 0.2s' }"
+                            class="mx-auto rounded-lg"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -450,11 +452,31 @@ watch(() => props.visible, (newVal) => {
     /* Dialog сам обрабатывает скролл */
 }
 
-.pdf-container,
-.image-container {
+.pdf-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+}
+
+.image-scroll-container {
+    max-height: 70vh;
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: white;
+}
+
+.dark .image-scroll-container {
+    border-color: #374151;
+    background: #1f2937;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 1rem;
 }
 
 /* Fullscreen styles */
@@ -464,12 +486,13 @@ watch(() => props.visible, (newVal) => {
     min-height: calc(100vh - 200px);
 }
 
-.fullscreen-dialog .image-viewer img {
+.fullscreen-dialog .image-scroll-container {
     max-height: calc(100vh - 200px);
 }
 
 .image-viewer img {
-    max-height: 75vh;
+    max-width: 100%;
+    height: auto;
     object-fit: contain;
 }
 
