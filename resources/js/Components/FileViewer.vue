@@ -261,7 +261,6 @@ watch(() => props.visible, (newVal) => {
 
                 <div v-show="!loading && !error" class="pdf-container">
                     <vue-pdf-embed
-                        :key="`pdf-${zoomLevel}`"
                         :source="file.original_url"
                         @loaded="handleDocumentLoad"
                         @rendering-failed="handleDocumentError"
@@ -428,7 +427,7 @@ watch(() => props.visible, (newVal) => {
 }
 
 .excel-viewer .office-embed {
-    height: 70vh;
+    /* Высота контролируется внутренним контейнером */
 }
 
 .dark .office-embed {
@@ -464,6 +463,8 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
+    text-align: center;
+    padding: 1rem;
 }
 
 .dark .image-scroll-container {
@@ -472,11 +473,7 @@ watch(() => props.visible, (newVal) => {
 }
 
 .image-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 70vh;
-    padding: 1rem;
+    display: inline-block;
 }
 
 /* Fullscreen styles */
