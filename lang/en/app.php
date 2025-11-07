@@ -372,6 +372,7 @@ return [
 
     ],
     'tooltip' => [
+        'send_for_approval' => 'Send for approval',
         'show' => 'Show',
         "toggle_sidebar" => "Toggle sidebar",
         'download' => 'Download',

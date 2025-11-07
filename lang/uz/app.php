@@ -353,6 +353,7 @@ return [
         'sequential_approval_info' => 'Ketma-ket tasdiqlash: avval moliya bo\'limi, keyin yuridik bo\'lim',
     ],
     'tooltip' => [
+        'send_for_approval' => 'Tasdiqlashga yuborish',
         'show' => 'Ko‘rsatish',
         "toggle_sidebar" => "Yon panelni almashtirish",
         'download' => 'Yuklab olish',
