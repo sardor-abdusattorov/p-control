@@ -463,7 +463,7 @@ watch(() => props.visible, (newVal) => {
 
         <template #footer>
             <div class="flex justify-between items-center w-full">
-                <div class="text-sm text-gray-500 dark:text-gray-400">
+                <div class="text-sm text-gray-500 dark:text-gray-400 file__type">
                     {{ file?.mime_type }}
                     <span v-if="file?.size"> • {{ (file.size / 1024 / 1024).toFixed(2) }} MB</span>
                 </div>
@@ -703,6 +703,12 @@ watch(() => props.visible, (newVal) => {
     .file-name {
         display: none;
     }
+
+    .file__type{
+        display: none;
+    }
+
+
 
     .file-info {
         display: none;
