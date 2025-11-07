@@ -655,10 +655,15 @@ watch(() => props.visible, (newVal) => {
 }
 
 /* Mobile optimization */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .file-viewer-dialog :deep(.p-dialog) {
         width: 95vw !important;
         max-width: 95vw !important;
+    }
+
+    /* Скрываем название файла в header */
+    .file-name {
+        display: none;
     }
 
     .file-info {
@@ -667,10 +672,6 @@ watch(() => props.visible, (newVal) => {
 
     .file-info i {
         font-size: 1.25rem !important;
-    }
-
-    .file-name {
-        font-size: 0.875rem;
     }
 
     .zoom-controls {
@@ -694,6 +695,11 @@ watch(() => props.visible, (newVal) => {
         padding: 0.75rem 1rem !important;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    /* Скрываем информацию о типе файла в footer */
+    :deep(.p-dialog-footer) > div:first-child {
+        display: none;
     }
 
     :deep(.p-dialog-footer) > div {
