@@ -171,6 +171,11 @@ const resetZoom = () => {
     zoomLevel.value = 1;
 };
 
+// Вычисляемая ширина для PDF (в пикселях)
+const pdfWidth = computed(() => {
+    return Math.round(800 * zoomLevel.value); // Базовая ширина 800px
+});
+
 watch(() => props.visible, (newVal) => {
     if (newVal) {
         loading.value = true;
@@ -254,12 +259,13 @@ watch(() => props.visible, (newVal) => {
                     <p>{{ error }}</p>
                 </div>
 
-                <div v-show="!loading && !error">
+                <div v-show="!loading && !error" class="pdf-container">
                     <vue-pdf-embed
+                        :key="`pdf-${zoomLevel}`"
                         :source="file.original_url"
                         @loaded="handleDocumentLoad"
                         @rendering-failed="handleDocumentError"
-                        :scale="zoomLevel"
+                        :width="pdfWidth"
                         class="pdf-embed"
                     />
 
@@ -398,8 +404,6 @@ watch(() => props.visible, (newVal) => {
 
 <style scoped>
 .pdf-embed {
-    width: 100%;
-    min-height: 70vh;
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
@@ -435,19 +439,17 @@ watch(() => props.visible, (newVal) => {
 }
 
 .file-viewer-content {
-    max-height: 80vh;
-    overflow-y: auto;
+    /* Dialog сам обрабатывает скролл */
 }
 
+.pdf-container,
 .image-container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
 }
 
-.fullscreen-dialog .file-viewer-content {
-    max-height: calc(100vh - 150px);
-}
+/* Fullscreen styles */
 
 .fullscreen-dialog .pdf-embed,
 .fullscreen-dialog .office-embed {
