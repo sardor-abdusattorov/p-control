@@ -44,17 +44,7 @@ const fileType = computed(() => {
     // Images
     if (mimeType.startsWith('image/')) return 'image';
 
-    // Word documents
-    if (mimeType.includes('word') ||
-        mimeType.includes('document') ||
-        mimeType === 'application/msword' ||
-        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        fileName.endsWith('.doc') ||
-        fileName.endsWith('.docx')) {
-        return 'word';
-    }
-
-    // Excel spreadsheets
+    // Excel spreadsheets - ПРОВЕРЯЕМ СНАЧАЛА Excel!
     if (mimeType.includes('excel') ||
         mimeType.includes('spreadsheet') ||
         mimeType === 'application/vnd.ms-excel' ||
@@ -62,6 +52,15 @@ const fileType = computed(() => {
         fileName.endsWith('.xls') ||
         fileName.endsWith('.xlsx')) {
         return 'excel';
+    }
+
+    // Word documents - ПОТОМ Word!
+    if (mimeType.includes('word') ||
+        mimeType === 'application/msword' ||
+        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        fileName.endsWith('.doc') ||
+        fileName.endsWith('.docx')) {
+        return 'word';
     }
 
     return 'other';
