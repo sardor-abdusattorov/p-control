@@ -120,14 +120,25 @@ const loadOfficeFile = async () => {
     error.value = null;
 
     try {
+        console.log('Loading office file:', {
+            name: props.file.name,
+            type: fileType.value,
+            mime: props.file.mime_type,
+            url: props.file.original_url
+        });
+
         const response = await fetch(props.file.original_url);
-        if (!response.ok) throw new Error('Failed to load file');
+        console.log('Fetch response:', response.status, response.statusText);
+
+        if (!response.ok) throw new Error(`Failed to load file: ${response.status} ${response.statusText}`);
 
         const blob = await response.blob();
+        console.log('Blob created:', blob.size, 'bytes, type:', blob.type);
+
         fileData.value = blob;
         loading.value = false;
     } catch (err) {
-        error.value = 'Ошибка загрузки файла';
+        error.value = `Ошибка загрузки файла: ${err.message}`;
         loading.value = false;
         console.error('File load error:', err);
     }
