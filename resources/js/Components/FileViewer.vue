@@ -216,7 +216,7 @@ watch(() => props.visible, (newVal) => {
     <Dialog
         v-model:visible="dialogVisible"
         :modal="true"
-        :closable="true"
+        :closable="false"
         :draggable="false"
         :style="{ width: isFullscreen ? '100vw' : (canPreview ? '90vw' : '50vw'), height: isFullscreen ? '100vh' : 'auto' }"
         :class="['file-viewer-dialog', { 'fullscreen-dialog': isFullscreen }]"
@@ -263,6 +263,14 @@ watch(() => props.visible, (newVal) => {
                         rounded
                         class="fullscreen-btn"
                         v-tooltip.bottom="isFullscreen ? lang().file_viewer.fullscreen_exit : lang().file_viewer.fullscreen_enter"
+                    />
+                    <Button
+                        icon="pi pi-times"
+                        @click="dialogVisible = false"
+                        text
+                        rounded
+                        class="close-btn"
+                        v-tooltip.bottom="lang().button.close"
                     />
                 </div>
 
@@ -730,7 +738,8 @@ watch(() => props.visible, (newVal) => {
         gap: 0;
     }
 
-    .fullscreen-btn {
+    .fullscreen-btn,
+    .close-btn {
         padding: 0.375rem !important;
     }
 
