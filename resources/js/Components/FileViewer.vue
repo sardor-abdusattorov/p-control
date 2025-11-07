@@ -26,6 +26,7 @@ const error = ref(null);
 const currentPage = ref(1);
 const pageCount = ref(0);
 const isFullscreen = ref(false);
+const fileData = ref(null); // Для хранения данных файла
 
 const dialogVisible = computed({
     get: () => props.visible,
@@ -110,6 +111,27 @@ const handleOfficeError = (err) => {
     console.error('Office file load error:', err);
 };
 
+// Загрузка файла для Office компонентов
+const loadOfficeFile = async () => {
+    if (!props.file || !['word', 'excel'].includes(fileType.value)) return;
+
+    loading.value = true;
+    error.value = null;
+
+    try {
+        const response = await fetch(props.file.original_url);
+        if (!response.ok) throw new Error('Failed to load file');
+
+        const blob = await response.blob();
+        fileData.value = blob;
+        loading.value = false;
+    } catch (err) {
+        error.value = 'Ошибка загрузки файла';
+        loading.value = false;
+        console.error('File load error:', err);
+    }
+};
+
 const nextPage = () => {
     if (currentPage.value < pageCount.value) {
         currentPage.value++;
@@ -137,6 +159,12 @@ watch(() => props.visible, (newVal) => {
         loading.value = true;
         error.value = null;
         currentPage.value = 1;
+        fileData.value = null;
+
+        // Загружаем Office файлы
+        if (props.file && ['word', 'excel'].includes(fileType.value)) {
+            loadOfficeFile();
+        }
     } else {
         isFullscreen.value = false;
     }
@@ -246,8 +274,8 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <vue-office-docx
-                    v-show="!loading && !error"
-                    :src="file.original_url"
+                    v-if="!loading && !error && fileData"
+                    :src="fileData"
                     @rendered="handleOfficeLoad"
                     @error="handleOfficeError"
                     class="office-embed"
@@ -267,8 +295,8 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <vue-office-excel
-                    v-show="!loading && !error"
-                    :src="file.original_url"
+                    v-if="!loading && !error && fileData"
+                    :src="fileData"
                     @rendered="handleOfficeLoad"
                     @error="handleOfficeError"
                     class="office-embed"
@@ -338,11 +366,23 @@ watch(() => props.visible, (newVal) => {
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     background: white;
+    overflow: auto;
 }
 
 .dark .office-embed {
     border-color: #374151;
     background: #1f2937;
+}
+
+/* Улучшение отображения Excel таблиц */
+.excel-viewer :deep(.office-excel-container) {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.excel-viewer :deep(canvas) {
+    width: 100% !important;
+    height: auto !important;
 }
 
 .file-viewer-content {
