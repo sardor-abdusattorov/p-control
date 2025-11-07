@@ -77,6 +77,11 @@ const canPreview = computed(() => {
     return ['pdf', 'image', 'word', 'excel'].includes(fileType.value);
 });
 
+// Зум доступен только для PDF и изображений
+const canZoom = computed(() => {
+    return ['pdf', 'image'].includes(fileType.value);
+});
+
 const fileIcon = computed(() => {
     switch (fileType.value) {
         case 'pdf': return 'pi pi-file-pdf';
@@ -230,7 +235,7 @@ watch(() => props.visible, (newVal) => {
                     </div>
 
                     <!-- Кнопки зума для мобилки (в одной строке) -->
-                    <div v-if="canPreview" class="zoom-controls-mobile">
+                    <div v-if="canZoom" class="zoom-controls-mobile">
                         <Button
                             icon="pi pi-search-minus"
                             @click="zoomOut"
@@ -275,7 +280,7 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <!-- Zoom Controls в отдельной строке для десктопа -->
-                <div v-if="canPreview" class="header-row-2">
+                <div v-if="canZoom" class="header-row-2">
                     <div class="zoom-controls">
                         <Button
                             icon="pi pi-search-minus"
@@ -388,13 +393,11 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
-                        <vue-office-docx
-                            :src="fileData"
-                            @rendered="handleOfficeLoad"
-                            @error="handleOfficeError"
-                        />
-                    </div>
+                    <vue-office-docx
+                        :src="fileData"
+                        @rendered="handleOfficeLoad"
+                        @error="handleOfficeError"
+                    />
                 </div>
             </div>
 
@@ -411,13 +414,11 @@ watch(() => props.visible, (newVal) => {
                 </div>
 
                 <div v-if="!loading && !error && fileData" class="office-embed">
-                    <div class="office-zoom-wrapper" :style="{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left', transition: 'transform 0.2s' }">
-                        <vue-office-excel
-                            :src="fileData"
-                            @rendered="handleOfficeLoad"
-                            @error="handleOfficeError"
-                        />
-                    </div>
+                    <vue-office-excel
+                        :src="fileData"
+                        @rendered="handleOfficeLoad"
+                        @error="handleOfficeError"
+                    />
                 </div>
             </div>
 
@@ -505,9 +506,6 @@ watch(() => props.visible, (newVal) => {
     overflow: auto;
     position: relative;
     padding: 1rem;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
 }
 
 /* Убираем фон из внутренних элементов Office компонентов */
@@ -530,11 +528,6 @@ watch(() => props.visible, (newVal) => {
 .dark .office-embed {
     border-color: #374151;
     background: #1f2937;
-}
-
-.office-zoom-wrapper {
-    display: inline-block;
-    min-width: 100%;
 }
 
 /* Улучшение отображения Excel таблиц */
