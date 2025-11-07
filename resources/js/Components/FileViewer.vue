@@ -95,7 +95,7 @@ const handleDocumentLoad = ({ pageCount: count }) => {
 };
 
 const handleDocumentError = (err) => {
-    error.value = 'Ошибка загрузки PDF документа';
+    error.value = lang().file_viewer.error_loading_pdf;
     loading.value = false;
     console.error('PDF load error:', err);
 };
@@ -105,7 +105,7 @@ const handleImageLoad = () => {
 };
 
 const handleImageError = () => {
-    error.value = 'Ошибка загрузки изображения';
+    error.value = lang().file_viewer.error_loading_image;
     loading.value = false;
 };
 
@@ -114,7 +114,7 @@ const handleOfficeLoad = () => {
 };
 
 const handleOfficeError = (err) => {
-    error.value = 'Ошибка загрузки документа';
+    error.value = lang().file_viewer.error_loading_document;
     loading.value = false;
     console.error('Office file load error:', err);
 };
@@ -145,7 +145,7 @@ const loadOfficeFile = async () => {
         fileData.value = blob;
         loading.value = false;
     } catch (err) {
-        error.value = `Ошибка загрузки файла: ${err.message}`;
+        error.value = `${lang().file_viewer.error_loading_file}: ${err.message}`;
         loading.value = false;
         console.error('File load error:', err);
     }
@@ -225,7 +225,7 @@ watch(() => props.visible, (newVal) => {
             <div class="flex items-center justify-between w-full gap-4">
                 <div class="flex items-center gap-3">
                     <i :class="fileIcon" class="text-2xl"></i>
-                    <span class="font-semibold">{{ file?.name || 'Файл' }}</span>
+                    <span class="font-semibold">{{ file?.name || lang().file_viewer.file }}</span>
                 </div>
 
                 <!-- Zoom Controls в шапке -->
@@ -236,14 +236,14 @@ watch(() => props.visible, (newVal) => {
                         :disabled="zoomLevel <= 0.5"
                         size="small"
                         outlined
-                        v-tooltip.bottom="'Уменьшить'"
+                        v-tooltip.bottom="lang().file_viewer.zoom_out"
                     />
                     <Button
                         :label="`${Math.round(zoomLevel * 100)}%`"
                         @click="resetZoom"
                         size="small"
                         outlined
-                        v-tooltip.bottom="'Сбросить масштаб'"
+                        v-tooltip.bottom="lang().file_viewer.reset_zoom"
                     />
                     <Button
                         icon="pi pi-search-plus"
@@ -251,7 +251,7 @@ watch(() => props.visible, (newVal) => {
                         :disabled="zoomLevel >= 3"
                         size="small"
                         outlined
-                        v-tooltip.bottom="'Увеличить'"
+                        v-tooltip.bottom="lang().file_viewer.zoom_in"
                     />
                 </div>
 
@@ -260,7 +260,7 @@ watch(() => props.visible, (newVal) => {
                     @click="toggleFullscreen"
                     text
                     rounded
-                    v-tooltip.bottom="isFullscreen ? 'Выйти из полноэкранного режима' : 'Полноэкранный режим'"
+                    v-tooltip.bottom="isFullscreen ? lang().file_viewer.fullscreen_exit : lang().file_viewer.fullscreen_enter"
                 />
             </div>
         </template>
@@ -270,7 +270,7 @@ watch(() => props.visible, (newVal) => {
             <div v-if="fileType === 'pdf'" class="pdf-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
                     <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
-                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка PDF...</span>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">{{ lang().file_viewer.loading_pdf }}</span>
                 </div>
 
                 <div v-if="error" class="text-center py-8 text-red-600">
@@ -296,7 +296,7 @@ watch(() => props.visible, (newVal) => {
                             outlined
                         />
                         <span class="text-sm dark:text-gray-300">
-                            Страница {{ currentPage }} из {{ pageCount }}
+                            {{ lang().file_viewer.page_of.replace(':current', currentPage).replace(':total', pageCount) }}
                         </span>
                         <Button
                             icon="pi pi-chevron-right"
@@ -313,7 +313,7 @@ watch(() => props.visible, (newVal) => {
             <div v-else-if="fileType === 'image'" class="image-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
                     <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
-                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка изображения...</span>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">{{ lang().file_viewer.loading_image }}</span>
                 </div>
 
                 <div v-if="error" class="text-center py-8 text-red-600">
@@ -339,7 +339,7 @@ watch(() => props.visible, (newVal) => {
             <div v-else-if="fileType === 'word'" class="word-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
                     <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
-                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка документа...</span>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">{{ lang().file_viewer.loading_document }}</span>
                 </div>
 
                 <div v-if="error" class="text-center py-8 text-red-600">
@@ -362,7 +362,7 @@ watch(() => props.visible, (newVal) => {
             <div v-else-if="fileType === 'excel'" class="excel-viewer">
                 <div v-if="loading" class="flex justify-center items-center py-8">
                     <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
-                    <span class="ml-3 text-gray-600 dark:text-gray-300">Загрузка таблицы...</span>
+                    <span class="ml-3 text-gray-600 dark:text-gray-300">{{ lang().file_viewer.loading_spreadsheet }}</span>
                 </div>
 
                 <div v-if="error" class="text-center py-8 text-red-600">
@@ -385,24 +385,18 @@ watch(() => props.visible, (newVal) => {
             <div v-else-if="fileType === 'word-old' || fileType === 'excel-old'" class="unsupported-viewer text-center py-8">
                 <i :class="fileIcon" class="text-6xl text-yellow-500 mb-4"></i>
                 <h3 class="text-xl font-semibold mb-2 dark:text-gray-200">
-                    Старый формат файла не поддерживается
+                    {{ lang().file_viewer.old_format_not_supported }}
                 </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-2">
-                    <span v-if="fileType === 'word-old'">
-                        Предварительный просмотр доступен только для файлов <strong>.docx</strong><br>
-                        Этот файл имеет старый формат <strong>.doc</strong>
-                    </span>
-                    <span v-else-if="fileType === 'excel-old'">
-                        Предварительный просмотр доступен только для файлов <strong>.xlsx</strong><br>
-                        Этот файл имеет старый формат <strong>.xls</strong>
-                    </span>
+                    <span v-if="fileType === 'word-old'" v-html="lang().file_viewer.old_word_format_info"></span>
+                    <span v-else-if="fileType === 'excel-old'" v-html="lang().file_viewer.old_excel_format_info"></span>
                 </p>
                 <p class="text-sm text-gray-500 dark:text-gray-500 mb-4">
-                    Пожалуйста, скачайте файл или конвертируйте его в новый формат
+                    {{ lang().file_viewer.download_or_convert }}
                 </p>
                 <Button
                     icon="pi pi-download"
-                    label="Скачать файл"
+                    :label="lang().file_viewer.download_file"
                     @click="downloadFile"
                     severity="warning"
                 />
@@ -412,14 +406,14 @@ watch(() => props.visible, (newVal) => {
             <div v-else class="unsupported-viewer text-center py-8">
                 <i :class="fileIcon" class="text-6xl text-gray-400 dark:text-gray-500 mb-4"></i>
                 <h3 class="text-xl font-semibold mb-2 dark:text-gray-200">
-                    Предварительный просмотр недоступен
+                    {{ lang().file_viewer.preview_not_available }}
                 </h3>
                 <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    Для файлов данного типа предварительный просмотр не поддерживается.
+                    {{ lang().file_viewer.preview_not_supported }}
                 </p>
                 <Button
                     icon="pi pi-download"
-                    label="Скачать файл"
+                    :label="lang().file_viewer.download_file"
                     @click="downloadFile"
                     severity="info"
                 />
@@ -436,12 +430,12 @@ watch(() => props.visible, (newVal) => {
                     <Button
                         v-if="canPreview"
                         icon="pi pi-download"
-                        label="Скачать"
+                        :label="lang().label.download"
                         @click="downloadFile"
                         outlined
                     />
                     <Button
-                        label="Закрыть"
+                        :label="lang().button.close"
                         @click="dialogVisible = false"
                         severity="secondary"
                     />

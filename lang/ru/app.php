@@ -444,6 +444,32 @@ return [
         'project_deletion_failed' => 'Ошибка при удалении проекта',
         'projects_bulk_deleted' => 'Массовое удаление проектов',
         'projects_bulk_deletion_failed' => 'Ошибка при массовом удалении проектов',
-    ]
+    ],
+
+    'file_viewer' => [
+        'loading_pdf' => 'Загрузка PDF...',
+        'loading_image' => 'Загрузка изображения...',
+        'loading_document' => 'Загрузка документа...',
+        'loading_spreadsheet' => 'Загрузка таблицы...',
+        'loading_file' => 'Загрузка файла',
+        'error_loading_pdf' => 'Ошибка загрузки PDF документа',
+        'error_loading_image' => 'Ошибка загрузки изображения',
+        'error_loading_document' => 'Ошибка загрузки документа',
+        'error_loading_file' => 'Ошибка загрузки файла',
+        'file' => 'Файл',
+        'zoom_in' => 'Увеличить',
+        'zoom_out' => 'Уменьшить',
+        'reset_zoom' => 'Сбросить масштаб',
+        'fullscreen_enter' => 'Полноэкранный режим',
+        'fullscreen_exit' => 'Выйти из полноэкранного режима',
+        'page_of' => 'Страница :current из :total',
+        'old_format_not_supported' => 'Старый формат файла не поддерживается',
+        'old_word_format_info' => 'Предварительный просмотр доступен только для файлов <strong>.docx</strong><br>Этот файл имеет старый формат <strong>.doc</strong>',
+        'old_excel_format_info' => 'Предварительный просмотр доступен только для файлов <strong>.xlsx</strong><br>Этот файл имеет старый формат <strong>.xls</strong>',
+        'download_or_convert' => 'Пожалуйста, скачайте файл или конвертируйте его в новый формат',
+        'download_file' => 'Скачать файл',
+        'preview_not_available' => 'Предварительный просмотр недоступен',
+        'preview_not_supported' => 'Для файлов данного типа предварительный просмотр не поддерживается.',
+    ],
 
 ];
