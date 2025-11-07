@@ -46,23 +46,28 @@ const fileType = computed(() => {
     // Images
     if (mimeType.startsWith('image/')) return 'image';
 
-    // Excel spreadsheets - ПРОВЕРЯЕМ СНАЧАЛА Excel!
-    if (mimeType.includes('excel') ||
-        mimeType.includes('spreadsheet') ||
-        mimeType === 'application/vnd.ms-excel' ||
-        mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        fileName.endsWith('.xls') ||
-        fileName.endsWith('.xlsx')) {
+    // Excel spreadsheets - только новый формат .xlsx
+    if (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+        (fileName.endsWith('.xlsx') && mimeType.includes('spreadsheet'))) {
         return 'excel';
     }
 
-    // Word documents - ПОТОМ Word!
-    if (mimeType.includes('word') ||
-        mimeType === 'application/msword' ||
-        mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-        fileName.endsWith('.doc') ||
-        fileName.endsWith('.docx')) {
+    // Старые форматы Excel (.xls) - не поддерживаются
+    if (mimeType === 'application/vnd.ms-excel' ||
+        fileName.endsWith('.xls')) {
+        return 'excel-old';
+    }
+
+    // Word documents - только новый формат .docx
+    if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+        (fileName.endsWith('.docx') && mimeType.includes('word'))) {
         return 'word';
+    }
+
+    // Старые форматы Word (.doc) - не поддерживаются
+    if (mimeType === 'application/msword' ||
+        fileName.endsWith('.doc')) {
+        return 'word-old';
     }
 
     return 'other';
@@ -77,7 +82,9 @@ const fileIcon = computed(() => {
         case 'pdf': return 'pi pi-file-pdf';
         case 'image': return 'pi pi-image';
         case 'word': return 'pi pi-file-word';
+        case 'word-old': return 'pi pi-file-word';
         case 'excel': return 'pi pi-file-excel';
+        case 'excel-old': return 'pi pi-file-excel';
         default: return 'pi pi-file';
     }
 });
@@ -372,6 +379,33 @@ watch(() => props.visible, (newVal) => {
                         />
                     </div>
                 </div>
+            </div>
+
+            <!-- Old Office Formats (not supported) -->
+            <div v-else-if="fileType === 'word-old' || fileType === 'excel-old'" class="unsupported-viewer text-center py-8">
+                <i :class="fileIcon" class="text-6xl text-yellow-500 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2 dark:text-gray-200">
+                    Старый формат файла не поддерживается
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                    <span v-if="fileType === 'word-old'">
+                        Предварительный просмотр доступен только для файлов <strong>.docx</strong><br>
+                        Этот файл имеет старый формат <strong>.doc</strong>
+                    </span>
+                    <span v-else-if="fileType === 'excel-old'">
+                        Предварительный просмотр доступен только для файлов <strong>.xlsx</strong><br>
+                        Этот файл имеет старый формат <strong>.xls</strong>
+                    </span>
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-500 mb-4">
+                    Пожалуйста, скачайте файл или конвертируйте его в новый формат
+                </p>
+                <Button
+                    icon="pi pi-download"
+                    label="Скачать файл"
+                    @click="downloadFile"
+                    severity="warning"
+                />
             </div>
 
             <!-- Other Files -->
