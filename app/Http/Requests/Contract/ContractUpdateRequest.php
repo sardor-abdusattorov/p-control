@@ -17,14 +17,21 @@ class ContractUpdateRequest extends FormRequest
 
     public function rules()
     {
+        $transactionType = $this->input('transaction_type');
+        $isIncome = $transactionType == 2;
+
         return [
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
             'project_id' => 'required|integer',
             'application_id' => [
-                'required',
+                $isIncome ? 'nullable' : 'required',
                 'integer',
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($isIncome) {
+                    if ($isIncome || !$value) {
+                        return;
+                    }
+
                     $application = Application::find($value);
                     $currencyId = $this->input('currency_id');
 
@@ -59,9 +66,18 @@ class ContractUpdateRequest extends FormRequest
             'recipients' => [
                 'required',
                 'array',
-                function ($attribute, $value, $fail) {
-                    if (!is_array($value) || count($value) < 2) {
-                        $fail('Необходимо выбрать минимум 2 получателя.');
+                function ($attribute, $value, $fail) use ($isIncome) {
+                    $minRecipients = $isIncome ? 1 : 2;
+
+                    if (!is_array($value) || count($value) < $minRecipients) {
+                        $fail($isIncome
+                            ? 'Необходимо выбрать минимум 1 получателя.'
+                            : 'Необходимо выбрать минимум 2 получателя.');
+                    }
+
+                    // Для прихода не проверяем обязательные отделы
+                    if ($isIncome) {
+                        return;
                     }
 
                     $currencyId = $this->input('currency_id');
