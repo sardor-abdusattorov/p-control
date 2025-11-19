@@ -345,6 +345,14 @@
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.transaction_type }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                {{ contract.transaction_type === 2 ? lang().transaction_type.income : lang().transaction_type.expense }} ({{ contract.transaction_type }})
+                            </td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.currency_id }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 {{ contract.currency.name }}
