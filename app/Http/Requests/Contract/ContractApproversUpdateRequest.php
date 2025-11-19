@@ -29,6 +29,23 @@ class ContractApproversUpdateRequest extends FormRequest
                         return;
                     }
 
+                    // Проверка минимального количества получателей
+                    $isIncome = $contract->transaction_type == Contract::TYPE_INCOME;
+                    $minRecipients = $isIncome ? 1 : 2;
+
+                    if (count($value) < $minRecipients) {
+                        $fail($isIncome
+                            ? 'Необходимо выбрать минимум 1 получателя.'
+                            : 'Необходимо выбрать минимум 2 получателя.');
+                        return;
+                    }
+
+                    // Для прихода не проверяем обязательные отделы и бухгалтерию
+                    if ($isIncome) {
+                        // Переходим к проверке удаления подтвержденных получателей
+                        goto check_approved;
+                    }
+
                     $currencyId = $contract->currency_id;
                     $requiredDepartments = [7, 8];
                     $departmentsFound = User::whereIn('id', $value)
@@ -52,6 +69,8 @@ class ContractApproversUpdateRequest extends FormRequest
                             $fail(trans('app.label.select_accounting_recipient'));
                         }
                     }
+
+                    check_approved:
 
                     $currentApprovals = $contract->approvals()
                         ->where('approved', '!=', Approvals::STATUS_INVALIDATED)

@@ -443,7 +443,6 @@ watchEffect(() => {
 
     form.contract_number = props.contract.contract_number;
     form.project_id = props.contract.project_id;
-    form.application_id = props.contract.application_id;
     form.user_id = props.contract.user_id;
     form.currency_id = props.contract.currency_id;
     form.title = props.contract.title;
@@ -456,14 +455,22 @@ watchEffect(() => {
     form.old_files = props.files;
     form.recipients = props.approval_user_ids || [];
 
-    let foundApplication = null;
-    props.applications.forEach(group => {
-        const match = group.items.find(app => app.id === props.contract.application_id);
-        if (match) {
-            foundApplication = match;
-        }
-    });
-    form.application_type = foundApplication ? foundApplication.type : "";
+    // Для прихода не нужны application_id и application_type
+    if (form.transaction_type === 2) {
+        form.application_id = null;
+        form.application_type = null;
+    } else {
+        form.application_id = props.contract.application_id;
+
+        let foundApplication = null;
+        props.applications.forEach(group => {
+            const match = group.items.find(app => app.id === props.contract.application_id);
+            if (match) {
+                foundApplication = match;
+            }
+        });
+        form.application_type = foundApplication ? foundApplication.type : "";
+    }
 
     initialized = true;
 });
@@ -472,9 +479,17 @@ const getFileIcon = (fileType) => {
     return 'pi pi-file';
 };
 
-
+// Очищаем application_id при смене типа заявки
 watch(() => form.application_type, () => {
     form.application_id = "";
+});
+
+// Очищаем application_id и application_type при смене типа транзакции на "приход"
+watch(() => form.transaction_type, (newValue) => {
+    if (newValue === 2) {
+        form.application_id = null;
+        form.application_type = null;
+    }
 });
 
 
