@@ -89,6 +89,22 @@
                             <InputError class="mt-2" :message="form.errors.contact_id" />
                 </div>
 
+                    <div class="form-group mb-5">
+                        <InputLabel for="transaction_type" :value="lang().label.transaction_type" />
+                        <Select
+                            id="transaction_type"
+                            v-model="form.transaction_type"
+                            :options="transaction_types"
+                            optionLabel="label"
+                            optionValue="id"
+                            class="w-full"
+                            checkmark
+                            :placeholder="lang().placeholder.select_transaction_type"
+                            :highlightOnSelect="false"
+                        />
+                        <InputError class="mt-2" :message="form.errors.transaction_type" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select
@@ -333,6 +349,7 @@ const props = defineProps({
     contacts: Object,
     recipients: Array,
     application_types: Object,
+    transaction_types: Array,
     categories: Object,
     countries: Object,
     statuses: Object,
@@ -356,6 +373,7 @@ const form = useForm({
     project_id: "",
     application_id: "",
     application_type: 1,
+    transaction_type: 1,
     currency_id: 1,
     budget_sum: 0,
     deadline: new Date(new Date().getFullYear(), 11, 31),

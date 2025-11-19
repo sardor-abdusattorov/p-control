@@ -14,7 +14,12 @@ return [
         'memo' => 'Xizmat yozuvi',
     ],
 
-    'deny_access' => 'Sizda bu bo‘limga kirish huquqi yo‘q',
+    'transaction_type' => [
+        'expense' => 'Xarajat',
+        'income' => 'Daromad',
+    ],
+
+    'deny_access' => 'Sizda bu'limga kirish huquqi yo'q',
     'label' => [
         'all' => 'Barchasi',
         'approved_by_me' => 'Men tasdiqlagan',
@@ -201,6 +206,7 @@ return [
         'recipients' => 'Oluvchilar',
         'budget_sum' => 'Loyiha qiymati',
         'contract_sum' => 'Shartnoma qiymati',
+        'transaction_type' => 'Operatsiya turi',
         'budget_balance' => 'Balans',
         'project_year' => 'Loyiha yili',
         'deadline' => 'So\'nggi sana',
@@ -327,6 +333,7 @@ return [
         'search' => 'Qidirish...',
         'email' => 'email@email.com',
         'select_type' => "Hujjat turi",
+        'select_transaction_type' => "Operatsiya turini tanlang",
         'password' => 'Parol',
         'password_confirmation' => 'Parolni tasdiqlash',
         'name' => 'Ism',

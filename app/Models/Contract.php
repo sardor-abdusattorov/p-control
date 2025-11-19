@@ -18,6 +18,9 @@ class Contract extends Model implements HasMedia
     const STATUS_REJECTED = -1;
     const STATUS_INVALIDATED = -2;
 
+    const TYPE_EXPENSE = 1; // Расход
+    const TYPE_INCOME = 2;  // Приход
+
 
     protected $table = 'contracts';
 
@@ -27,6 +30,7 @@ class Contract extends Model implements HasMedia
         'application_id',
         'user_id',
         'status',
+        'transaction_type',
         'currency_id',
         'title',
         'budget_sum',
@@ -57,6 +61,14 @@ class Contract extends Model implements HasMedia
             ['id' => self::STATUS_APPROVED, 'label' => __('app.status.approved')],
             ['id' => self::STATUS_REJECTED, 'label' => __('app.status.rejected')],
             ['id' => self::STATUS_INVALIDATED, 'label' => __('app.status.invalidated')],
+        ];
+    }
+
+    public static function getTransactionTypes(): array
+    {
+        return [
+            ['id' => self::TYPE_EXPENSE, 'label' => __('app.transaction_type.expense')],
+            ['id' => self::TYPE_INCOME, 'label' => __('app.transaction_type.income')],
         ];
     }
 

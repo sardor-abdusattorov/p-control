@@ -37,6 +37,7 @@ class ContractUpdateRequest extends FormRequest
             'budget_sum' => 'required|numeric|min:0',
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',
+            'transaction_type' => 'required|integer|in:1,2',
 
             'files' => [
                 'nullable',

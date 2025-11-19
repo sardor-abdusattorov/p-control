@@ -37,6 +37,7 @@ class ContractStoreRequest extends FormRequest
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',
             'application_type' => 'required|integer',
+            'transaction_type' => 'required|integer|in:1,2',
             'files' => ['required', 'array', 'min:1'],
             'files.*' => ['file', 'mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg', 'max:51200'],
             'recipients' => [

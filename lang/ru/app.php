@@ -13,6 +13,12 @@ return [
         'request' => 'Заявка',
         'memo' => 'Служебная записка',
     ],
+
+    'transaction_type' => [
+        'expense' => 'Расход',
+        'income' => 'Приход',
+    ],
+
     'deny_access' => 'У вас нет доступа к этому разделу',
     'label' => [
         'all' => 'Все',
@@ -204,6 +210,7 @@ return [
         'recipients' => 'Получатели',
         'budget_sum' => 'Сумма проекта',
         'contract_sum' => 'Сумма контракта',
+        'transaction_type' => 'Тип операции',
         'budget_balance' => 'Остаток',
         'project_year' => 'Год проекта',
         'deadline' => 'Срок',
@@ -328,6 +335,7 @@ return [
         'priority' => 'Выберите приоритет...',
         'telegram_id' => 'Telegram ID',
         'select_type' => "Выберите тип",
+        'select_transaction_type' => "Выберите тип операции",
         'search' => 'Поиск...',
         'email' => 'email@email.com',
         'password' => 'Пароль',

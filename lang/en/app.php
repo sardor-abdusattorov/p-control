@@ -13,6 +13,12 @@ return [
         'request' => 'Application',
         'memo' => 'Internal memo',
     ],
+
+    'transaction_type' => [
+        'expense' => 'Expense',
+        'income' => 'Income',
+    ],
+
     'deny_access' => 'You do not have access to this section',
     'label' => [
         'all' => 'All',
@@ -227,6 +233,7 @@ return [
         'recipients' => 'Recipients',
         'budget_sum' => 'Budget Amount',
         'contract_sum' => 'Contract Amount',
+        'transaction_type' => 'Transaction Type',
         'budget_balance' => 'Balance',
         'project_year' => 'Project Year',
         'deadline' => 'Deadline',
@@ -349,6 +356,7 @@ return [
         'select_status' => 'Select Status...',
         'select_application' => 'Select Application',
         'select_type' => 'Select Type',
+        'select_transaction_type' => 'Select Transaction Type',
         'priority' => 'Select Priority...',
         'telegram_id' => 'Telegram ID',
         'search' => 'Search...',

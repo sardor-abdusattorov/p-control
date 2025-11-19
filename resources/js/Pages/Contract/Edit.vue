@@ -79,6 +79,22 @@
                         <InputError class="mt-2" :message="form.errors.contact_id" />
                     </div>
 
+                    <div class="form-group mb-5">
+                        <InputLabel for="transaction_type" :value="lang().label.transaction_type" />
+                        <Select
+                            id="transaction_type"
+                            v-model="form.transaction_type"
+                            :options="transaction_types"
+                            optionLabel="label"
+                            optionValue="id"
+                            class="w-full"
+                            checkmark
+                            :placeholder="lang().placeholder.select_transaction_type"
+                            :highlightOnSelect="false"
+                        />
+                        <InputError class="mt-2" :message="form.errors.transaction_type" />
+                    </div>
+
                     <div class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select
@@ -355,6 +371,7 @@ const props = defineProps({
     currency: Array,
     files: Array,
     application_types: Object,
+    transaction_types: Array,
     approval_user_ids: Array
 });
 
@@ -372,6 +389,7 @@ const form = useForm({
     budget_sum: "",
     deadline: "",
     application_type: "",
+    transaction_type: "",
     contact_id: null,
 });
 
@@ -431,6 +449,7 @@ watchEffect(() => {
     form.title = props.contract.title;
     form.budget_sum = props.contract.budget_sum;
     form.contact_id = props.contract.contact_id;
+    form.transaction_type = props.contract.transaction_type || 1;
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
     form.files = [];
     form.errors = {};

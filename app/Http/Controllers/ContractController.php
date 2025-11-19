@@ -102,6 +102,7 @@ class ContractController extends Controller
             'applications' => $groupedApplications,
             'users' => $users,
             'application_types' => $types,
+            'transaction_types' => Contract::getTransactionTypes(),
             'recipients' => $recipients,
             'contacts' => $contacts,
             'categories' => ContactCategory::where('status', 1)->get(),
@@ -310,6 +311,7 @@ class ContractController extends Controller
             'projects' => $projects,
             'applications' => $groupedApplications,
             'application_types' => $types,
+            'transaction_types' => Contract::getTransactionTypes(),
             'approval_user_ids' => $contract->approvals()
                 ->where('approved', '!=', \App\Models\Approvals::STATUS_INVALIDATED)
                 ->pluck('user_id')
