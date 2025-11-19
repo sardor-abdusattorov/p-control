@@ -23,7 +23,7 @@ class ContractStoreRequest extends FormRequest
         return [
             'contract_number' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
-            'project_id' => $isIncome ? 'nullable|integer' : 'required|integer',
+            'project_id' => 'required|integer',
             'application_id' => [
                 $isIncome ? 'nullable' : 'required',
                 'integer',

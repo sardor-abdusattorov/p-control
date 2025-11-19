@@ -36,7 +36,7 @@
                         <InputError class="mt-2" :message="form.errors.title"/>
                     </div>
 
-                    <div class="form-group mb-5" v-if="form.transaction_type !== 2">
+                    <div class="form-group mb-5">
                         <InputLabel for="project_id" :value="lang().label.project_id"/>
                         <Select
                             id="project_id"
