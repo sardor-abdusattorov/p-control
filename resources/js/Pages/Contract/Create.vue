@@ -105,7 +105,7 @@
                         <InputError class="mt-2" :message="form.errors.transaction_type" />
                     </div>
 
-                    <div class="form-group mb-3">
+                    <div v-if="form.transaction_type !== 2" class="form-group mb-3">
                         <InputLabel for="type" :value="lang().label.type" />
                         <Select
                             id="type"
@@ -127,7 +127,7 @@
                         <InputError class="mt-2" :message="form.errors.type" />
                     </div>
 
-                    <div class="form-group mb-5">
+                    <div v-if="form.transaction_type !== 2" class="form-group mb-5">
                         <InputLabel for="application_id" :value="lang().label.application_id" />
                         <Select
                             id="application_id"
