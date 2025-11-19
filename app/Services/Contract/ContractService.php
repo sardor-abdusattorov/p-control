@@ -35,6 +35,7 @@ class ContractService
                 'user_id' => auth()->id(),
                 'budget_sum' => $data['budget_sum'],
                 'status' => Contract::STATUS_NEW,
+                'transaction_type' => $data['transaction_type'] ?? Contract::TYPE_EXPENSE,
                 'deadline' => Carbon::parse($data['deadline'])
                     ->timezone(config('app.timezone'))
                     ->format('Y-m-d H:i:s'),
@@ -115,6 +116,7 @@ class ContractService
                 'currency_id' => $data['currency_id'],
                 'budget_sum' => $data['budget_sum'],
                 'status' => Contract::STATUS_NEW,
+                'transaction_type' => $data['transaction_type'] ?? Contract::TYPE_EXPENSE,
                 'deadline' => Carbon::parse($data['deadline'])
                     ->timezone(config('app.timezone'))
                     ->format('Y-m-d H:i:s'),
