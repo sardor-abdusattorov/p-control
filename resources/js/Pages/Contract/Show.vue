@@ -303,6 +303,22 @@
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.transaction_type }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <span
+                                    class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                    :class="{
+                                        'bg-green-100 text-green-800': contract.transaction_type === 2,
+                                        'bg-blue-100 text-blue-800': contract.transaction_type === 1
+                                    }"
+                                >
+                                    {{ transaction_types.find(t => t.id === contract.transaction_type)?.label || lang().label.undefined }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_id }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 <span v-if="props.project">
@@ -632,6 +648,7 @@ const props = defineProps({
     breadcrumbs: Object,
     application_approvals: Array,
     statuses: Array,
+    transaction_types: Array,
     project: Object,
     users: Array,
     approvals: Object,

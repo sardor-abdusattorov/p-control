@@ -164,6 +164,7 @@ class ContractController extends Controller
 
         $types = Application::getTypes();
         $statuses = Contract::getStatuses();
+        $transactionTypes = Contract::getTransactionTypes();
         $users = User::approverOptions();
 
         $files = $contract->getMedia('files');
@@ -188,6 +189,7 @@ class ContractController extends Controller
             'users' => $users,
             'statuses' => $statuses,
             'types' => $types,
+            'transaction_types' => $transactionTypes,
             'project' => $project,
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
