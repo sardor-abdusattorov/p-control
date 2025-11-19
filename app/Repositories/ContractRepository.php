@@ -71,6 +71,10 @@ class ContractRepository
             $query->where('currency_id', (int) $filters['currency_id']);
         }
 
+        if (isset($filters['payment_status']) && $filters['payment_status'] !== '') {
+            $query->where('payment_status', (int) $filters['payment_status']);
+        }
+
         // Apply approval filter
         if (!empty($filters['approval_filter'])) {
             $this->applyApprovalFilter($query, $filters['approval_filter']);

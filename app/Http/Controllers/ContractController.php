@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Altwaireb\World\Models\Country;
 use App\Http\Requests\Contract\ContractApproversUpdateRequest;
 use App\Http\Requests\Contract\ContractIndexRequest;
+use App\Http\Requests\Contract\ContractPaymentStatusRequest;
 use App\Http\Requests\Contract\ContractScanRequest;
 use App\Http\Requests\Contract\ContractStoreRequest;
 use App\Http\Requests\Contract\ContractUpdateRequest;
@@ -45,10 +46,11 @@ class ContractController extends Controller
 
         $currency = Currency::where(['status' => 1])->get();
         $statuses = Contract::getStatuses();
+        $paymentStatuses = Contract::getPaymentStatuses();
         $users = $this->repository->getAvailableUsers($user);
 
         $perPage = $request->input('perPage', 10);
-        $filters = $request->only(['contract_number', 'title', 'field', 'order', 'user_id', 'status', 'currency_id', 'approval_filter']);
+        $filters = $request->only(['contract_number', 'title', 'field', 'order', 'user_id', 'status', 'currency_id', 'payment_status', 'approval_filter']);
 
         $contracts = $this->repository->paginateWithFilters($filters, $user, $perPage);
 
@@ -61,6 +63,7 @@ class ContractController extends Controller
             'perPage' => (int)$perPage,
             'contracts' => $contracts,
             'statuses' => $statuses,
+            'payment_statuses' => $paymentStatuses,
             'currency' => $currency,
             'users' => $users,
             'approvals' => $approvals,
@@ -165,6 +168,7 @@ class ContractController extends Controller
         $types = Application::getTypes();
         $statuses = Contract::getStatuses();
         $transactionTypes = Contract::getTransactionTypes();
+        $paymentStatuses = Contract::getPaymentStatuses();
         $users = User::approverOptions();
 
         $files = $contract->getMedia('files');
@@ -190,6 +194,7 @@ class ContractController extends Controller
             'statuses' => $statuses,
             'types' => $types,
             'transaction_types' => $transactionTypes,
+            'payment_statuses' => $paymentStatuses,
             'project' => $project,
             'application' => $application,
             'contract' => $contract->load(['user', 'currency']),
@@ -426,6 +431,41 @@ class ContractController extends Controller
 
             return redirect()->route('contract.show', ['contract' => $contract->id])
                 ->with('success', __('app.label.approvers_updated_successfully'));
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Update payment status (for accountants only)
+     */
+    public function updatePaymentStatus(ContractPaymentStatusRequest $request, Contract $contract)
+    {
+        $user = auth()->user();
+
+        // Only accountants (department_id = 9) or superadmin can change payment status
+        if ($user->department_id !== 9 && !$user->hasRole('superadmin')) {
+            return redirect()->back()->with('error', __('app.label.permission_denied'));
+        }
+
+        try {
+            $oldStatus = $contract->payment_status;
+            $contract->update(['payment_status' => $request->payment_status]);
+
+            // Log activity
+            activity('contract')
+                ->causedBy($user)
+                ->performedOn($contract)
+                ->withProperties([
+                    'contract_id' => $contract->id,
+                    'old_payment_status' => $oldStatus,
+                    'new_payment_status' => $request->payment_status,
+                ])
+                ->log('Статус оплаты контракта изменен');
+
+            return redirect()->route('contract.show', ['contract' => $contract->id])
+                ->with('success', __('app.label.payment_status_updated_successfully'));
 
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());

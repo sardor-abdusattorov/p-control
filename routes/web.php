@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/contract/{contract}/remove-approver', [ContractController::class, 'removeApprover'])->name('contract.remove-approver');
     Route::post('/contract/{contract}/cancel', [ContractController::class, 'cancelContract'])->name('contract.cancel');
     Route::put('/contract/{contract}/update-approvers', [ContractController::class, 'updateApprovers'])->name('contract.update-approvers');
+    Route::put('/contract/{contract}/update-payment-status', [ContractController::class, 'updatePaymentStatus'])->name('contract.update-payment-status');
     Route::get('/contract/{contract}/upload-scan', [ContractController::class, 'uploadScan'])->name('contract.upload-scan');
     Route::post('/contract/{contract}/upload-scan', [ContractController::class, 'uploadScanFiles'])->name('contract.upload-scan.store');
     Route::post('/contract/{contract}/update', [ContractController::class, 'update'])->name('contract.update');

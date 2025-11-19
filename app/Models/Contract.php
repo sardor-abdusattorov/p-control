@@ -21,6 +21,9 @@ class Contract extends Model implements HasMedia
     const TYPE_EXPENSE = 1; // Расход
     const TYPE_INCOME = 2;  // Приход
 
+    const PAYMENT_STATUS_NOT_PAID = 0; // Не оплачен
+    const PAYMENT_STATUS_PREPAID = 1;  // Предоплата
+    const PAYMENT_STATUS_PAID = 2;     // Оплачен
 
     protected $table = 'contracts';
 
@@ -31,6 +34,7 @@ class Contract extends Model implements HasMedia
         'user_id',
         'status',
         'transaction_type',
+        'payment_status',
         'currency_id',
         'title',
         'budget_sum',
@@ -69,6 +73,15 @@ class Contract extends Model implements HasMedia
         return [
             ['id' => self::TYPE_EXPENSE, 'label' => __('app.transaction_type.expense')],
             ['id' => self::TYPE_INCOME, 'label' => __('app.transaction_type.income')],
+        ];
+    }
+
+    public static function getPaymentStatuses(): array
+    {
+        return [
+            ['id' => self::PAYMENT_STATUS_NOT_PAID, 'label' => __('app.payment_status.not_paid')],
+            ['id' => self::PAYMENT_STATUS_PREPAID, 'label' => __('app.payment_status.prepaid')],
+            ['id' => self::PAYMENT_STATUS_PAID, 'label' => __('app.payment_status.paid')],
         ];
     }
 

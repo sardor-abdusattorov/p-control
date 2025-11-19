@@ -69,6 +69,13 @@
                             :title="props.title"
                         />
 
+                        <ChangePaymentStatus
+                            :show="data.changePaymentStatusOpen"
+                            @close="data.changePaymentStatusOpen = false"
+                            :contract="props.contract"
+                            :paymentStatuses="props.payment_statuses"
+                        />
+
                         <Approve
                             v-if="userApproval"
                             :show="can(['approve contract']) && data.approveOpen"
@@ -361,6 +368,34 @@
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.payment_status }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
+                                <div class="flex items-center gap-3">
+                                    <span
+                                        class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
+                                        :class="{
+                                            'bg-yellow-100 text-yellow-800': contract.payment_status === 1,
+                                            'bg-green-100 text-green-800': contract.payment_status === 2,
+                                            'bg-gray-200 text-gray-700': contract.payment_status === 0 || contract.payment_status === null
+                                        }"
+                                    >
+                                        {{ getPaymentStatusLabel(contract.payment_status) }}
+                                    </span>
+                                    <Button
+                                        v-if="isAccountant || isAdmin"
+                                        type="button"
+                                        icon="pi pi-pencil"
+                                        :label="lang().button.change"
+                                        severity="secondary"
+                                        size="small"
+                                        @click="data.changePaymentStatusOpen = true"
+                                    />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr
+                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
+                        >
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.currency_id }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
                                 {{ contract.currency.name }}
@@ -626,6 +661,7 @@ import DangerButton from "@/Components/DangerButton.vue";
 import DeleteUser from "@/Pages/Contract/DeleteUser.vue";
 import Button from "primevue/button";
 import EditUser from "@/Pages/Contract/EditUser.vue";
+import ChangePaymentStatus from "@/Pages/Contract/ChangePaymentStatus.vue";
 import { ref } from "vue";
 import Dialog from "primevue/dialog";
 import SendApproval from "@/Pages/Contract/SendApproval.vue";
@@ -649,6 +685,7 @@ const props = defineProps({
     application_approvals: Array,
     statuses: Array,
     transaction_types: Array,
+    payment_statuses: Array,
     project: Object,
     users: Array,
     approvals: Object,
@@ -661,6 +698,7 @@ const props = defineProps({
 const data = reactive({
     deleteOpen: false,
     editUserOpen: false,
+    changePaymentStatusOpen: false,
     project: null,
     approveOpen: false,
     cancelApproval: false,
@@ -708,6 +746,14 @@ const getStatusClass = (statusId) => {
 
     return map[statusId] || 'bg-slate-200 text-slate-800';
 };
+
+const getPaymentStatusLabel = (statusId) => {
+    const status = props.payment_statuses?.find(s => s.id === statusId);
+    return status ? status.label : (props.payment_statuses?.find(s => s.id === 0)?.label || 'Не оплачен');
+};
+
+const isAccountant = computed(() => authUser.department_id === 9);
+const isAdmin = computed(() => authUser.roles?.some(role => role.name === 'superadmin'));
 
 const activeApprovals = computed(() => {
     const uniqueByUser = {};

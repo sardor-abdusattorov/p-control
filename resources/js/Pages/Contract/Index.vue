@@ -93,6 +93,11 @@
                             </th>
                             <th class="px-2 py-4 cursor-pointer min-w-28">
                                 <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.payment_status }}</span>
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer min-w-28">
+                                <div class="flex justify-between items-center">
                                     <span>{{ lang().label.approval_status }}</span>
                                 </div>
                             </th>
@@ -176,6 +181,24 @@
                             }"
                                 />
                             </th>
+                            <th class="px-2 py-4 cursor-pointer">
+                                <Select
+                                    showClear
+                                    v-model="data.params.payment_status"
+                                    :options="props.payment_statuses"
+                                    optionLabel="label"
+                                    optionValue="id"
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :placeholder="lang().placeholder.select_payment_status"
+                                    class="w-full"
+                                    :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '300px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                                />
+                            </th>
                              <th class="px-2 py-4 cursor-pointer">
                                 <Select
                                     v-show="can(['approve contract'])"
@@ -244,6 +267,18 @@
                                     :class="getStatusClass(contract.status)"
                                 >
                                   {{ getStatusLabel(contract.status) }}
+                                </span>
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                <span
+                                    class="inline-block text-md font-semibold px-2 py-1 rounded-full"
+                                    :class="{
+                                        'bg-yellow-100 text-yellow-800': contract.payment_status === 1,
+                                        'bg-green-100 text-green-800': contract.payment_status === 2,
+                                        'bg-gray-200 text-gray-700': contract.payment_status === 0 || contract.payment_status === null
+                                    }"
+                                >
+                                  {{ getPaymentStatusLabel(contract.payment_status) }}
                                 </span>
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
@@ -438,6 +473,7 @@ const { _, debounce, pickBy } = pkg;
 const props = defineProps({
     title: String,
     statuses: Object,
+    payment_statuses: Object,
     currency: Object,
     users: Object,
     filters: Object,
@@ -454,6 +490,7 @@ const data = reactive({
         perPage: props.perPage ?? 10,
         user_id: props.filters.user_id ? Number(props.filters.user_id) : null,
         status: props.filters.status ? Number(props.filters.status) : null,
+        payment_status: props.filters.payment_status !== undefined && props.filters.payment_status !== null ? Number(props.filters.payment_status) : null,
         title: props.filters.title ?? null,
         contract_number: props.filters.contract_number ?? null,
         currency_id: props.filters.currency_id ? Number(props.filters.currency_id) : null,
@@ -522,6 +559,11 @@ const getStatusClass = (statusId) => {
         default:
             return 'bg-gray-200 text-gray-700';
     }
+};
+
+const getPaymentStatusLabel = (statusId) => {
+    const status = props.payment_statuses?.find(s => s.id === statusId);
+    return status ? status.label : lang().label.not_paid;
 };
 
 const formatNumber = (amount) => {
