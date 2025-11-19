@@ -119,6 +119,7 @@ return [
         "contract_description" => 'Описание контракта',
         "cancel_approval"=> "Отклонить",
         'min_approvers_warning' => 'Для одобрения заявки необходимо минимум 2 утвердителя.',
+        'min_approvers_warning_income' => 'Необходимо выбрать минимум 1 получателя.',
         "type"=> "Основание для заключения контракта",
         'unknown_user' => 'Неизвестный пользователь',
         'not_found' => ':attribute не найден.',

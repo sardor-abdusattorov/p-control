@@ -94,7 +94,8 @@ return [
         'cancel_approval' => 'Rad etish',
 
         'min_approvers_warning' => 'Arizani tasdiqlash uchun kamida 2 ta tasdiqlovchi kerak.',
-        'delete_user_confirm' => 'Foydalanuvchini o‘chirishni xohlaysizmi',
+        'min_approvers_warning_income' => 'Kamida 1 ta qabul qiluvchi tanlanishi kerak.',
+        'delete_user_confirm' => 'Foydalanuvchini o'chirishni xohlaysizmi',
         'unknown' => 'Nomaʼlum',
         'already_rejected' => 'Ariza allaqachon rad etilgan.',
         'cancel_application' => 'Arizani bekor qilish',

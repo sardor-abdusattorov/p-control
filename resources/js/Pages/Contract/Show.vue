@@ -143,7 +143,7 @@
                             :closable="false"
                             class="mb-2"
                         >
-                            {{ contract.transaction_type === 2 ? 'Необходимо выбрать минимум 1 получателя.' : lang().label.min_approvers_warning }}
+                            {{ contract.transaction_type === 2 ? lang().label.min_approvers_warning_income : lang().label.min_approvers_warning }}
                         </Message>
 
                         <Message

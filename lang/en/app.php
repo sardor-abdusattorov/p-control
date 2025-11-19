@@ -120,6 +120,7 @@ return [
 
 
         'min_approvers_warning' => 'At least 2 approvers are required to approve the application.',
+        'min_approvers_warning_income' => 'At least 1 recipient must be selected.',
         'delete_user_confirm' => 'Are you sure you want to delete the user',
         'unknown' => 'Unknown',
         'already_rejected' => 'Already rejected',
