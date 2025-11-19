@@ -138,12 +138,12 @@
 
                     <div class="space-y-2">
                         <Message
-                            v-if="activeApprovals.length < 2 && contract.user_id === authUser.id"
+                            v-if="contract.transaction_type === 2 ? (activeApprovals.length < 1 && contract.user_id === authUser.id) : (activeApprovals.length < 2 && contract.user_id === authUser.id)"
                             severity="warn"
                             :closable="false"
                             class="mb-2"
                         >
-                            {{ lang().label.min_approvers_warning }}
+                            {{ contract.transaction_type === 2 ? 'Для одобрения контракта необходим минимум 1 утвердитель.' : lang().label.min_approvers_warning }}
                         </Message>
 
                         <Message
