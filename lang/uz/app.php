@@ -19,7 +19,7 @@ return [
         'income' => 'Daromad',
     ],
 
-    'deny_access' => 'Sizda bu'limga kirish huquqi yo'q',
+    'deny_access' => 'Sizda bu\'limga kirish huquqi yo\'q',
     'label' => [
         'all' => 'Barchasi',
         'approved_by_me' => 'Men tasdiqlagan',
