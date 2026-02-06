@@ -66,26 +66,14 @@
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.budget_sum }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ formatNumber(project.budget_sum) }} {{ project.currency?.short_name || '' }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_category }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.category ? project.category.title : lang().label.undefined }}</td>
                         </tr>
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.project_year }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.project_year }}</td>
-                        </tr>
-
-                        <tr
-                            class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
-                        >
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.deadline }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.deadline }}</td>
-                        </tr>
-
-                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.responsible_user }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.user ? project.user.name : 'No user assigned' }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.sort }}</td>
+                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.sort }}</td>
                         </tr>
 
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
@@ -95,10 +83,6 @@
                             </td>
                         </tr>
 
-                        <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.currency }}</td>
-                            <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ project.currency ? project.currency.name : lang().label.undefined }}</td>
-                        </tr>
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"
                         >
@@ -149,17 +133,6 @@ const data = reactive({
     deleteOpen: false,
     project: null,
 });
-
-const formatNumber = (amount) => {
-    if (!amount) return '-';
-    const formattedAmount = new Intl.NumberFormat('ru-RU', {
-        style: 'decimal',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(amount);
-
-    return formattedAmount;
-};
 
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);

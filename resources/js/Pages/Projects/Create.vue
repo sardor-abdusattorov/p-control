@@ -2,12 +2,11 @@
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { Head, useForm } from "@inertiajs/vue3";
-import { watchEffect, ref } from "vue";
+import { useForm } from "@inertiajs/vue3";
+import { watchEffect } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
-import DatePicker from "primevue/datepicker";
 import InputText from "primevue/inputtext";
 import InputNumber from "primevue/inputnumber";
 import BackLink from "@/Components/BackLink.vue";
@@ -17,33 +16,17 @@ const props = defineProps({
     show: Boolean,
     title: String,
     breadcrumbs: Object,
-    users: Array,
+    categories: Array,
+    statuses: Array,
 });
-
-const currentYear = new Date().getFullYear();
-
-const endOfYear = new Date(currentYear, 11, 31);
 
 const form = useForm({
     project_number: "",
     title: "",
-    budget_sum: "",
-    user_id: "",
-    project_year: endOfYear,
-    deadline: endOfYear,
+    category_id: null,
+    sort: 0,
+    status_id: 1,
 });
-
-const filteredUsers = ref(props.users);
-const loading = ref(false);
-
-const onFilter = async (event) => {
-    loading.value = true;
-    const query = event.query;
-    filteredUsers.value = props.users.filter((user) =>
-        user.name.toLowerCase().includes(query.toLowerCase())
-    );
-    loading.value = false;
-};
 
 const create = () => {
     form.post(route("projects.store"), {});
@@ -101,76 +84,57 @@ watchEffect(() => {
                         </div>
 
                         <div class="form-group mb-3">
-                            <InputLabel for="project_year" :value="lang().label.project_year" />
-                            <DatePicker
-                                v-model="form.project_year"
-                                view="year"
-                                dateFormat="yy"
-                                showIcon
-                                showButtonBar
+                            <InputLabel for="category_id" :value="lang().label.category_id" />
+                            <Select
+                                v-model="form.category_id"
+                                :options="categories"
+                                optionLabel="title"
+                                optionValue="id"
+                                filter
+                                showClear
+                                checkmark
+                                :highlightOnSelect="false"
+                                :placeholder="lang().placeholder.category_id"
                                 class="w-full"
-                                :manualInput="false"
-                                :minDate="new Date()"
+                                :pt="{
+                                    option: { class: 'custom-option' },
+                                    dropdown: { style: { maxWidth: '300px' } },
+                                    overlay: { class: 'parent-wrapper-class' }
+                                }"
                             />
-                            <InputError class="mt-2" :message="form.errors.project_year" />
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <InputLabel for="deadline" :value="lang().label.deadline" />
-                            <DatePicker
-                                id="deadline"
-                                v-model="form.deadline"
-                                class="mt-1 block w-full"
-                                :placeholder="lang().label.deadline"
-                                showIcon
-                                showButtonBar
-                                :monthNavigator="true"
-                                :yearNavigator="true"
-                                yearRange="2020:2030"
-                                dateFormat="dd/mm/yy"
-                                :manualInput="false"
-                                :minDate="new Date()"
-                            />
-                            <InputError class="mt-2" :message="form.errors.deadline" />
+                            <InputError class="mt-2" :message="form.errors.category_id" />
                         </div>
                     </div>
 
                     <div class="w-full xl:w-1/3">
                         <div class="form-group mb-3">
-                            <InputLabel for="user_id" :value="lang().label.responsible_user" />
-                            <Select
-                                v-model="form.user_id"
-                                :options="users"
-                                optionLabel="name"
-                                optionValue="id"
-                                filter
-                                checkmark
-                                :highlightOnSelect="false"
-                                :placeholder="lang().label.select_user"
-                                class="w-full"
-                                :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
+                            <InputLabel for="sort" :value="lang().label.sort" />
+                            <InputNumber
+                                id="sort"
+                                v-model="form.sort"
+                                class="mt-1 block w-full"
+                                :placeholder="lang().label.sort"
                             />
-                            <InputError class="mt-2" :message="form.errors.user_id" />
+                            <InputError class="mt-2" :message="form.errors.sort" />
                         </div>
 
                         <div class="form-group mb-3">
-                            <InputLabel for="budget_sum" :value="lang().label.budget_sum" />
-                            <InputNumber
-                                id="budget_sum"
-                                v-model="form.budget_sum"
-                                class="mt-1 block w-full"
-                                mode="currency"
-                                currency="UZS"
-                                locale="uz-UZ"
-                                :placeholder="lang().label.budget_sum"
-                                :error="form.errors.budget_sum"
+                            <InputLabel for="status_id" :value="lang().label.status" />
+                            <Select
+                                v-model="form.status_id"
+                                :options="statuses"
+                                optionLabel="label"
+                                optionValue="id"
+                                :placeholder="lang().placeholder.select_status"
+                                class="w-full"
+                                checkmark
+                                :highlightOnSelect="false"
+                                :pt="{
+                                    option: { class: 'custom-option' },
+                                    overlay: { class: 'parent-wrapper-class' }
+                                }"
                             />
-
-                            <InputError class="mt-2" :message="form.errors.budget_sum" />
+                            <InputError class="mt-2" :message="form.errors.status_id" />
                         </div>
                     </div>
 
@@ -195,10 +159,3 @@ watchEffect(() => {
 
     </AuthenticatedLayout>
 </template>
-
-<style scoped>
-.p-inputnumber-input {
-    flex: none !important;
-    width: 100%;
-}
-</style>
