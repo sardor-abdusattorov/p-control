@@ -15,9 +15,11 @@ use App\Http\Controllers\{ActivityLogController,
     ProductCategoryController,
     ProductController,
     ProfileController,
+    ProjectCategoryController,
     ProjectsController,
     RoleController,
     UserController};
+use App\Models\ProjectCategory;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -61,6 +63,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
         ->name('product_brands.destroy-bulk');
 
+    Route::resource('project-categories', ProjectCategoryController::class);
+    Route::post('/project-categories/destroy-bulk', [ProjectCategoryController::class, 'destroyBulk'])->name('project-categories.destroy-bulk');
+
     Route::resource('projects', ProjectsController::class);
     Route::prefix('projects/{project}')->name('projects.')->group(function () {
         Route::get('/related-contracts', [ProjectsController::class, 'relatedContracts'])->name('related-contracts');
@@ -68,6 +73,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
     Route::get('/projects/{project}/contracts/export', [ProjectsController::class, 'exportContracts'])
         ->name('projects.contracts.export');
+
+    Route::get('/project-categories/by-year/{year}', [ProjectCategory::class, 'byYear'])->name('project-categories.byYear');
+
 
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');

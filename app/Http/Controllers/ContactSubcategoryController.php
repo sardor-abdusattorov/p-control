@@ -14,6 +14,11 @@ use Inertia\Inertia;
 
 class ContactSubcategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:manage contact categories');
+    }
+
     /**
      * Display a listing of the resource.
      */

@@ -96,9 +96,15 @@
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('user_id')">
+                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('category_id')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.responsible_user }}</span>
+                                    <span>{{ lang().label.project_category }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer" v-on:click="order('sort')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.sort }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
@@ -153,7 +159,10 @@
                                 {{ project.project_number }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
-                                {{ project.user?.name || 'Не указано' }}
+                                {{ project.category?.title || '-' }}
+                            </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                                {{ project.sort }}
                             </td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <Badge :value="getStatusLabel(project.status_id)" :severity="getStatusSeverity(project.status_id)" />

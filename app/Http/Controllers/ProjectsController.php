@@ -10,8 +10,7 @@ use App\Http\Requests\Projects\ProjectsUpdateRequest;
 use App\Models\Contract;
 use App\Models\Currency;
 use App\Models\Project;
-use App\Models\User;
-use Carbon\Carbon;
+use App\Models\ProjectCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -56,7 +55,11 @@ class ProjectsController extends Controller
         $user = auth()->user();
         $statuses = Contract::getStatuses();
         $currencies = Currency::where(['status' => 1])->get();
-        $projectsQuery = Project::query()->with(['user', 'currency', 'contracts']);
+        $projectsQuery = Project::query()->with(['category', 'currency', 'contracts' => function ($query) use ($user) {
+            if (!$user->can('view all contracts')) {
+                $query->where('user_id', $user->id);
+            }
+        }]);
         $contractsQuery = Contract::query();
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
@@ -72,7 +75,7 @@ class ProjectsController extends Controller
                 $projectsQuery->orderBy($request->field, $request->order);
             }
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 100;
+        $perPage = $request->has('perPage') ? $request->perPage : 10;
         $projects = $projectsQuery->paginate($perPage);
 
         return Inertia::render('Projects/Index', [
@@ -130,15 +133,14 @@ class ProjectsController extends Controller
      */
     public function create()
     {
-        $users = User::where('status', 1)->get();
-
         return Inertia::render('Projects/Create', [
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
                 ['label' => __('app.label.create')]
             ],
-            'users' => $users
+            'categories' => ProjectCategory::where('status', 1)->orderBy('sort')->get(),
+            'statuses' => Project::getStatuses(),
         ]);
     }
 
@@ -152,17 +154,11 @@ class ProjectsController extends Controller
             $project = new Project();
             $project->title = $request->title;
             $project->project_number = $request->project_number;
-            $project->budget_sum = $request->budget_sum ?? 0;
-            $project->user_id = $request->user_id;
-            $project->currency_id = 1;
-            $project->status_id = 1;
-            $project->deadline = Carbon::parse($request->deadline)
-                ->timezone(config('app.timezone'))
-                ->format('Y-m-d H:i:s');
-            $project->project_year = Carbon::parse($request->project_year)
-                ->timezone(config('app.timezone'))
-                ->format('Y-m-d H:i:s');
+            $project->category_id = $request->category_id;
+            $project->sort = $request->sort ?? 0;
+            $project->status_id = $request->status_id ?? 1;
             $project->save();
+
             activity('project')
                 ->causedBy(Auth::user())
                 ->performedOn($project)
@@ -170,9 +166,6 @@ class ProjectsController extends Controller
                     'project_id' => $project->id,
                     'title' => $project->title,
                     'project_number' => $project->project_number,
-                    'budget_sum' => $project->budget_sum,
-                    'user_id' => $project->user_id,
-                    'deadline' => $project->deadline,
                 ])
                 ->log('Создан проект');
 
@@ -186,8 +179,6 @@ class ProjectsController extends Controller
                 ->withProperties([
                     'error' => $th->getMessage(),
                     'title' => $request->title,
-                    'project_number' => $request->project_number,
-                    'budget_sum' => $request->budget_sum,
                 ])
                 ->log('Ошибка при создании проекта');
 
@@ -201,7 +192,7 @@ class ProjectsController extends Controller
     {
         $statuses = Contract::getStatuses();
         return Inertia::render('Projects/Show', [
-            'project' => $project->load(['user', 'currency']),
+            'project' => $project->load(['category', 'currency']),
             'statuses' => $statuses,
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
@@ -216,16 +207,16 @@ class ProjectsController extends Controller
      */
     public function edit(Project $project)
     {
-        $users = User::where('status', 1)->get();
         return inertia('Projects/Edit', [
             'project' => $project,
-            'users' => $users,
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
                 ['label' => $project->id, 'href' => route('projects.show', $project->id)],
                 ['label' => __('app.label.edit')]
-            ]
+            ],
+            'categories' => ProjectCategory::where('status', 1)->orderBy('sort')->get(),
+            'statuses' => Project::getStatuses(),
         ]);
     }
 
@@ -240,11 +231,10 @@ class ProjectsController extends Controller
             $originalData = $project->getOriginal();
             $project->update([
                 'project_number' => $request->project_number,
-                'budget_sum' => $request->budget_sum,
                 'title' => $request->title,
-                'user_id' => $request->user_id,
-                'deadline' => Carbon::parse($request->deadline)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
-                'project_year' => Carbon::parse($request->project_year)->timezone(config('app.timezone'))->format('Y-m-d H:i:s'),
+                'category_id' => $request->category_id,
+                'sort' => $request->sort ?? 0,
+                'status_id' => $request->status_id,
             ]);
 
             activity('project')
@@ -346,7 +336,17 @@ class ProjectsController extends Controller
 
     public function exportContracts(Project $project)
     {
-        return Excel::download(new ProjectContractsExport($project), 'contracts_project_' . $project->id . '.xlsx');
+        return Excel::download(new ProjectContractsExport($project, auth()->user()), 'contracts_project_' . $project->id . '.xlsx');
     }
+
+    public function byYear($year)
+    {
+        return ProjectCategory::query()
+            ->where('year', $year)
+            ->where('status', 1)
+            ->orderBy('sort')
+            ->get(['id', 'title']);
+    }
+
 
 }

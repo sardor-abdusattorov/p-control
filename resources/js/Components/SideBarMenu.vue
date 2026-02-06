@@ -49,18 +49,42 @@
                 </Link>
             </li>
 
-            <!-- Projects -->
+            <!-- Projects Dropdown -->
             <li>
-                <Link :href="route('projects.index')"
-                      class="flex items-center py-2.5 px-3 rounded-lg transition-all duration-300 group relative overflow-hidden"
-                      :class="route().current('projects.*')
-                        ? 'bg-sky-600/20 text-sky-400 font-medium border-l-2 border-sky-500'
-                        : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'">
-                    <div v-if="route().current('projects.*')"
-                         class="absolute left-0 top-0 bottom-0 w-1 bg-sky-500 rounded-r"></div>
-                    <FolderIcon class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-                    <span class="ml-3 font-medium">{{ lang().label.projects }}</span>
-                </Link>
+                <button @click="toggleMenu('projects_group')"
+                        class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
+                        :class="expandedMenus.projects_group.expanded
+                          ? 'bg-slate-800/70 text-white'
+                          : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'">
+                    <div class="flex items-center">
+                        <FolderIcon class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                        <span class="ml-3 font-medium">{{ lang().label.projects }}</span>
+                    </div>
+                    <ChevronDownIcon class="w-5 h-5 transform transition-transform duration-300"
+                                     :class="{ 'rotate-180': expandedMenus.projects_group.expanded }" />
+                </button>
+                <ul v-show="expandedMenus.projects_group.expanded" class="space-y-1 mt-1 ml-4 pl-4 border-l-2 border-slate-700/50">
+                    <li>
+                        <Link :href="route('projects.index')"
+                              class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
+                              :class="route().current('projects.*')
+                                ? 'bg-sky-600/20 text-sky-400 font-medium'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/30'">
+                            <FolderIcon class="w-4 h-4" />
+                            <span class="ml-2">{{ lang().label.projects }}</span>
+                        </Link>
+                    </li>
+                    <li v-show="can(['manage project categories'])">
+                        <Link :href="route('project-categories.index')"
+                              class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
+                              :class="route().current('project-categories.*')
+                                ? 'bg-sky-600/20 text-sky-400 font-medium'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-800/30'">
+                            <FolderIcon class="w-4 h-4" />
+                            <span class="ml-2">{{ lang().label.project_categories }}</span>
+                        </Link>
+                    </li>
+                </ul>
             </li>
 
             <!-- Справочники Dropdown -->
@@ -165,7 +189,7 @@
             </li>
 
             <!-- Contacts Dropdown -->
-            <li v-show="can(['manage contacts'])">
+            <li v-show="can(['read contact', 'create contact', 'manage contact categories'])">
                 <button @click="toggleMenu('contacts')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
                         :class="expandedMenus.contacts.expanded
@@ -179,7 +203,7 @@
                                      :class="{ 'rotate-180': expandedMenus.contacts.expanded }" />
                 </button>
                 <ul v-show="expandedMenus.contacts.expanded" class="space-y-1 mt-1 ml-4 pl-4 border-l-2 border-slate-700/50">
-                    <li>
+                    <li v-show="can(['read contact', 'create contact'])">
                         <Link :href="route('contacts.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contacts.*')
@@ -189,7 +213,7 @@
                             <span class="ml-2">{{ lang().label.contacts }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['manage contact categories'])">
                         <Link :href="route('contact-categories.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contact-categories.*')
@@ -199,7 +223,7 @@
                             <span class="ml-2">{{ lang().label.contact_categories }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['manage contact categories'])">
                         <Link :href="route('contact-subcategories.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contact-subcategories.*')
@@ -296,6 +320,10 @@ import { ref, onMounted, reactive } from "vue";
 const lang = () => usePage().props.language;
 
 const expandedMenus = reactive({
+    projects_group: {
+        expanded: false,
+        routes: ['projects.*', 'project-categories.*']
+    },
     dictionaries: {
         expanded: false,
         routes: ['departments.*', 'positions.*', 'status.*', 'currency.*']

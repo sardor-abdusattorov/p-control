@@ -3,7 +3,6 @@
 namespace App\Services\Widgets;
 
 use App\Models\Contract;
-use App\Models\Approvals;
 
 class ContractWidget extends AbstractWidget
 {
@@ -31,28 +30,15 @@ class ContractWidget extends AbstractWidget
     }
 
     /**
-     * Get visible contracts query based on user role
+     * Get visible contracts query based on user permissions
      */
     private function getVisibleContractsQuery()
     {
-        if ($this->user->hasRole('superadmin')) {
+        if ($this->user->can('view all contracts')) {
             return Contract::query();
         }
 
-        if ($this->user->hasRole('manager')) {
-            return Contract::where('user_id', $this->user->id);
-        }
-
-        if ($this->user->hasRole(['lawyer', 'accountant', 'accounting'])) {
-            $approvableIds = Approvals::where('approvable_type', Contract::class)
-                ->where('user_id', $this->user->id)
-                ->pluck('approvable_id');
-
-            return Contract::whereIn('id', $approvableIds)
-                ->where('status', '!=', Contract::STATUS_NEW);
-        }
-
-        return Contract::where('id', 0);
+        return Contract::where('user_id', $this->user->id);
     }
 
     /**
