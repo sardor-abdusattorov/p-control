@@ -346,7 +346,7 @@ class ProjectsController extends Controller
 
     public function exportContracts(Project $project)
     {
-        return Excel::download(new ProjectContractsExport($project), 'contracts_project_' . $project->id . '.xlsx');
+        return Excel::download(new ProjectContractsExport($project, auth()->user()), 'contracts_project_' . $project->id . '.xlsx');
     }
 
 }

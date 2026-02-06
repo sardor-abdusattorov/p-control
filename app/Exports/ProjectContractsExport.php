@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Project;
+use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -14,17 +15,24 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 class ProjectContractsExport implements FromCollection, WithHeadings, WithColumnWidths, WithStyles
 {
     protected $project;
+    protected $user;
 
-    public function __construct(Project $project)
+    public function __construct(Project $project, User $user)
     {
         $this->project = $project;
+        $this->user = $user;
     }
 
     public function collection()
     {
-        return $this->project->contracts()
-            ->with(['user', 'currency', 'contact', 'project', 'application'])
-            ->get()
+        $query = $this->project->contracts()
+            ->with(['user', 'currency', 'contact', 'project', 'application']);
+
+        if (!$this->user->can('view all contracts')) {
+            $query->where('user_id', $this->user->id);
+        }
+
+        return $query->get()
             ->map(function ($contract) {
                 return [
                     'Номер контракта' => $contract->contract_number,
