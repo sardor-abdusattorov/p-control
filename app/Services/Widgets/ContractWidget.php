@@ -23,7 +23,7 @@ class ContractWidget extends AbstractWidget
             'approved' => (clone $query)->where('status', Contract::STATUS_APPROVED)->count(),
             'rejected' => (clone $query)->where('status', Contract::STATUS_REJECTED)->count(),
             'inProgress' => (clone $query)->where('status', Contract::STATUS_IN_PROGRESS)->count(),
-            'new' => $this->user->hasRole('superadmin')
+            'new' => ($this->user->hasRole('superadmin') || $this->user->hasRole('manager'))
                 ? (clone $query)->where('status', Contract::STATUS_NEW)->count()
                 : null,
         ];
