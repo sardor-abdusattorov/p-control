@@ -23,7 +23,7 @@ class ApplicationWidget extends AbstractWidget
             'approved' => (clone $query)->where('status_id', Application::STATUS_APPROVED)->count(),
             'rejected' => (clone $query)->where('status_id', Application::STATUS_REJECTED)->count(),
             'inProgress' => (clone $query)->where('status_id', Application::STATUS_IN_PROGRESS)->count(),
-            'new' => ($this->user->hasRole('superadmin') || $this->user->hasRole('manager'))
+            'new' => $this->user->hasRole('superadmin')
                 ? (clone $query)->where('status_id', Application::STATUS_NEW)->count()
                 : null,
         ];
