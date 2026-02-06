@@ -29,7 +29,7 @@
         "laravel-vite-plugin": "^2.0.1",
         "primeicons": "^7.0.0",
         "primevue": "^4.2.1",
-        "quill": "^2.0.3",
+        "quill": "^2.0.2",
         "vite": "^7.1.12",
         "vue-demi": "^0.14.10",
         "vue-files-preview": "^1.0.38",
