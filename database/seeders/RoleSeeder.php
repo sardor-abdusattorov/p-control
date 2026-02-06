@@ -49,6 +49,13 @@ class RoleSeeder extends Seeder
             'delete contract',
             'view contract',
             'view all contracts',
+
+            'create contact',
+            'read contact',
+            'update contact',
+            'delete contact',
+            'view all contacts',
+            'manage contact categories',
         ]);
 
         $manager = Role::create([
@@ -68,6 +75,10 @@ class RoleSeeder extends Seeder
             'create contract',
             'update contract',
             'view contract',
+
+            'create contact',
+            'read contact',
+            'update contact',
         ]);
         $chief = Role::create([
             'name' => 'chief'

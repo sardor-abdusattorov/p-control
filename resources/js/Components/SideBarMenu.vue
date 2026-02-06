@@ -165,7 +165,7 @@
             </li>
 
             <!-- Contacts Dropdown -->
-            <li v-show="can(['manage contacts'])">
+            <li v-show="can(['read contact', 'create contact', 'manage contact categories'])">
                 <button @click="toggleMenu('contacts')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
                         :class="expandedMenus.contacts.expanded
@@ -179,7 +179,7 @@
                                      :class="{ 'rotate-180': expandedMenus.contacts.expanded }" />
                 </button>
                 <ul v-show="expandedMenus.contacts.expanded" class="space-y-1 mt-1 ml-4 pl-4 border-l-2 border-slate-700/50">
-                    <li>
+                    <li v-show="can(['read contact', 'create contact'])">
                         <Link :href="route('contacts.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contacts.*')
@@ -189,7 +189,7 @@
                             <span class="ml-2">{{ lang().label.contacts }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['manage contact categories'])">
                         <Link :href="route('contact-categories.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contact-categories.*')
@@ -199,7 +199,7 @@
                             <span class="ml-2">{{ lang().label.contact_categories }}</span>
                         </Link>
                     </li>
-                    <li>
+                    <li v-show="can(['manage contact categories'])">
                         <Link :href="route('contact-subcategories.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
                               :class="route().current('contact-subcategories.*')

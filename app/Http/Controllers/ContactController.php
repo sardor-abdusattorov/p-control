@@ -30,8 +30,16 @@ class ContactController extends Controller
      */
     public function index(ContactIndexRequest $request)
     {
+        $this->authorize('viewAny', Contact::class);
+
+        $user = auth()->user();
         $contacts = Contact::query()
             ->with(['country', 'owner', 'category']);
+
+        // Access control: non-superadmin users without 'view all contacts' see only their own
+        if (!$user->hasRole('superadmin') && !$user->can('view all contacts')) {
+            $contacts->where('owner_id', $user->id);
+        }
 
         if ($request->filled('title')) {
             $contacts->where('title', 'like', '%' . $request->title . '%');
@@ -229,6 +237,8 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
+        $this->authorize('view', $contact);
+
         $category     = ContactCategory::find($contact->category_id);
         $subcategory  = ContactSubcategory::find($contact->subcategory_id);
         $owner        = User::find($contact->owner_id);
@@ -255,6 +265,8 @@ class ContactController extends Controller
      */
     public function edit(Contact $contact)
     {
+        $this->authorize('update', $contact);
+
         return inertia('Contacts/Edit', [
             'contact' => $contact,
             'title'       => __('app.label.contact_subcategories'),
@@ -275,6 +287,8 @@ class ContactController extends Controller
      */
     public function update(ContactUpdateRequest $request, Contact $contact)
     {
+        $this->authorize('update', $contact);
+
         DB::beginTransaction();
 
         try {
@@ -312,6 +326,8 @@ class ContactController extends Controller
      */
     public function destroy(Contact $contact)
     {
+        $this->authorize('delete', $contact);
+
         DB::beginTransaction();
         try {
             $contact->delete();
@@ -325,6 +341,8 @@ class ContactController extends Controller
 
     public function destroyBulk(Request $request)
     {
+        $this->authorize('deleteAny', Contact::class);
+
         try {
             $contact = Contact::whereIn('id', $request->id);
             $contact->delete();

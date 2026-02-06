@@ -54,5 +54,13 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'approve contract']);
 
         Permission::create(['name' => 'view logs']);
+
+        //CONTACTS
+        Permission::create(['name' => 'create contact']);
+        Permission::create(['name' => 'read contact']);
+        Permission::create(['name' => 'update contact']);
+        Permission::create(['name' => 'delete contact']);
+        Permission::create(['name' => 'view all contacts']);
+        Permission::create(['name' => 'manage contact categories']);
     }
 }
