@@ -19,6 +19,7 @@ use App\Http\Controllers\{ActivityLogController,
     ProjectsController,
     RoleController,
     UserController};
+use App\Models\ProjectCategory;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -72,6 +73,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/projects/destroy-bulk', [ProjectsController::class, 'destroyBulk'])->name('projects.destroy-bulk');
     Route::get('/projects/{project}/contracts/export', [ProjectsController::class, 'exportContracts'])
         ->name('projects.contracts.export');
+
+    Route::get('/project-categories/by-year/{year}', [ProjectCategory::class, 'byYear'])->name('project-categories.byYear');
+
 
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');

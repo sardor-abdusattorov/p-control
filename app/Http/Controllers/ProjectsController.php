@@ -75,7 +75,7 @@ class ProjectsController extends Controller
                 $projectsQuery->orderBy($request->field, $request->order);
             }
         }
-        $perPage = $request->has('perPage') ? $request->perPage : 100;
+        $perPage = $request->has('perPage') ? $request->perPage : 10;
         $projects = $projectsQuery->paginate($perPage);
 
         return Inertia::render('Projects/Index', [
@@ -338,5 +338,15 @@ class ProjectsController extends Controller
     {
         return Excel::download(new ProjectContractsExport($project, auth()->user()), 'contracts_project_' . $project->id . '.xlsx');
     }
+
+    public function byYear($year)
+    {
+        return ProjectCategory::query()
+            ->where('year', $year)
+            ->where('status', 1)
+            ->orderBy('sort')
+            ->get(['id', 'title']);
+    }
+
 
 }

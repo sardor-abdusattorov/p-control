@@ -28,4 +28,12 @@ class ProjectCategory extends Model
             ['id' => self::STATUS_ACTIVE, 'label' => __('app.status.active')],
         ];
     }
+
+    public function getCreatedAtAttribute() {
+        return date('d-m-Y H:i', strtotime($this->attributes['created_at']));
+    }
+
+    public function getUpdatedAtAttribute() {
+        return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
+    }
 }
