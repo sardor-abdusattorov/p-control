@@ -56,7 +56,11 @@ class ProjectsController extends Controller
         $user = auth()->user();
         $statuses = Contract::getStatuses();
         $currencies = Currency::where(['status' => 1])->get();
-        $projectsQuery = Project::query()->with(['user', 'currency', 'contracts']);
+        $projectsQuery = Project::query()->with(['user', 'currency', 'contracts' => function ($query) use ($user) {
+            if (!$user->can('view all contracts')) {
+                $query->where('user_id', $user->id);
+            }
+        }]);
         $contractsQuery = Contract::query();
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
