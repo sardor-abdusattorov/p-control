@@ -15,6 +15,7 @@ use App\Http\Controllers\{ActivityLogController,
     ProductCategoryController,
     ProductController,
     ProfileController,
+    ProjectCategoryController,
     ProjectsController,
     RoleController,
     UserController};
@@ -60,6 +61,9 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/product-brands/{product_brand}/update', [ProductBrandController::class, 'update'])->name('product_brands.update');
     Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
         ->name('product_brands.destroy-bulk');
+
+    Route::resource('project-categories', ProjectCategoryController::class);
+    Route::post('/project-categories/destroy-bulk', [ProjectCategoryController::class, 'destroyBulk'])->name('project-categories.destroy-bulk');
 
     Route::resource('projects', ProjectsController::class);
     Route::prefix('projects/{project}')->name('projects.')->group(function () {

@@ -62,5 +62,8 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'delete contact']);
         Permission::create(['name' => 'view all contacts']);
         Permission::create(['name' => 'manage contact categories']);
+
+        //PROJECT CATEGORIES
+        Permission::create(['name' => 'manage project categories']);
     }
 }

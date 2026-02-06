@@ -16,11 +16,9 @@ class ProjectsStoreRequest extends FormRequest
         return [
             'project_number' => 'nullable|string|max:255',
             'title' => 'required|string',
-            'budget_sum' => 'nullable|numeric|min:0',
-            'user_id' => 'required|exists:users,id',
-            'currency_id' => 'nullable|exists:currency,id',
-            'deadline' => 'required|date',
-            'project_year' => 'required|date',
+            'category_id' => 'nullable|exists:project_categories,id',
+            'sort' => 'nullable|integer|min:0',
+            'status_id' => 'nullable|integer',
         ];
     }
 }

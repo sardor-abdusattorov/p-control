@@ -56,6 +56,8 @@ class RoleSeeder extends Seeder
             'delete contact',
             'view all contacts',
             'manage contact categories',
+
+            'manage project categories',
         ]);
 
         $manager = Role::create([

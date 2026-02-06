@@ -19,17 +19,15 @@ class Project extends Model
     protected $fillable = [
         'project_number',
         'title',
-        'budget_sum',
-        'project_year',
-        'user_id',
+        'sort',
+        'category_id',
         'status_id',
         'currency_id',
-        'deadline',
     ];
 
-    public function user()
+    public function category()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(ProjectCategory::class, 'category_id');
     }
 
     public static function getStatuses(): array
