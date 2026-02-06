@@ -3,7 +3,6 @@
 namespace App\Services\Widgets;
 
 use App\Models\Application;
-use App\Models\Approvals;
 
 class ApplicationWidget extends AbstractWidget
 {
@@ -31,37 +30,15 @@ class ApplicationWidget extends AbstractWidget
     }
 
     /**
-     * Get visible applications query based on user role
+     * Get visible applications query based on user permissions
      */
     private function getVisibleApplicationsQuery()
     {
-        if ($this->user->hasRole('superadmin')) {
+        if ($this->user->can('view all applications')) {
             return Application::query();
         }
 
-        if ($this->user->hasRole('manager')) {
-            return Application::where('user_id', $this->user->id);
-        }
-
-        if ($this->user->hasRole(['lawyer', 'accountant', 'accounting'])) {
-            $approvableIds = Approvals::where('approvable_type', Application::class)
-                ->where('user_id', $this->user->id)
-                ->pluck('approvable_id');
-
-            return Application::where(function ($q) use ($approvableIds) {
-                $q->whereIn('id', $approvableIds)
-                    ->orWhere('type', 2);
-            })->where(function ($q) {
-                $q->where('status_id', '!=', Application::STATUS_NEW)
-                    ->orWhere('type', 2);
-            });
-        }
-
-        return Application::where('type', 2)
-            ->where(function ($q) {
-                $q->where('status_id', '!=', Application::STATUS_NEW)
-                    ->orWhere('type', 2);
-            });
+        return Application::where('user_id', $this->user->id);
     }
 
     /**
