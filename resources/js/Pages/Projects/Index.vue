@@ -158,9 +158,10 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.project_number }}
                             </td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">
+                            <td class="py-4 px-2 sm:py-3 max-w-xs break-words">
                                 {{ project.category?.title || '-' }}
                             </td>
+
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ project.sort }}
                             </td>

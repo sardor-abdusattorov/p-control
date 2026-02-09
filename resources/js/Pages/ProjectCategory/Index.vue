@@ -127,11 +127,16 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ (props.categories.current_page - 1) * props.categories.per_page + index + 1 }}
                             </td>
-                            <td class="whitespace-pre-wrap py-4 px-2">
-                                <Link :href="route('project-categories.show', { project_category: category.id })" class="text-blue-500 hover:underline dark:text-white">
+                            <td class="py-4 px-2 max-w-xs">
+                                <Link
+                                    :href="route('project-categories.show', { project_category: category.id })"
+                                    class="text-blue-500 hover:underline dark:text-white block truncate"
+                                    :title="category?.title || lang().label.no_available"
+                                >
                                     {{ category?.title || lang().label.no_available }}
                                 </Link>
                             </td>
+
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ category.year }}
                             </td>
