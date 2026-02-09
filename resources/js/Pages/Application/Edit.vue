@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <InputLabel for="project_year" :value="lang().label.year" />
+                    <InputLabel for="project_year" :value="lang().label.project_year" />
                     <Select
                         id="project_year"
                         v-model="projectYear"
