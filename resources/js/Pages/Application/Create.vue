@@ -240,6 +240,7 @@ const props = defineProps({
     users: Array,
     types: Array,
     currency: Array,
+    availableYears: Array,
 });
 
 const emit = defineEmits(["close"]);
@@ -306,8 +307,7 @@ const getFileIcon = (fileType) => {
     return 'pi pi-file';
 };
 
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 
 </script>

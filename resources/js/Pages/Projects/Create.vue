@@ -20,6 +20,7 @@ const props = defineProps({
     breadcrumbs: Object,
     categories: Array,
     statuses: Array,
+    availableYears: Array,
 });
 
 /* потом используем */
@@ -64,8 +65,7 @@ watch(
     { immediate: true }
 );
 
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 </script>
 

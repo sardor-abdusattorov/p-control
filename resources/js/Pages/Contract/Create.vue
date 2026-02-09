@@ -367,6 +367,7 @@ const props = defineProps({
     categories: Object,
     countries: Object,
     statuses: Object,
+    availableYears: Array,
 });
 
 const allowedFileTypes = [
@@ -476,8 +477,7 @@ const formattedContacts = computed(() => {
         display: `${contact.firstname} ${contact.lastname} – ${contact.email}`.trim()
     }))
 })
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 
 </script>

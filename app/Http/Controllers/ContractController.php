@@ -16,6 +16,7 @@ use App\Models\ContactSubcategory;
 use App\Models\Contract;
 use App\Models\Currency;
 use App\Models\Project;
+use App\Models\ProjectCategory;
 use App\Models\Recipient;
 use App\Models\User;
 use App\Repositories\ContractRepository;
@@ -109,6 +110,7 @@ class ContractController extends Controller
             'subCategories' => ContactSubcategory::where('status', 1)->get(),
             'countries' => Country::select('id', 'name')->orderBy('name')->get(),
             'statuses' => Contact::getStatuses(),
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
         ]);
     }
 
@@ -325,7 +327,8 @@ class ContractController extends Controller
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
                 ['label' => $contract->title, 'href' => route('contract.show', $contract->id)],
                 ['label' => __('app.label.edit')]
-            ]
+            ],
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
         ]);
     }
 

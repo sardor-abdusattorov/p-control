@@ -372,7 +372,6 @@ import FileUpload from 'primevue/fileupload';
 import {Message, Textarea} from "primevue";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
-import { watch } from "vue";
 
 const props = defineProps({
     title: String,
@@ -386,7 +385,8 @@ const props = defineProps({
     files: Array,
     application_types: Object,
     transaction_types: Array,
-    approval_user_ids: Array
+    approval_user_ids: Array,
+    availableYears: Array,
 });
 
 const projectYear = ref(new Date().getFullYear());
@@ -538,8 +538,7 @@ const formattedContacts = computed(() => {
     }))
 })
 
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 </script>
 

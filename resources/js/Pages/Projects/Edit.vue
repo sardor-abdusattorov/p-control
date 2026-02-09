@@ -18,6 +18,7 @@ const props = defineProps({
     project: Object,
     categories: Array,
     statuses: Array,
+    availableYears: Array,
     breadcrumbs: {
         type: Object,
         required: true,
@@ -73,8 +74,7 @@ watch(
     { immediate: true }
 );
 
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 </script>
 

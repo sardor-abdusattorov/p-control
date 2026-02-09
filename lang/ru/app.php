@@ -339,6 +339,7 @@ return [
         'priority' => 'Выберите приоритет...',
         'telegram_id' => 'Telegram ID',
         'select_type' => "Выберите тип",
+        'select_year' => "Выберите год",
         'select_transaction_type' => "Выберите тип операции",
         'search' => 'Поиск...',
         'email' => 'email@email.com',

@@ -360,6 +360,7 @@ return [
         'select_status' => 'Select Status...',
         'select_application' => 'Select Application',
         'select_type' => 'Select Type',
+        'select_year' => 'Select Year',
         'select_transaction_type' => 'Select Transaction Type',
         'priority' => 'Select Priority...',
         'telegram_id' => 'Telegram ID',
