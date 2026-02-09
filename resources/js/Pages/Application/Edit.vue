@@ -275,7 +275,8 @@ const props = defineProps({
     types: Array,
     currency: Array,
     files: Array,
-    approval_user_ids: Array
+    approval_user_ids: Array,
+    availableYears: Array,
 });
 
 const emit = defineEmits(["close"]);
@@ -381,8 +382,7 @@ const formatDate = (dateString) => {
     return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
 
-const currentYear = new Date().getFullYear();
-const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+const yearsList = props.availableYears ?? [];
 
 </script>
 

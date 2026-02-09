@@ -11,6 +11,7 @@ use App\Http\Requests\Application\ScanFileUploadRequest;
 use App\Models\Application;
 use App\Models\Currency;
 use App\Models\Project;
+use App\Models\ProjectCategory;
 use App\Models\Recipient;
 use App\Models\User;
 use App\Repositories\ApplicationRepository;
@@ -81,6 +82,7 @@ class ApplicationController extends Controller
             'currency' => $currency,
             'users' => $users,
             'types' => $types,
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => __('app.label.create')]
@@ -237,6 +239,7 @@ class ApplicationController extends Controller
                 ->where('approved', '!=', \App\Models\Approvals::STATUS_INVALIDATED)
                 ->pluck('user_id')
                 ->toArray(),
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
             'breadcrumbs' => [
                 ['label' => __('app.label.applications'), 'href' => route('application.index')],
                 ['label' => $application->id, 'href' => route('application.show', $application->id)],

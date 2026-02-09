@@ -133,6 +133,7 @@ class ProjectsController extends Controller
             ],
             'categories' => ProjectCategory::where('status', 1)->orderBy('sort')->get(),
             'statuses' => Project::getStatuses(),
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
         ]);
     }
 
@@ -210,6 +211,7 @@ class ProjectsController extends Controller
             ],
             'categories' => ProjectCategory::where('status', 1)->orderBy('sort')->get(),
             'statuses' => Project::getStatuses(),
+            'availableYears' => ProjectCategory::query()->distinct()->orderBy('year')->pluck('year'),
         ]);
     }
 
