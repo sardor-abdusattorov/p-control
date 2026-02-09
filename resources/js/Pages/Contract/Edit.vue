@@ -28,7 +28,7 @@
                         <Textarea
                             id="title"
                             v-model="form.title"
-                            :placeholder="lang().label.contract_description"
+                            :placeholder="lang().label.title"
                             autoResize
                             rows="4"
                             class="mt-1 w-full"

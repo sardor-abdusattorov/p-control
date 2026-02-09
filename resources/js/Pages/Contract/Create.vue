@@ -29,11 +29,11 @@
                     </div>
 
                     <div class="form-group mb-5">
-                        <InputLabel for="title" :value="lang().label.contract_description" />
+                        <InputLabel for="title" :value="lang().label.title" />
                         <Textarea
                             id="title"
                             v-model="form.title"
-                            :placeholder="lang().label.contract_description"
+                            :placeholder="lang().label.title"
                             autoResize
                             rows="4"
                             class="mt-1 w-full"
