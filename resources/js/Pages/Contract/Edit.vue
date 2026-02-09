@@ -37,17 +37,29 @@
                     </div>
 
                     <div class="form-group mb-5">
+                        <InputLabel for="project_year" :value="lang().label.year"/>
+                        <InputNumber
+                            id="project_year"
+                            v-model="projectYear"
+                            class="mt-1 block w-full"
+                            :useGrouping="false"
+                        />
+                    </div>
+
+                    <div class="form-group mb-5">
                         <InputLabel for="project_id" :value="lang().label.project_id"/>
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            :options="formattedProjects"
+                            :options="groupedProjects"
                             optionLabel="display"
                             optionValue="id"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             filter
+                            showClear
                             checkmark
                             :highlightOnSelect="false"
-                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
                             :placeholder="lang().label.project_name"
@@ -346,8 +358,9 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import {Head, useForm, usePage} from "@inertiajs/vue3";
-import {computed, watchEffect} from "vue";
+import {computed, ref, watch, watchEffect} from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import axios from "axios";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
 import Select from "primevue/select";
 import DatePicker from "primevue/datepicker";
@@ -375,6 +388,10 @@ const props = defineProps({
     approval_user_ids: Array
 });
 
+const projectYear = ref(new Date().getFullYear());
+const groupedProjects = ref([]);
+let skipProjectReset = false;
+
 const form = useForm({
     contract_number: "",
     files: [],
@@ -392,6 +409,22 @@ const form = useForm({
     transaction_type: "",
     contact_id: null,
 });
+
+watch(
+    () => projectYear.value,
+    async (year) => {
+        if (!year) { groupedProjects.value = []; return; }
+        try {
+            const response = await axios.get(route("projects.by-year", year));
+            groupedProjects.value = response.data;
+            if (!skipProjectReset) {
+                form.project_id = "";
+            }
+            skipProjectReset = false;
+        } catch (e) { groupedProjects.value = []; }
+    },
+    { immediate: true }
+);
 
 const filteredApplications = computed(() => {
     if (!form.application_type) return [];
@@ -451,6 +484,15 @@ watchEffect(() => {
     form.contact_id = props.contract.contact_id;
     form.transaction_type = parseInt(props.contract.transaction_type) || 1;
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
+
+    // Determine year from existing project's category
+    if (props.contract.project_id && props.projects) {
+        const existingProject = props.projects.find(p => p.id === props.contract.project_id);
+        if (existingProject && existingProject.category && existingProject.category.year) {
+            projectYear.value = existingProject.category.year;
+            skipProjectReset = true;
+        }
+    }
     form.files = [];
     form.errors = {};
     form.old_files = props.files;
@@ -478,14 +520,6 @@ watch(() => form.application_type, () => {
 });
 
 
-const formattedProjects = computed(() => {
-    return props.projects.map(project => ({
-        id: project.id,
-        project_number: project.project_number || '',
-        title: project.title,
-        display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
-    }));
-});
 
 const formatDate = (dateString) => {
     if (!dateString) return "-";

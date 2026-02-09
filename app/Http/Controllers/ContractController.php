@@ -297,7 +297,7 @@ class ContractController extends Controller
         $types = Application::getTypes();
         $currency = Currency::where(['status' => 1])->get();
         $files = $contract->getMedia('files');
-        $projects = Project::all();
+        $projects = Project::with('category')->get();
 
         $applications = auth()->user()->can('view all applications')
             ? Application::with('currency')->get()

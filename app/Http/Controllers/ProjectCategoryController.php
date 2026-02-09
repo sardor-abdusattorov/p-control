@@ -6,53 +6,42 @@ use App\Http\Requests\ProjectCategory\ProjectCategoryIndexRequest;
 use App\Http\Requests\ProjectCategory\ProjectCategoryStoreRequest;
 use App\Http\Requests\ProjectCategory\ProjectCategoryUpdateRequest;
 use App\Models\ProjectCategory;
+use App\Repositories\ProjectCategoryRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProjectCategoryController extends Controller
 {
-    public function __construct()
+    protected ProjectCategoryRepository $repository;
+
+    public function __construct(ProjectCategoryRepository $repository)
     {
+        $this->repository = $repository;
         $this->middleware('permission:manage project categories');
     }
 
     public function index(ProjectCategoryIndexRequest $request)
     {
-        $categories = ProjectCategory::query();
-
-        if ($request->filled('title')) {
-            $categories->where('title', 'like', '%' . $request->title . '%');
-        }
-
-        if ($request->filled('year')) {
-            $categories->where('year', $request->year);
-        }
-
-        if ($request->filled('status')) {
-            $categories->where('status', $request->status);
-        }
-
-        if ($request->filled('field') && $request->filled('order')) {
-            $categories->orderBy($request->field, $request->order);
-        } else {
-            $categories->orderBy('sort')->latest();
-        }
+        $this->authorize('viewAny', ProjectCategory::class);
 
         $perPage = $request->get('perPage', 10);
+        $filters = $request->only(['title', 'year', 'status', 'field', 'order', 'perPage']);
 
         return Inertia::render('ProjectCategory/Index', [
             'title'       => __('app.label.project_categories'),
-            'filters'     => $request->only(['title', 'year', 'status', 'field', 'order', 'perPage']),
+            'filters'     => $filters,
             'perPage'     => (int) $perPage,
             'statuses'    => ProjectCategory::getStatuses(),
-            'categories'  => $categories->paginate($perPage)->withQueryString(),
+            'categories'  => $this->repository->paginateWithFilters($filters, $perPage),
             'breadcrumbs' => [['label' => __('app.label.project_categories'), 'href' => route('project-categories.index')]],
         ]);
     }
 
     public function create()
     {
+        $this->authorize('create', ProjectCategory::class);
+
         return Inertia::render('ProjectCategory/Create', [
             'title' => __('app.label.project_categories'),
             'breadcrumbs' => [
@@ -65,15 +54,17 @@ class ProjectCategoryController extends Controller
 
     public function store(ProjectCategoryStoreRequest $request)
     {
+        $this->authorize('create', ProjectCategory::class);
+
         DB::beginTransaction();
 
         try {
-            $category = new ProjectCategory();
-            $category->title = $request->title;
-            $category->sort = $request->sort ?? 0;
-            $category->year = $request->year;
-            $category->status = $request->status;
-            $category->save();
+            $category = $this->repository->create([
+                'title' => $request->title,
+                'sort' => $request->sort ?? 0,
+                'year' => $request->year,
+                'status' => $request->status,
+            ]);
 
             DB::commit();
             return redirect()->route('project-categories.index')->with('success', __('app.label.created_successfully', ['name' => $category->title]));
@@ -85,8 +76,11 @@ class ProjectCategoryController extends Controller
 
     public function show(ProjectCategory $projectCategory)
     {
+        $this->authorize('view', $projectCategory);
+
         return Inertia::render('ProjectCategory/Show', [
             'category' => $projectCategory,
+            'statuses' => ProjectCategory::getStatuses(),
             'title' => __('app.label.project_categories'),
             'breadcrumbs' => [
                 ['label' => __('app.label.project_categories'), 'href' => route('project-categories.index')],
@@ -97,6 +91,8 @@ class ProjectCategoryController extends Controller
 
     public function edit(ProjectCategory $projectCategory)
     {
+        $this->authorize('update', $projectCategory);
+
         return inertia('ProjectCategory/Edit', [
             'category' => $projectCategory,
             'title' => __('app.label.project_categories'),
@@ -111,10 +107,12 @@ class ProjectCategoryController extends Controller
 
     public function update(ProjectCategoryUpdateRequest $request, ProjectCategory $projectCategory)
     {
+        $this->authorize('update', $projectCategory);
+
         DB::beginTransaction();
 
         try {
-            $projectCategory->update([
+            $this->repository->update($projectCategory, [
                 'title' => $request->title,
                 'sort' => $request->sort ?? 0,
                 'year' => $request->year,
@@ -131,9 +129,11 @@ class ProjectCategoryController extends Controller
 
     public function destroy(ProjectCategory $projectCategory)
     {
+        $this->authorize('delete', $projectCategory);
+
         DB::beginTransaction();
         try {
-            $projectCategory->delete();
+            $this->repository->delete($projectCategory);
             DB::commit();
             return redirect()->route('project-categories.index')->with('success', __('app.label.deleted_successfully', ['name' => $projectCategory->title]));
         } catch (\Throwable $th) {
@@ -144,12 +144,21 @@ class ProjectCategoryController extends Controller
 
     public function destroyBulk(Request $request)
     {
+        $this->authorize('deleteAny', ProjectCategory::class);
+
         try {
-            $categories = ProjectCategory::whereIn('id', $request->id);
-            $categories->delete();
+            $this->repository->deleteBulk($request->id);
             return back()->with('success', __('app.label.deleted_successfully', ['name' => count($request->id) . ' ' . __('app.label.project_categories')]));
         } catch (\Throwable $th) {
             return back()->with('error', __('app.label.deleted_error', ['name' => count($request->id) . ' ' . __('app.label.project_categories')]) . $th->getMessage());
         }
+    }
+
+    /**
+     * Get categories by year (for dependent dropdown in Projects form).
+     */
+    public function byYear($year)
+    {
+        return $this->repository->getByYear($year);
     }
 }

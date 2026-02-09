@@ -19,7 +19,6 @@ use App\Http\Controllers\{ActivityLogController,
     ProjectsController,
     RoleController,
     UserController};
-use App\Models\ProjectCategory;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -74,7 +73,8 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::get('/projects/{project}/contracts/export', [ProjectsController::class, 'exportContracts'])
         ->name('projects.contracts.export');
 
-    Route::get('/project-categories/by-year/{year}', [ProjectCategory::class, 'byYear'])->name('project-categories.byYear');
+    Route::get('/project-categories/by-year/{year}', [ProjectCategoryController::class, 'byYear'])->name('project-categories.byYear');
+    Route::get('/projects/by-year/{year}', [ProjectsController::class, 'byYear'])->name('projects.by-year');
 
 
     Route::resource('contract', ContractController::class)->except(['update']);

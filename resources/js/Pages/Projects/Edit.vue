@@ -3,7 +3,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { useForm } from "@inertiajs/vue3";
-import { watchEffect } from "vue";
+import { watchEffect, ref, watch } from "vue";
 import Select from "primevue/select";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
@@ -11,6 +11,7 @@ import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
 import BackLink from "@/Components/BackLink.vue";
 import Textarea from 'primevue/textarea';
+import axios from "axios";
 
 const props = defineProps({
     title: String,
@@ -23,9 +24,13 @@ const props = defineProps({
     },
 });
 
+const categoriesList = ref(props.categories ?? []);
+let skipCategoryReset = false;
+
 const form = useForm({
     project_number: "",
     title: "",
+    year: new Date().getFullYear(),
     category_id: null,
     sort: 0,
     status_id: 1,
@@ -42,7 +47,31 @@ watchEffect(() => {
     form.category_id = props.project?.category_id;
     form.sort = props.project?.sort ?? 0;
     form.status_id = props.project?.status_id ?? 1;
+
+    // Set year from existing category
+    if (props.project?.category?.year) {
+        form.year = props.project.category.year;
+        skipCategoryReset = true;
+    }
 });
+
+watch(
+    () => form.year,
+    async (year) => {
+        if (!year) return;
+        try {
+            const response = await axios.get(route("project-categories.byYear", year));
+            categoriesList.value = response.data;
+            if (!skipCategoryReset) {
+                form.category_id = null;
+            }
+            skipCategoryReset = false;
+        } catch (e) {
+            categoriesList.value = [];
+        }
+    },
+    { immediate: true }
+);
 
 </script>
 
@@ -90,16 +119,24 @@ watchEffect(() => {
                         </div>
 
                         <div class="form-group mb-3">
+                            <InputLabel for="year" :value="lang().label.year" />
+                            <InputNumber
+                                id="year"
+                                v-model="form.year"
+                                class="mt-1 block w-full"
+                                :useGrouping="false"
+                            />
+                        </div>
+
+                        <div class="form-group mb-3">
                             <InputLabel for="category_id" :value="lang().label.category_id" />
                             <Select
                                 v-model="form.category_id"
-                                :options="categories"
+                                :options="categoriesList"
                                 optionLabel="title"
                                 optionValue="id"
                                 filter
                                 showClear
-                                checkmark
-                                :highlightOnSelect="false"
                                 :placeholder="lang().placeholder.category_id"
                                 class="w-full"
                                 :pt="{

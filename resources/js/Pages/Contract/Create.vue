@@ -42,17 +42,29 @@
                     </div>
 
                     <div class="form-group mb-5">
+                        <InputLabel for="project_year" :value="lang().label.year" />
+                        <InputNumber
+                            id="project_year"
+                            v-model="projectYear"
+                            class="mt-1 block w-full"
+                            :useGrouping="false"
+                        />
+                    </div>
+
+                    <div class="form-group mb-5">
                         <InputLabel for="project_id" :value="lang().label.project" />
                         <Select
                             id="project_id"
                             v-model="form.project_id"
-                            :options="formattedProjects"
+                            :options="groupedProjects"
                             optionLabel="display"
                             optionValue="id"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
                             filter
+                            showClear
                             checkmark
                             :highlightOnSelect="false"
-                            :filterBy="['project_number', 'title']"
                             :filterPlaceholder="lang().placeholder.select_project"
                             class="w-full"
                             :placeholder="lang().label.project_name"
@@ -337,6 +349,7 @@ import MultiSelect from "primevue/multiselect";
 import {Textarea} from "primevue";
 import { onMounted } from 'vue';
 import ContactCreate from "@/Pages/Contract/ContactCreate.vue";
+import axios from "axios";
 
 const props = defineProps({
     show: Boolean,
@@ -364,6 +377,21 @@ const allowedFileTypes = [
 ];
 
 const showContactModal = ref(false);
+const projectYear = ref(new Date().getFullYear());
+const groupedProjects = ref([]);
+
+watch(
+    () => projectYear.value,
+    async (year) => {
+        if (!year) { groupedProjects.value = []; return; }
+        try {
+            const response = await axios.get(route("projects.by-year", year));
+            groupedProjects.value = response.data;
+            form.project_id = "";
+        } catch (e) { groupedProjects.value = []; }
+    },
+    { immediate: true }
+);
 
 const form = useForm({
     contract_number: "",
@@ -437,14 +465,6 @@ watchEffect(() => {
     form.errors = {};
 });
 
-const formattedProjects = computed(() => {
-    return props.projects.map(project => ({
-        id: project.id,
-        project_number: project.project_number || '',
-        title: project.title,
-        display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
-    }));
-});
 
 const formattedContacts = computed(() => {
     return props.contacts.map(contact => ({

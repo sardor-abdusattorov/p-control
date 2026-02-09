@@ -19,7 +19,7 @@ class ProjectsIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,project_number,user_id,status_id'],
+            'field' => ['in:title,project_number,category_id,sort,status_id'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];
