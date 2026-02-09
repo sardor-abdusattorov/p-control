@@ -43,11 +43,12 @@
 
                     <div class="form-group mb-5">
                         <InputLabel for="project_year" :value="lang().label.year" />
-                        <InputNumber
+                        <Select
                             id="project_year"
                             v-model="projectYear"
+                            :options="yearsList"
                             class="mt-1 block w-full"
-                            :useGrouping="false"
+                            :placeholder="lang().placeholder.select_year"
                         />
                     </div>
 
@@ -475,6 +476,9 @@ const formattedContacts = computed(() => {
         display: `${contact.firstname} ${contact.lastname} – ${contact.email}`.trim()
     }))
 })
+const currentYear = new Date().getFullYear();
+const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+
 
 </script>
 

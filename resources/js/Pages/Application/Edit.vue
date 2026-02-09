@@ -45,11 +45,12 @@
 
                 <div class="form-group mb-3">
                     <InputLabel for="project_year" :value="lang().label.year" />
-                    <InputNumber
+                    <Select
                         id="project_year"
                         v-model="projectYear"
+                        :options="yearsList"
                         class="mt-1 block w-full"
-                        :useGrouping="false"
+                        :placeholder="lang().placeholder.select_year"
                     />
                 </div>
 
@@ -379,6 +380,9 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
+
+const currentYear = new Date().getFullYear();
+const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
 
 </script>
 

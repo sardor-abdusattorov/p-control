@@ -64,6 +64,9 @@ watch(
     { immediate: true }
 );
 
+const currentYear = new Date().getFullYear();
+const yearsList = Array.from({ length: currentYear - 2025 + 1 }, (_, i) => 2025 + i);
+
 </script>
 
 
@@ -112,14 +115,14 @@ watch(
 
                         <div class="form-group mb-3">
                             <InputLabel for="year" :value="lang().label.year" />
-                            <InputNumber
+                            <Select
                                 id="year"
                                 v-model="form.year"
+                                :options="yearsList"
                                 class="mt-1 block w-full"
-                                :useGrouping="false"
+                                :placeholder="lang().placeholder.select_year"
                             />
                         </div>
-
 
                         <div class="form-group mb-3">
                             <InputLabel for="category_id" :value="lang().label.category_id" />
