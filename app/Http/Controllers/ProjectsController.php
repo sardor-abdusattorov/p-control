@@ -11,6 +11,7 @@ use App\Models\Contract;
 use App\Models\Currency;
 use App\Models\Project;
 use App\Models\ProjectCategory;
+use App\Repositories\ProjectRepository;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,9 +21,12 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ProjectsController extends Controller
 {
+    protected ProjectRepository $repository;
 
-    public function __construct()
+    public function __construct(ProjectRepository $repository)
     {
+        $this->repository = $repository;
+
         $this->middleware(function ($request, $next) {
             $user = auth()->user();
             if (!$user) {
@@ -32,7 +36,7 @@ class ProjectsController extends Controller
                 'create project' => ['projects.create', 'projects.store'],
                 'update project' => ['projects.edit', 'projects.update'],
                 'delete project' => ['projects.destroy', 'projects.destroy-bulk'],
-                'view project' => ['projects.index', 'projects.show', 'projects.related-contracts', 'projects.contracts.export'],
+                'view project' => ['projects.index', 'projects.show', 'projects.related-contracts', 'projects.contracts.export', 'projects.by-year'],
             ];
             foreach ($permissions as $permission => $routes) {
                 if ($user->can($permission)) {
@@ -55,32 +59,20 @@ class ProjectsController extends Controller
         $user = auth()->user();
         $statuses = Contract::getStatuses();
         $currencies = Currency::where(['status' => 1])->get();
-        $projectsQuery = Project::query()->with(['category', 'currency', 'contracts' => function ($query) use ($user) {
-            if (!$user->can('view all contracts')) {
-                $query->where('user_id', $user->id);
-            }
-        }]);
+
+        $perPage = $request->has('perPage') ? $request->perPage : 10;
+        $filters = $request->all(['search', 'field', 'order']);
+
+        $projects = $this->repository->paginateWithFilters($filters, $user, $perPage);
+
         $contractsQuery = Contract::query();
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
         }
-        if ($request->has('search')) {
-            $projectsQuery->where('title', 'LIKE', "%" . $request->search . "%")
-                ->orWhere('project_number', 'LIKE', "%" . $request->search . "%");
-        }
-        if ($request->has(['field', 'order'])) {
-            if ($request->field === 'project_number') {
-                $projectsQuery->orderByRaw('CAST(project_number AS UNSIGNED) ' . $request->order);
-            } else {
-                $projectsQuery->orderBy($request->field, $request->order);
-            }
-        }
-        $perPage = $request->has('perPage') ? $request->perPage : 10;
-        $projects = $projectsQuery->paginate($perPage);
 
         return Inertia::render('Projects/Index', [
             'title'       => __('app.label.projects'),
-            'filters'     => $request->all(['search', 'field', 'order']),
+            'filters'     => $filters,
             'perPage'     => (int) $perPage,
             'projects'    => $projects,
             'statuses'    => $statuses,
@@ -151,13 +143,13 @@ class ProjectsController extends Controller
     {
         DB::beginTransaction();
         try {
-            $project = new Project();
-            $project->title = $request->title;
-            $project->project_number = $request->project_number;
-            $project->category_id = $request->category_id;
-            $project->sort = $request->sort ?? 0;
-            $project->status_id = $request->status_id ?? 1;
-            $project->save();
+            $project = $this->repository->create([
+                'title' => $request->title,
+                'project_number' => $request->project_number,
+                'category_id' => $request->category_id,
+                'sort' => $request->sort ?? 0,
+                'status_id' => $request->status_id ?? 1,
+            ]);
 
             activity('project')
                 ->causedBy(Auth::user())
@@ -185,12 +177,13 @@ class ProjectsController extends Controller
             return redirect()->back()->with('error', __('app.label.created_error', ['name' => __('app.label.project')]) . ' ' . $th->getMessage());
         }
     }
+
     /**
      * Display the specified resource.
      */
     public function show(Project $project)
     {
-        $statuses = Contract::getStatuses();
+        $statuses = Project::getStatuses();
         return Inertia::render('Projects/Show', [
             'project' => $project->load(['category', 'currency']),
             'statuses' => $statuses,
@@ -208,7 +201,7 @@ class ProjectsController extends Controller
     public function edit(Project $project)
     {
         return inertia('Projects/Edit', [
-            'project' => $project,
+            'project' => $project->load('category'),
             'title' => __('app.label.projects'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
@@ -229,7 +222,7 @@ class ProjectsController extends Controller
 
         try {
             $originalData = $project->getOriginal();
-            $project->update([
+            $this->repository->update($project, [
                 'project_number' => $request->project_number,
                 'title' => $request->title,
                 'category_id' => $request->category_id,
@@ -273,7 +266,7 @@ class ProjectsController extends Controller
 
         try {
             $projectName = $project->title;
-            $project->delete();
+            $this->repository->delete($project);
             activity('project')
                 ->causedBy(auth()->user())
                 ->performedOn($project)
@@ -302,7 +295,7 @@ class ProjectsController extends Controller
     public function destroyBulk(Request $request)
     {
         try {
-            $projects = Project::whereIn('id', $request->id)->get();
+            $projects = $this->repository->findByIds($request->id);
             $deletedProjects = [];
 
             foreach ($projects as $project) {
@@ -310,8 +303,10 @@ class ProjectsController extends Controller
                     'project_id' => $project->id,
                     'title' => $project->title,
                 ];
-                $project->delete();
             }
+
+            $this->repository->deleteBulk($request->id);
+
             activity('project')
                 ->causedBy(auth()->user())
                 ->withProperties([
@@ -339,14 +334,32 @@ class ProjectsController extends Controller
         return Excel::download(new ProjectContractsExport($project, auth()->user()), 'contracts_project_' . $project->id . '.xlsx');
     }
 
+    /**
+     * Get projects grouped by category for a given year (for dependent dropdown in Applications/Contracts).
+     */
     public function byYear($year)
     {
-        return ProjectCategory::query()
+        $categories = ProjectCategory::query()
             ->where('year', $year)
             ->where('status', 1)
             ->orderBy('sort')
-            ->get(['id', 'title']);
+            ->with(['projects' => function ($q) {
+                $q->orderBy('sort');
+            }])
+            ->get();
+
+        return $categories->map(function ($category) {
+            return [
+                'label' => $category->title,
+                'items' => $category->projects->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'project_number' => $project->project_number ?? '',
+                        'title' => $project->title,
+                        'display' => ($project->project_number ? $project->project_number . '. ' : '') . $project->title,
+                    ];
+                }),
+            ];
+        })->filter(fn($group) => $group['items']->isNotEmpty())->values();
     }
-
-
 }

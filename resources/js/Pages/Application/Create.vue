@@ -56,17 +56,29 @@
                 </div>
 
                 <div class="form-group mb-3">
+                    <InputLabel for="project_year" :value="lang().label.year" />
+                    <InputNumber
+                        id="project_year"
+                        v-model="projectYear"
+                        class="mt-1 block w-full"
+                        :useGrouping="false"
+                    />
+                </div>
+
+                <div class="form-group mb-3">
                     <InputLabel for="project_id" :value="lang().label.project_id" />
                     <Select
                         id="project_id"
                         v-model="form.project_id"
-                        :options="formattedProjects"
+                        :options="groupedProjects"
                         optionLabel="display"
                         optionValue="id"
+                        optionGroupLabel="label"
+                        optionGroupChildren="items"
                         filter
+                        showClear
                         checkmark
                         :highlightOnSelect="false"
-                        :filterBy="['project_number', 'title']"
                         :filterPlaceholder="lang().placeholder.select_project"
                         class="w-full"
                         :placeholder="lang().label.project_name"
@@ -205,8 +217,10 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Select from 'primevue/select';
 import { Head, useForm } from "@inertiajs/vue3";
-import {computed, watchEffect} from "vue";
+import {computed, ref, watch, watchEffect} from "vue";
 import InputText from "primevue/inputtext";
+import InputNumber from "primevue/inputnumber";
+import axios from "axios";
 import MultiSelect from "primevue/multiselect";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Breadcrumb from "@/Components/Breadcrumb.vue";
@@ -229,6 +243,9 @@ const props = defineProps({
 
 const emit = defineEmits(["close"]);
 
+const projectYear = ref(new Date().getFullYear());
+const groupedProjects = ref([]);
+
 const form = useForm({
     title: "",
     project_id: "",
@@ -237,6 +254,19 @@ const form = useForm({
     type: 1,
     currency_id: 1,
 });
+
+watch(
+    () => projectYear.value,
+    async (year) => {
+        if (!year) { groupedProjects.value = []; return; }
+        try {
+            const response = await axios.get(route("projects.by-year", year));
+            groupedProjects.value = response.data;
+            form.project_id = "";
+        } catch (e) { groupedProjects.value = []; }
+    },
+    { immediate: true }
+);
 
 const create = () => {
     form.post(route("application.store"), {
@@ -275,13 +305,5 @@ const getFileIcon = (fileType) => {
     return 'pi pi-file';
 };
 
-const formattedProjects = computed(() => {
-    return props.projects.map(project => ({
-        id: project.id,
-        project_number: project.project_number || '',
-        title: project.title,
-        display: `${project.project_number ? project.project_number + '.' : ''} ${project.title}`.trim()
-    }));
-});
 </script>
 

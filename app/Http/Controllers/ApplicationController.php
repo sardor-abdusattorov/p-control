@@ -219,7 +219,7 @@ class ApplicationController extends Controller
 
         $currency = Currency::where(['status' => 1])->get();
         $types = Application::getTypes();
-        $projects = Project::all();
+        $projects = Project::with('category')->get();
         $files = $application->getMedia('documents');
         $recipients = Recipient::where('user_id', auth()->id())->get();
         $users = User::approverOptions();
