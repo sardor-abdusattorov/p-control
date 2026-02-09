@@ -122,7 +122,7 @@ const yearsList = props.availableYears ?? [];
                         </div>
 
                         <div class="form-group mb-3">
-                            <InputLabel for="year" :value="lang().label.year" />
+                            <InputLabel for="year" :value="lang().label.project_year" />
                             <Select
                                 id="year"
                                 v-model="form.year"

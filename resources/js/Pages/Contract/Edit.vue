@@ -37,7 +37,7 @@
                     </div>
 
                     <div class="form-group mb-5">
-                        <InputLabel for="project_year" :value="lang().label.year" />
+                        <InputLabel for="project_year" :value="lang().label.project_year" />
                         <Select
                             id="project_year"
                             v-model="projectYear"
@@ -372,7 +372,6 @@ import FileUpload from 'primevue/fileupload';
 import {Message, Textarea} from "primevue";
 import Button from "primevue/button";
 import MultiSelect from "primevue/multiselect";
-import { watch } from "vue";
 
 const props = defineProps({
     title: String,
