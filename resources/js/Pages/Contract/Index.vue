@@ -53,8 +53,12 @@
                             :label="lang().label.export_excel || 'Экспорт Excel'"
                             @click="toggleExcelExport"
                         />
-                        <Popover ref="excelExportPanel" :pt="{ root: { style: { minWidth: '320px' } } }">
-                            <div class="space-y-3 p-1">
+                        <Popover
+                            ref="excelExportPanel"
+                            :dismissable="true"
+                            :pt="{ root: { style: { minWidth: '320px' } } }"
+                        >
+                            <div class="space-y-3 p-1" @click.stop>
                                 <div class="text-base font-semibold dark:text-white">
                                     {{ lang().label.export_excel || 'Экспорт Excel' }}
                                 </div>
@@ -68,6 +72,7 @@
                                         :options="props.availableYears || []"
                                         :placeholder="lang().placeholder.select_year"
                                         class="w-full"
+                                        appendTo="self"
                                     />
                                 </div>
                                 <div>
@@ -82,6 +87,7 @@
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_status"
                                         class="w-full"
+                                        appendTo="self"
                                     />
                                 </div>
                                 <div class="flex justify-end gap-2 pt-1">
