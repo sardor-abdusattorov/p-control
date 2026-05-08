@@ -16,10 +16,10 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
 {
     public function __construct(
         protected User $user,
-        protected ?int $year = null,
-        protected ?int $status = null,
+        protected array $years = [],
+        protected array $statuses = [],
         protected ?int $transactionType = null,
-        protected ?int $userId = null,
+        protected array $userIds = [],
     ) {
     }
 
@@ -30,22 +30,22 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
 
         if (!$this->user->can('view all contracts')) {
             $query->where('user_id', $this->user->id);
-        } elseif ($this->userId !== null) {
-            $query->where('user_id', $this->userId);
+        } elseif (!empty($this->userIds)) {
+            $query->whereIn('user_id', $this->userIds);
         }
 
-        if ($this->status !== null) {
-            $query->where('status', $this->status);
+        if (!empty($this->statuses)) {
+            $query->whereIn('status', $this->statuses);
         }
 
         if ($this->transactionType !== null) {
             $query->where('transaction_type', $this->transactionType);
         }
 
-        if ($this->year !== null) {
-            $year = $this->year;
-            $query->whereHas('project.category', function ($q) use ($year) {
-                $q->where('year', $year);
+        if (!empty($this->years)) {
+            $years = $this->years;
+            $query->whereHas('project.category', function ($q) use ($years) {
+                $q->whereIn('year', $years);
             });
         }
 

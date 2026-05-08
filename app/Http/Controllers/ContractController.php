@@ -84,30 +84,55 @@ class ContractController extends Controller
     {
         $this->authorize('export', Contract::class);
 
-        $year = $request->filled('year') ? (int) $request->input('year') : null;
-        $status = $request->filled('status') ? (int) $request->input('status') : null;
-        $transactionType = $request->filled('transaction_type') ? (int) $request->input('transaction_type') : null;
-        $userId = $request->filled('user_id') ? (int) $request->input('user_id') : null;
+        $years = $this->intArrayFromRequest($request, 'year');
+        $statuses = $this->intArrayFromRequest($request, 'status');
+        $userIds = $this->intArrayFromRequest($request, 'user_id');
+        $transactionType = $request->filled('transaction_type')
+            ? (int) $request->input('transaction_type')
+            : null;
 
         $filenameParts = ['contracts'];
-        if ($year !== null) {
-            $filenameParts[] = $year;
+        if (!empty($years)) {
+            $filenameParts[] = implode('-', $years);
         }
-        if ($status !== null) {
-            $filenameParts[] = 'status-' . $status;
+        if (!empty($statuses)) {
+            $filenameParts[] = 'status-' . implode('-', $statuses);
         }
         if ($transactionType !== null) {
             $filenameParts[] = 'type-' . $transactionType;
         }
-        if ($userId !== null) {
-            $filenameParts[] = 'user-' . $userId;
+        if (!empty($userIds)) {
+            $filenameParts[] = 'user-' . implode('-', $userIds);
         }
         $filename = implode('_', $filenameParts) . '.xlsx';
 
         return Excel::download(
-            new ContractsExport(auth()->user(), $year, $status, $transactionType, $userId),
+            new ContractsExport(auth()->user(), $years, $statuses, $transactionType, $userIds),
             $filename
         );
+    }
+
+    /**
+     * Normalize a request param into an int[] (accepts both ?key[]=1&key[]=2 and ?key=1,2).
+     */
+    protected function intArrayFromRequest(Request $request, string $key): array
+    {
+        $value = $request->input($key);
+
+        if ($value === null || $value === '') {
+            return [];
+        }
+
+        if (is_array($value)) {
+            $items = $value;
+        } else {
+            $items = explode(',', (string) $value);
+        }
+
+        return array_values(array_filter(
+            array_map('intval', $items),
+            fn ($v) => $v !== 0
+        ));
     }
 
     /**
