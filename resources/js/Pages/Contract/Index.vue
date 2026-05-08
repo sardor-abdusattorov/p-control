@@ -62,11 +62,12 @@
                                     <label class="block text-sm mb-1 dark:text-slate-200">
                                         {{ lang().label.year }}
                                     </label>
-                                    <Select
-                                        showClear
+                                    <MultiSelect
                                         v-model="exportFilters.year"
                                         :options="props.availableYears || []"
                                         :placeholder="lang().placeholder.select_year"
+                                        :maxSelectedLabels="3"
+                                        display="chip"
                                         class="w-full"
                                     />
                                 </div>
@@ -74,13 +75,14 @@
                                     <label class="block text-sm mb-1 dark:text-slate-200">
                                         {{ lang().label.status }}
                                     </label>
-                                    <Select
-                                        showClear
+                                    <MultiSelect
                                         v-model="exportFilters.status"
                                         :options="props.statuses"
                                         optionLabel="label"
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_status"
+                                        :maxSelectedLabels="3"
+                                        display="chip"
                                         class="w-full"
                                     />
                                 </div>
@@ -102,14 +104,15 @@
                                     <label class="block text-sm mb-1 dark:text-slate-200">
                                         {{ lang().label.user_id }}
                                     </label>
-                                    <Select
-                                        showClear
-                                        filter
+                                    <MultiSelect
                                         v-model="exportFilters.user_id"
                                         :options="props.users"
                                         optionLabel="name"
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_user"
+                                        :maxSelectedLabels="2"
+                                        display="chip"
+                                        filter
                                         class="w-full"
                                     />
                                 </div>
@@ -417,6 +420,7 @@ import { usePage } from "@inertiajs/vue3";
 import CreateLink from "@/Components/CreateLink.vue";
 import InputText from "primevue/inputtext";
 import Select from "primevue/select";
+import MultiSelect from "primevue/multiselect";
 import SendApproval from "@/Pages/Contract/SendApproval.vue";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
@@ -625,10 +629,10 @@ const formatNumber = (amount) => {
 
 const excelExportPanel = ref();
 const exportFilters = reactive({
-    year: null,
-    status: null,
+    year: [],
+    status: [],
     transaction_type: null,
-    user_id: null,
+    user_id: [],
 });
 
 const toggleExcelExport = (event) => {
@@ -641,10 +645,12 @@ const closeExcelExport = () => {
 
 const downloadExcel = () => {
     const params = new URLSearchParams();
-    if (exportFilters.year) params.append('year', exportFilters.year);
-    if (exportFilters.status) params.append('status', exportFilters.status);
-    if (exportFilters.transaction_type) params.append('transaction_type', exportFilters.transaction_type);
-    if (exportFilters.user_id) params.append('user_id', exportFilters.user_id);
+    (exportFilters.year || []).forEach(v => params.append('year[]', v));
+    (exportFilters.status || []).forEach(v => params.append('status[]', v));
+    (exportFilters.user_id || []).forEach(v => params.append('user_id[]', v));
+    if (exportFilters.transaction_type) {
+        params.append('transaction_type', exportFilters.transaction_type);
+    }
 
     const query = params.toString();
     const url = route('contract.export-excel') + (query ? '?' + query : '');
