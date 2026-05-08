@@ -20,6 +20,7 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
         protected array $statuses = [],
         protected ?int $transactionType = null,
         protected array $userIds = [],
+        protected array $currencyIds = [],
     ) {
     }
 
@@ -40,6 +41,10 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
 
         if ($this->transactionType !== null) {
             $query->where('transaction_type', $this->transactionType);
+        }
+
+        if (!empty($this->currencyIds)) {
+            $query->whereIn('currency_id', $this->currencyIds);
         }
 
         if (!empty($this->years)) {

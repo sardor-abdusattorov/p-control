@@ -87,6 +87,7 @@ class ContractController extends Controller
         $years = $this->intArrayFromRequest($request, 'year');
         $statuses = $this->intArrayFromRequest($request, 'status');
         $userIds = $this->intArrayFromRequest($request, 'user_id');
+        $currencyIds = $this->intArrayFromRequest($request, 'currency_id');
         $transactionType = $request->filled('transaction_type')
             ? (int) $request->input('transaction_type')
             : null;
@@ -104,10 +105,13 @@ class ContractController extends Controller
         if (!empty($userIds)) {
             $filenameParts[] = 'user-' . implode('-', $userIds);
         }
+        if (!empty($currencyIds)) {
+            $filenameParts[] = 'cur-' . implode('-', $currencyIds);
+        }
         $filename = implode('_', $filenameParts) . '.xlsx';
 
         return Excel::download(
-            new ContractsExport(auth()->user(), $years, $statuses, $transactionType, $userIds),
+            new ContractsExport(auth()->user(), $years, $statuses, $transactionType, $userIds, $currencyIds),
             $filename
         );
     }
