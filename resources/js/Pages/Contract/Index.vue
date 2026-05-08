@@ -53,7 +53,7 @@
                             :label="lang().label.export_excel || 'Экспорт Excel'"
                             @click="toggleExcelExport"
                         />
-                        <Popover ref="excelExportPanel" :pt="{ root: { style: { minWidth: '320px' } } }">
+                        <Popover ref="excelExportPanel" :pt="{ root: { style: { width: '360px' } } }">
                             <div class="space-y-3 p-1">
                                 <div class="text-base font-semibold dark:text-white">
                                     {{ lang().label.export_excel || 'Экспорт Excel' }}
@@ -66,8 +66,8 @@
                                         v-model="exportFilters.year"
                                         :options="props.availableYears || []"
                                         :placeholder="lang().placeholder.select_year"
-                                        :maxSelectedLabels="3"
-                                        display="chip"
+                                        :maxSelectedLabels="2"
+                                        :selectedItemsLabel="`{0} ${lang().label.year}`"
                                         class="w-full"
                                     />
                                 </div>
@@ -81,8 +81,8 @@
                                         optionLabel="label"
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_status"
-                                        :maxSelectedLabels="3"
-                                        display="chip"
+                                        :maxSelectedLabels="2"
+                                        :selectedItemsLabel="`{0} ${lang().label.status}`"
                                         class="w-full"
                                     />
                                 </div>
@@ -110,8 +110,8 @@
                                         optionLabel="name"
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_user"
-                                        :maxSelectedLabels="2"
-                                        display="chip"
+                                        :maxSelectedLabels="1"
+                                        :selectedItemsLabel="`{0} ${lang().label.user_id}`"
                                         filter
                                         class="w-full"
                                     />
