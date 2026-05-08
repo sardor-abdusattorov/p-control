@@ -53,6 +53,7 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
                 'Заявка'          => $contract->application?->title,
                 'Пользователь'    => $contract->user?->name,
                 'Статус'          => $this->getStatusLabel($contract->status),
+                'Тип операции'    => $this->getTransactionTypeLabel($contract->transaction_type),
                 'Валюта'          => $contract->currency?->short_name,
                 'Название'        => $contract->title,
                 'Сумма'           => $contract->budget_sum,
@@ -73,6 +74,7 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
             'Заявка',
             'Пользователь',
             'Статус',
+            'Тип операции',
             'Валюта',
             'Название',
             'Сумма',
@@ -86,14 +88,14 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
 
     public function columnWidths(): array
     {
-        return array_combine(range('A', 'M'), array_fill(0, 13, 30));
+        return array_combine(range('A', 'N'), array_fill(0, 14, 30));
     }
 
     public function styles(Worksheet $sheet)
     {
-        $columns = 'A1:M' . $sheet->getHighestRow();
+        $columns = 'A1:N' . $sheet->getHighestRow();
 
-        $sheet->getStyle('A1:M1')->applyFromArray([
+        $sheet->getStyle('A1:N1')->applyFromArray([
             'font' => [
                 'bold'  => true,
                 'color' => ['rgb' => 'FFFFFF'],
@@ -143,5 +145,15 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
         ];
 
         return $statuses[$status] ?? (string) $status;
+    }
+
+    protected function getTransactionTypeLabel($type): string
+    {
+        $types = [
+            Contract::TYPE_EXPENSE => 'Расход',
+            Contract::TYPE_INCOME  => 'Приход',
+        ];
+
+        return $types[$type] ?? '';
     }
 }
