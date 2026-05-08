@@ -262,6 +262,7 @@ return [
         'role' => 'Rol',
         'download' => 'Yuklab olish',
         'export_pdf' => 'PDF eksport',
+        'contact' => 'Kontakt',
         'permission' => 'Ruxsatnoma',
         'guard_name' => 'Qo\'riqchi',
         'profile' => 'Profil',

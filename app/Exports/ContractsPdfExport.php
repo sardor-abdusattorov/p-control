@@ -42,7 +42,7 @@ class ContractsPdfExport
     protected function buildQuery(): Builder
     {
         $query = Contract::query()
-            ->with(['user', 'currency', 'project.category']);
+            ->with(['user', 'currency', 'project.category', 'application', 'contact']);
 
         if (!$this->user->can('view all contracts')) {
             $query->where('user_id', $this->user->id);

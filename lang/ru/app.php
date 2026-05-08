@@ -269,6 +269,7 @@ return [
         'role' => 'Роль',
         'download' => 'Скачать',
         'export_pdf' => 'Экспорт PDF',
+        'contact' => 'Контакт',
         'permission' => 'Разрешение',
         'guard_name' => 'Страж',
         'profile' => 'Профиль',

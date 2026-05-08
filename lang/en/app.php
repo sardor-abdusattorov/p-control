@@ -292,6 +292,7 @@ return [
         'role' => 'Role',
         'download' => 'Download',
         'export_pdf' => 'Export PDF',
+        'contact' => 'Contact',
         'permission' => 'Permission',
         'guard_name' => 'Guard',
         'profile' => 'Profile',
