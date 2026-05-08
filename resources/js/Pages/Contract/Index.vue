@@ -45,7 +45,7 @@
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
-                    <div class="flex space-x-2">
+                    <div class="flex space-x-2" v-if="can(['export contract'])">
                         <Button
                             type="button"
                             icon="pi pi-file-excel"

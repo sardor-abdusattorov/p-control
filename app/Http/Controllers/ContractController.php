@@ -81,7 +81,7 @@ class ContractController extends Controller
      */
     public function exportExcel(Request $request)
     {
-        $this->authorize('viewAny', Contract::class);
+        $this->authorize('export', Contract::class);
 
         $year = $request->filled('year') ? (int) $request->input('year') : null;
         $status = $request->filled('status') ? (int) $request->input('status') : null;
