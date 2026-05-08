@@ -18,6 +18,8 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
         protected User $user,
         protected ?int $year = null,
         protected ?int $status = null,
+        protected ?int $transactionType = null,
+        protected ?int $userId = null,
     ) {
     }
 
@@ -28,10 +30,16 @@ class ContractsExport implements FromCollection, WithHeadings, WithColumnWidths,
 
         if (!$this->user->can('view all contracts')) {
             $query->where('user_id', $this->user->id);
+        } elseif ($this->userId !== null) {
+            $query->where('user_id', $this->userId);
         }
 
         if ($this->status !== null) {
             $query->where('status', $this->status);
+        }
+
+        if ($this->transactionType !== null) {
+            $query->where('transaction_type', $this->transactionType);
         }
 
         if ($this->year !== null) {
