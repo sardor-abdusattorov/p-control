@@ -90,6 +90,35 @@
                                         appendTo="self"
                                     />
                                 </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">
+                                        {{ lang().label.transaction_type }}
+                                    </label>
+                                    <Select
+                                        showClear
+                                        v-model="exportFilters.transaction_type"
+                                        :options="props.transactionTypes || []"
+                                        optionLabel="label"
+                                        optionValue="id"
+                                        :placeholder="lang().label.transaction_type"
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div v-if="can(['view all contracts'])">
+                                    <label class="block text-sm mb-1 dark:text-slate-200">
+                                        {{ lang().label.user_id }}
+                                    </label>
+                                    <Select
+                                        showClear
+                                        filter
+                                        v-model="exportFilters.user_id"
+                                        :options="props.users"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_user"
+                                        class="w-full"
+                                    />
+                                </div>
                                 <div class="flex justify-end gap-2 pt-1">
                                     <Button
                                         type="button"
@@ -501,6 +530,7 @@ const { _, debounce, pickBy } = pkg;
 const props = defineProps({
     title: String,
     statuses: Object,
+    transactionTypes: Array,
     currency: Object,
     users: Object,
     filters: Object,
@@ -603,6 +633,8 @@ const excelExportPanel = ref();
 const exportFilters = reactive({
     year: null,
     status: null,
+    transaction_type: null,
+    user_id: null,
 });
 
 const toggleExcelExport = (event) => {
@@ -617,6 +649,8 @@ const downloadExcel = () => {
     const params = new URLSearchParams();
     if (exportFilters.year) params.append('year', exportFilters.year);
     if (exportFilters.status) params.append('status', exportFilters.status);
+    if (exportFilters.transaction_type) params.append('transaction_type', exportFilters.transaction_type);
+    if (exportFilters.user_id) params.append('user_id', exportFilters.user_id);
 
     const query = params.toString();
     const url = route('contract.export-excel') + (query ? '?' + query : '');

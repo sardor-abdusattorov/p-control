@@ -64,6 +64,7 @@ class ContractController extends Controller
             'perPage' => (int)$perPage,
             'contracts' => $contracts,
             'statuses' => $statuses,
+            'transactionTypes' => Contract::getTransactionTypes(),
             'currency' => $currency,
             'users' => $users,
             'approvals' => $approvals,
@@ -85,6 +86,8 @@ class ContractController extends Controller
 
         $year = $request->filled('year') ? (int) $request->input('year') : null;
         $status = $request->filled('status') ? (int) $request->input('status') : null;
+        $transactionType = $request->filled('transaction_type') ? (int) $request->input('transaction_type') : null;
+        $userId = $request->filled('user_id') ? (int) $request->input('user_id') : null;
 
         $filenameParts = ['contracts'];
         if ($year !== null) {
@@ -93,9 +96,18 @@ class ContractController extends Controller
         if ($status !== null) {
             $filenameParts[] = 'status-' . $status;
         }
+        if ($transactionType !== null) {
+            $filenameParts[] = 'type-' . $transactionType;
+        }
+        if ($userId !== null) {
+            $filenameParts[] = 'user-' . $userId;
+        }
         $filename = implode('_', $filenameParts) . '.xlsx';
 
-        return Excel::download(new ContractsExport(auth()->user(), $year, $status), $filename);
+        return Excel::download(
+            new ContractsExport(auth()->user(), $year, $status, $transactionType, $userId),
+            $filename
+        );
     }
 
     /**
