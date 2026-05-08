@@ -291,6 +291,7 @@ return [
         'access' => 'Access',
         'role' => 'Role',
         'download' => 'Download',
+        'export_pdf' => 'Export PDF',
         'permission' => 'Permission',
         'guard_name' => 'Guard',
         'profile' => 'Profile',

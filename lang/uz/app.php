@@ -261,6 +261,7 @@ return [
         'access' => 'Kirish huquqi',
         'role' => 'Rol',
         'download' => 'Yuklab olish',
+        'export_pdf' => 'PDF eksport',
         'permission' => 'Ruxsatnoma',
         'guard_name' => 'Qo\'riqchi',
         'profile' => 'Profil',

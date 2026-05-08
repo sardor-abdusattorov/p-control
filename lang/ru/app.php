@@ -268,6 +268,7 @@ return [
         'access' => 'Доступ',
         'role' => 'Роль',
         'download' => 'Скачать',
+        'export_pdf' => 'Экспорт PDF',
         'permission' => 'Разрешение',
         'guard_name' => 'Страж',
         'profile' => 'Профиль',

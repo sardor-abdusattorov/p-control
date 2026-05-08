@@ -45,6 +45,62 @@
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
+                    <div class="flex space-x-2">
+                        <Button
+                            type="button"
+                            icon="pi pi-file-pdf"
+                            severity="secondary"
+                            :label="lang().label.export_pdf || 'Экспорт PDF'"
+                            @click="togglePdfExport"
+                        />
+                        <Popover ref="pdfExportPanel" :pt="{ root: { style: { minWidth: '320px' } } }">
+                            <div class="space-y-3 p-1">
+                                <div class="text-base font-semibold dark:text-white">
+                                    {{ lang().label.export_pdf || 'Экспорт PDF' }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">
+                                        {{ lang().label.year }}
+                                    </label>
+                                    <Select
+                                        showClear
+                                        v-model="exportFilters.year"
+                                        :options="props.availableYears || []"
+                                        :placeholder="lang().placeholder.select_year"
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">
+                                        {{ lang().label.status }}
+                                    </label>
+                                    <Select
+                                        showClear
+                                        v-model="exportFilters.status"
+                                        :options="props.statuses"
+                                        optionLabel="label"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_status"
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div class="flex justify-end gap-2 pt-1">
+                                    <Button
+                                        type="button"
+                                        severity="secondary"
+                                        :label="lang().tooltip.cancel || 'Отмена'"
+                                        @click="closePdfExport"
+                                    />
+                                    <Button
+                                        type="button"
+                                        icon="pi pi-download"
+                                        :label="lang().label.download"
+                                        @click="downloadPdf"
+                                    />
+                                </div>
+                            </div>
+                        </Popover>
+                    </div>
                 </div>
                 <div class="overflow-x-auto scrollbar-table">
                     <table class="w-full select-width">
@@ -335,6 +391,7 @@ import Select from "primevue/select";
 import SendApproval from "@/Pages/Contract/SendApproval.vue";
 import Menu from "primevue/menu";
 import Button from "primevue/button";
+import Popover from "primevue/popover";
 import ApprovalHistory from "@/Pages/Contract/ApprovalHistory.vue";
 
 const menu = ref();
@@ -445,6 +502,7 @@ const props = defineProps({
     approvals: Object,
     breadcrumbs: Object,
     perPage: Number,
+    availableYears: Array,
 });
 const data = reactive({
     params: {
@@ -533,6 +591,31 @@ const formatNumber = (amount) => {
     }).format(amount);
 
     return formattedAmount;
+};
+
+const pdfExportPanel = ref();
+const exportFilters = reactive({
+    year: null,
+    status: null,
+});
+
+const togglePdfExport = (event) => {
+    pdfExportPanel.value.toggle(event);
+};
+
+const closePdfExport = () => {
+    pdfExportPanel.value.hide();
+};
+
+const downloadPdf = () => {
+    const params = new URLSearchParams();
+    if (exportFilters.year) params.append('year', exportFilters.year);
+    if (exportFilters.status) params.append('status', exportFilters.status);
+
+    const query = params.toString();
+    const url = route('contract.export-pdf') + (query ? '?' + query : '');
+    window.open(url, '_blank');
+    closePdfExport();
 };
 
 const historyVisible = ref(false);

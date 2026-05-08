@@ -19,6 +19,7 @@ use App\Models\Project;
 use App\Models\ProjectCategory;
 use App\Models\Recipient;
 use App\Models\User;
+use App\Exports\ContractsPdfExport;
 use App\Repositories\ContractRepository;
 use App\Services\Contract\ContractApprovalService;
 use App\Services\Contract\ContractService;
@@ -65,8 +66,35 @@ class ContractController extends Controller
             'currency' => $currency,
             'users' => $users,
             'approvals' => $approvals,
+            'availableYears' => ProjectCategory::query()
+                ->whereNotNull('year')
+                ->distinct()
+                ->orderBy('year', 'desc')
+                ->pluck('year'),
             'breadcrumbs' => [['label' => __('app.label.contracts'), 'href' => route('contract.index')]],
         ]);
+    }
+
+    /**
+     * Export contracts to PDF filtered by year and status.
+     */
+    public function exportPdf(Request $request)
+    {
+        $this->authorize('viewAny', Contract::class);
+
+        $year = $request->filled('year') ? (int) $request->input('year') : null;
+        $status = $request->filled('status') ? (int) $request->input('status') : null;
+
+        $filenameParts = ['contracts'];
+        if ($year !== null) {
+            $filenameParts[] = $year;
+        }
+        if ($status !== null) {
+            $filenameParts[] = 'status-' . $status;
+        }
+        $filename = implode('_', $filenameParts) . '.pdf';
+
+        return (new ContractsPdfExport(auth()->user(), $year, $status))->download($filename);
     }
 
     /**
