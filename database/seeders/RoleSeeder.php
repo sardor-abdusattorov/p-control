@@ -49,6 +49,7 @@ class RoleSeeder extends Seeder
             'delete contract',
             'view contract',
             'view all contracts',
+            'export contract',
 
             'create contact',
             'read contact',
@@ -77,6 +78,7 @@ class RoleSeeder extends Seeder
             'create contract',
             'update contract',
             'view contract',
+            'export contract',
 
             'create contact',
             'read contact',

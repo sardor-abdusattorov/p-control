@@ -111,6 +111,14 @@ class ContractPolicy
     }
 
     /**
+     * Determine if the user can export contracts.
+     */
+    public function export(User $user): bool
+    {
+        return $user->can('export contract');
+    }
+
+    /**
      * Determine if the user can upload scan files.
      * Only the owner or superadmin can upload scans.
      */
