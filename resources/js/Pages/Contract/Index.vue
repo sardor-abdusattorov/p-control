@@ -102,6 +102,21 @@
                                         class="w-full"
                                     />
                                 </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">
+                                        {{ lang().label.currency }}
+                                    </label>
+                                    <MultiSelect
+                                        v-model="exportFilters.currency_id"
+                                        :options="props.currency"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_currency"
+                                        display="chip"
+                                        filter
+                                        class="w-full"
+                                    />
+                                </div>
                                 <div v-if="can(['view all contracts'])">
                                     <label class="block text-sm mb-1 dark:text-slate-200">
                                         {{ lang().label.user_id }}
@@ -634,6 +649,7 @@ const exportFilters = reactive({
     status: [],
     transaction_type: null,
     user_id: [],
+    currency_id: [],
 });
 
 const toggleExcelExport = (event) => {
@@ -649,6 +665,7 @@ const downloadExcel = () => {
     (exportFilters.year || []).forEach(v => params.append('year[]', v));
     (exportFilters.status || []).forEach(v => params.append('status[]', v));
     (exportFilters.user_id || []).forEach(v => params.append('user_id[]', v));
+    (exportFilters.currency_id || []).forEach(v => params.append('currency_id[]', v));
     if (exportFilters.transaction_type) {
         params.append('transaction_type', exportFilters.transaction_type);
     }
