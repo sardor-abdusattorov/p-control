@@ -19,12 +19,13 @@ use App\Models\Project;
 use App\Models\ProjectCategory;
 use App\Models\Recipient;
 use App\Models\User;
-use App\Exports\ContractsPdfExport;
+use App\Exports\ContractsExport;
 use App\Repositories\ContractRepository;
 use App\Services\Contract\ContractApprovalService;
 use App\Services\Contract\ContractService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ContractController extends Controller
 {
@@ -76,9 +77,9 @@ class ContractController extends Controller
     }
 
     /**
-     * Export contracts to PDF filtered by year and status.
+     * Export contracts to Excel filtered by year and status.
      */
-    public function exportPdf(Request $request)
+    public function exportExcel(Request $request)
     {
         $this->authorize('viewAny', Contract::class);
 
@@ -92,9 +93,9 @@ class ContractController extends Controller
         if ($status !== null) {
             $filenameParts[] = 'status-' . $status;
         }
-        $filename = implode('_', $filenameParts) . '.pdf';
+        $filename = implode('_', $filenameParts) . '.xlsx';
 
-        return (new ContractsPdfExport(auth()->user(), $year, $status))->download($filename);
+        return Excel::download(new ContractsExport(auth()->user(), $year, $status), $filename);
     }
 
     /**

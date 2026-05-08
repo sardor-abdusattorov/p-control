@@ -7,7 +7,6 @@
     "require": {
         "php": "^8.2.0",
         "altwaireb/laravel-world": "^1.0",
-        "barryvdh/laravel-dompdf": "^3.1",
         "guzzlehttp/guzzle": "^7.2",
         "inertiajs/inertia-laravel": "^1.0",
         "laravel/framework": "^11.0",

@@ -78,7 +78,7 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
 
     Route::resource('contract', ContractController::class)->except(['update']);
-    Route::get('/contract-export/pdf', [ContractController::class, 'exportPdf'])->name('contract.export-pdf');
+    Route::get('/contract-export/excel', [ContractController::class, 'exportExcel'])->name('contract.export-excel');
     Route::post('/contract/{contract}/submit', [ContractController::class, 'submit'])->name('contract.submit');
     Route::post('/contract/destroy-bulk', [ContractController::class, 'destroyBulk'])->name('contract.destroy-bulk');
     Route::post('/contract/{contract}/remove-approver', [ContractController::class, 'removeApprover'])->name('contract.remove-approver');

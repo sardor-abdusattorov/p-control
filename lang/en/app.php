@@ -291,7 +291,7 @@ return [
         'access' => 'Access',
         'role' => 'Role',
         'download' => 'Download',
-        'export_pdf' => 'Export PDF',
+        'export_excel' => 'Export Excel',
         'contact' => 'Contact',
         'permission' => 'Permission',
         'guard_name' => 'Guard',

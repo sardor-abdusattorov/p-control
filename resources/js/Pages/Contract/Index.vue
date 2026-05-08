@@ -48,15 +48,15 @@
                     <div class="flex space-x-2">
                         <Button
                             type="button"
-                            icon="pi pi-file-pdf"
+                            icon="pi pi-file-excel"
                             severity="secondary"
-                            :label="lang().label.export_pdf || 'Экспорт PDF'"
-                            @click="togglePdfExport"
+                            :label="lang().label.export_excel || 'Экспорт Excel'"
+                            @click="toggleExcelExport"
                         />
-                        <Popover ref="pdfExportPanel" :pt="{ root: { style: { minWidth: '320px' } } }">
+                        <Popover ref="excelExportPanel" :pt="{ root: { style: { minWidth: '320px' } } }">
                             <div class="space-y-3 p-1">
                                 <div class="text-base font-semibold dark:text-white">
-                                    {{ lang().label.export_pdf || 'Экспорт PDF' }}
+                                    {{ lang().label.export_excel || 'Экспорт Excel' }}
                                 </div>
                                 <div>
                                     <label class="block text-sm mb-1 dark:text-slate-200">
@@ -89,13 +89,13 @@
                                         type="button"
                                         severity="secondary"
                                         :label="lang().tooltip.cancel || 'Отмена'"
-                                        @click="closePdfExport"
+                                        @click="closeExcelExport"
                                     />
                                     <Button
                                         type="button"
                                         icon="pi pi-download"
                                         :label="lang().label.download"
-                                        @click="downloadPdf"
+                                        @click="downloadExcel"
                                     />
                                 </div>
                             </div>
@@ -593,29 +593,29 @@ const formatNumber = (amount) => {
     return formattedAmount;
 };
 
-const pdfExportPanel = ref();
+const excelExportPanel = ref();
 const exportFilters = reactive({
     year: null,
     status: null,
 });
 
-const togglePdfExport = (event) => {
-    pdfExportPanel.value.toggle(event);
+const toggleExcelExport = (event) => {
+    excelExportPanel.value.toggle(event);
 };
 
-const closePdfExport = () => {
-    pdfExportPanel.value.hide();
+const closeExcelExport = () => {
+    excelExportPanel.value.hide();
 };
 
-const downloadPdf = () => {
+const downloadExcel = () => {
     const params = new URLSearchParams();
     if (exportFilters.year) params.append('year', exportFilters.year);
     if (exportFilters.status) params.append('status', exportFilters.status);
 
     const query = params.toString();
-    const url = route('contract.export-pdf') + (query ? '?' + query : '');
-    window.open(url, '_blank');
-    closePdfExport();
+    const url = route('contract.export-excel') + (query ? '?' + query : '');
+    window.location.href = url;
+    closeExcelExport();
 };
 
 const historyVisible = ref(false);

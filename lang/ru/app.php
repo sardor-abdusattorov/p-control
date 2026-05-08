@@ -268,7 +268,7 @@ return [
         'access' => 'Доступ',
         'role' => 'Роль',
         'download' => 'Скачать',
-        'export_pdf' => 'Экспорт PDF',
+        'export_excel' => 'Экспорт Excel',
         'contact' => 'Контакт',
         'permission' => 'Разрешение',
         'guard_name' => 'Страж',
