@@ -52,89 +52,91 @@
                         <Popover
                             ref="excelExportPanel"
                             :dismissable="false"
-                            :pt="{ root: { style: { width: '360px' } } }"
+                            :pt="{ root: { style: { width: '600px' } } }"
                         >
                             <div class="space-y-3 p-1">
                                 <div class="text-base font-semibold dark:text-white">
                                     {{ lang().label.export_excel || 'Экспорт Excel' }}
                                 </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.firstname }}</label>
-                                    <InputText v-model="exportFilters.firstname" :placeholder="lang().label.firstname" class="w-full" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.lastname }}</label>
-                                    <InputText v-model="exportFilters.lastname" :placeholder="lang().label.lastname" class="w-full" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.company }}</label>
-                                    <InputText v-model="exportFilters.company" :placeholder="lang().label.company" class="w-full" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.email }}</label>
-                                    <InputText v-model="exportFilters.email" :placeholder="lang().label.email" class="w-full" />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.category }}</label>
-                                    <MultiSelect
-                                        v-model="exportFilters.category_id"
-                                        :options="props.categories"
-                                        optionLabel="title"
-                                        optionValue="id"
-                                        :placeholder="lang().placeholder.select_category"
-                                        display="chip"
-                                        filter
-                                        class="w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.subcategory }}</label>
-                                    <MultiSelect
-                                        v-model="exportFilters.subcategory_id"
-                                        :options="props.subCategories"
-                                        optionLabel="title"
-                                        optionValue="id"
-                                        :placeholder="lang().label.select_subcategory"
-                                        display="chip"
-                                        filter
-                                        class="w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.country }}</label>
-                                    <MultiSelect
-                                        v-model="exportFilters.country"
-                                        :options="props.countries"
-                                        optionLabel="name"
-                                        optionValue="id"
-                                        :placeholder="lang().placeholder.select_country"
-                                        display="chip"
-                                        filter
-                                        class="w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.city }}</label>
-                                    <MultiSelect
-                                        v-model="exportFilters.city"
-                                        :options="props.cities"
-                                        :placeholder="lang().label.city"
-                                        display="chip"
-                                        filter
-                                        class="w-full"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.status }}</label>
-                                    <Select
-                                        showClear
-                                        v-model="exportFilters.status"
-                                        :options="[{id:1,label:lang().label.active},{id:0,label:lang().label.inactive}]"
-                                        optionLabel="label"
-                                        optionValue="id"
-                                        :placeholder="lang().placeholder.select_status"
-                                        class="w-full"
-                                    />
+                                <div class="grid grid-cols-2 gap-x-3 gap-y-3">
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.firstname }}</label>
+                                        <InputText v-model="exportFilters.firstname" :placeholder="lang().label.firstname" class="w-full" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.lastname }}</label>
+                                        <InputText v-model="exportFilters.lastname" :placeholder="lang().label.lastname" class="w-full" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.company }}</label>
+                                        <InputText v-model="exportFilters.company" :placeholder="lang().label.company" class="w-full" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.email }}</label>
+                                        <InputText v-model="exportFilters.email" :placeholder="lang().label.email" class="w-full" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.category }}</label>
+                                        <MultiSelect
+                                            v-model="exportFilters.category_id"
+                                            :options="props.categories"
+                                            optionLabel="title"
+                                            optionValue="id"
+                                            :placeholder="lang().placeholder.select_category"
+                                            display="chip"
+                                            filter
+                                            class="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.subcategory }}</label>
+                                        <MultiSelect
+                                            v-model="exportFilters.subcategory_id"
+                                            :options="props.subCategories"
+                                            optionLabel="title"
+                                            optionValue="id"
+                                            :placeholder="lang().label.select_subcategory"
+                                            display="chip"
+                                            filter
+                                            class="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.country }}</label>
+                                        <MultiSelect
+                                            v-model="exportFilters.country"
+                                            :options="props.countries"
+                                            optionLabel="name"
+                                            optionValue="id"
+                                            :placeholder="lang().placeholder.select_country"
+                                            display="chip"
+                                            filter
+                                            class="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.city }}</label>
+                                        <MultiSelect
+                                            v-model="exportFilters.city"
+                                            :options="props.cities"
+                                            :placeholder="lang().label.city"
+                                            display="chip"
+                                            filter
+                                            class="w-full"
+                                        />
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.status }}</label>
+                                        <Select
+                                            showClear
+                                            v-model="exportFilters.status"
+                                            :options="[{id:1,label:lang().label.active},{id:0,label:lang().label.inactive}]"
+                                            optionLabel="label"
+                                            optionValue="id"
+                                            :placeholder="lang().placeholder.select_status"
+                                            class="w-full"
+                                        />
+                                    </div>
                                 </div>
                                 <div class="flex justify-end gap-2 pt-1">
                                     <Button type="button" severity="secondary" :label="lang().tooltip.cancel || 'Отмена'" @click="closeExcelExport" />

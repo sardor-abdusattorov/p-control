@@ -69,6 +69,7 @@ class ContactsExport implements FromCollection, WithHeadings, WithColumnWidths, 
         }
 
         return $query->orderBy('lastname')->orderBy('firstname')->get()->map(function (Contact $c) {
+            $country = $c->getRelationValue('country');
             return [
                 'Prefix'        => $c->prefix,
                 'Имя'           => $c->firstname,
@@ -82,7 +83,7 @@ class ContactsExport implements FromCollection, WithHeadings, WithColumnWidths, 
                 'Адрес 2'       => $c->address2,
                 'P.O. Box'      => $c->post_box,
                 'Индекс'        => $c->zip_code,
-                'Страна'        => $c->country?->name,
+                'Страна'        => $country?->name,
                 'Город'         => $c->city,
                 'Язык'          => $c->language,
                 'Категория'     => $c->category?->title,
