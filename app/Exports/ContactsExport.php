@@ -22,7 +22,9 @@ class ContactsExport implements FromCollection, WithHeadings, WithColumnWidths, 
         protected ?string $company = null,
         protected ?string $email = null,
         protected array $categoryIds = [],
+        protected array $subcategoryIds = [],
         protected array $countryIds = [],
+        protected array $cities = [],
         protected array $ownerIds = [],
         protected ?int $status = null,
     ) {
@@ -53,8 +55,14 @@ class ContactsExport implements FromCollection, WithHeadings, WithColumnWidths, 
         if (!empty($this->categoryIds)) {
             $query->whereIn('category_id', $this->categoryIds);
         }
+        if (!empty($this->subcategoryIds)) {
+            $query->whereIn('subcategory_id', $this->subcategoryIds);
+        }
         if (!empty($this->countryIds)) {
             $query->whereIn('country', $this->countryIds);
+        }
+        if (!empty($this->cities)) {
+            $query->whereIn('city', $this->cities);
         }
         if ($this->status !== null) {
             $query->where('status', $this->status);

@@ -88,6 +88,19 @@
                                     />
                                 </div>
                                 <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.subcategory }}</label>
+                                    <MultiSelect
+                                        v-model="exportFilters.subcategory_id"
+                                        :options="props.subCategories"
+                                        optionLabel="title"
+                                        optionValue="id"
+                                        :placeholder="lang().label.select_subcategory"
+                                        display="chip"
+                                        filter
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div>
                                     <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.country }}</label>
                                     <MultiSelect
                                         v-model="exportFilters.country"
@@ -95,6 +108,17 @@
                                         optionLabel="name"
                                         optionValue="id"
                                         :placeholder="lang().placeholder.select_country"
+                                        display="chip"
+                                        filter
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.city }}</label>
+                                    <MultiSelect
+                                        v-model="exportFilters.city"
+                                        :options="props.cities"
+                                        :placeholder="lang().label.city"
                                         display="chip"
                                         filter
                                         class="w-full"
@@ -386,7 +410,9 @@ const exportFilters = reactive({
     company: '',
     email: '',
     category_id: [],
+    subcategory_id: [],
     country: [],
+    city: [],
     status: null,
 });
 
@@ -399,7 +425,9 @@ const downloadExcel = () => {
         if (exportFilters[k]) params.append(k, exportFilters[k]);
     });
     (exportFilters.category_id || []).forEach((v) => params.append('category_id[]', v));
+    (exportFilters.subcategory_id || []).forEach((v) => params.append('subcategory_id[]', v));
     (exportFilters.country || []).forEach((v) => params.append('country[]', v));
+    (exportFilters.city || []).forEach((v) => params.append('city[]', v));
     if (exportFilters.status !== null && exportFilters.status !== undefined) {
         params.append('status', exportFilters.status);
     }
