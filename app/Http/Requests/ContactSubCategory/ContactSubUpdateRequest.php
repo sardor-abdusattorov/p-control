@@ -16,7 +16,8 @@ class ContactSubUpdateRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'info' => ['nullable', 'string', 'max:255'],
-            'category_id' => 'required|integer|exists:contact_categories,id',
+            'category_ids' => ['required', 'array', 'min:1'],
+            'category_ids.*' => ['integer', 'exists:contact_categories,id'],
             'status' => ['required', 'integer', 'in:0,1'],
         ];
     }

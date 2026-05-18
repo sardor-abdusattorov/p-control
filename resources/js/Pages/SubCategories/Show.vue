@@ -52,7 +52,7 @@
                                 {{ lang().label.contact_categories }}
                             </td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">
-                                {{ category?.title || lang().label.no_available }}
+                                {{ (subCategory.categories?.length ? subCategory.categories.map(c => c.title).join(', ') : category?.title) || lang().label.no_available }}
                             </td>
                         </tr>
 

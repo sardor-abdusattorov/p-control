@@ -34,23 +34,23 @@
                 </div>
 
                 <div class="form-group mb-3">
-                    <InputLabel for="category_id" :value="lang().label.contact_categories" />
-                    <Select
-                        v-model="form.category_id"
+                    <InputLabel for="category_ids" :value="lang().label.contact_categories" />
+                    <MultiSelect
+                        v-model="form.category_ids"
                         :options="categories"
                         optionLabel="title"
                         optionValue="id"
+                        display="chip"
+                        filter
                         :placeholder="lang().label.select_category"
                         class="w-full"
-                        checkmark
-                        :highlightOnSelect="false"
                         :pt="{
                                 option: { class: 'custom-option' },
                                 dropdown: { style: { maxWidth: '300px' } },
                                 overlay: { class: 'parent-wrapper-class' }
                             }"
                     />
-                    <InputError class="mt-2" :message="form.errors.category_id" />
+                    <InputError class="mt-2" :message="form.errors.category_ids" />
                 </div>
 
                 <div class="form-group mb-3">
@@ -98,6 +98,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Select from 'primevue/select';
+import MultiSelect from 'primevue/multiselect';
 import { Head, useForm } from "@inertiajs/vue3";
 import {watchEffect} from "vue";
 import InputText from "primevue/inputtext";
@@ -120,7 +121,7 @@ const emit = defineEmits(["close"]);
 const form = useForm({
     title: "",
     info: "",
-    category_id: '',
+    category_ids: [],
     status: '',
 });
 
@@ -133,7 +134,8 @@ watchEffect(() => {
     form.errors = {};
     form.title = props.subCategory?.title;
     form.info = props.subCategory?.info;
-    form.category_id = props.subCategory?.category_id;
+    form.category_ids = props.subCategory?.categories?.map(c => c.id)
+        ?? (props.subCategory?.category_id ? [props.subCategory.category_id] : []);
     form.status = props.subCategory?.status;
 });
 </script>

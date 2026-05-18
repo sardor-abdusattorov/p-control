@@ -94,13 +94,15 @@ class ContactSubcategoryController extends Controller
         DB::beginTransaction();
 
         try {
+            $categoryIds = (array) $request->input('category_ids', []);
+
             $sub_category = new ContactSubcategory();
             $sub_category->title = $request->title;
             $sub_category->info = $request->info;
-            $sub_category->category_id = $request->category_id;
+            $sub_category->category_id = $categoryIds[0] ?? null;
             $sub_category->status = $request->status;
             $sub_category->save();
-            $sub_category->categories()->syncWithoutDetaching([$request->category_id]);
+            $sub_category->categories()->sync($categoryIds);
 
             DB::commit();
             return redirect()->route('contact-subcategories.index')->with('success', __('app.label.created_successfully', ['name' => $sub_category->title]));
@@ -115,6 +117,7 @@ class ContactSubcategoryController extends Controller
      */
     public function show(ContactSubcategory $contactSubcategory)
     {
+        $contactSubcategory->load('categories');
         $category = ContactCategory::where('id', $contactSubcategory->category_id)->first();
 
         return Inertia::render('SubCategories/Show', [
@@ -134,6 +137,8 @@ class ContactSubcategoryController extends Controller
      */
     public function edit(ContactSubcategory $contactSubcategory)
     {
+        $contactSubcategory->load('categories');
+
         return inertia('SubCategories/Edit', [
             'subCategory' => $contactSubcategory,
             'title'       => __('app.label.contact_subcategories'),
@@ -155,13 +160,15 @@ class ContactSubcategoryController extends Controller
         DB::beginTransaction();
 
         try {
+            $categoryIds = (array) $request->input('category_ids', []);
+
             $contactSubcategory->update([
                 'title' => $request->title,
                 'info' => $request->info,
-                'category_id' => $request->category_id,
-                'status' => $request->status
+                'category_id' => $categoryIds[0] ?? null,
+                'status' => $request->status,
             ]);
-            $contactSubcategory->categories()->syncWithoutDetaching([$request->category_id]);
+            $contactSubcategory->categories()->sync($categoryIds);
 
             DB::commit();
             return redirect()->route('contact-subcategories.index')->with('success', __('app.label.updated_successfully', ['name' => $contactSubcategory->title]));
