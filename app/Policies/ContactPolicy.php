@@ -80,4 +80,12 @@ class ContactPolicy
     {
         return $user->can('delete contact') && $user->hasRole('superadmin');
     }
+
+    /**
+     * Determine if the user can export contacts to Excel.
+     */
+    public function export(User $user): bool
+    {
+        return $user->can('read contact');
+    }
 }

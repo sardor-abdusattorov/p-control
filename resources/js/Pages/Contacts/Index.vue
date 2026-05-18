@@ -41,6 +41,84 @@
                             <TrashIcon class="w-5 h-5" />
                         </DangerButton>
                     </div>
+                    <div class="flex space-x-2">
+                        <Button
+                            type="button"
+                            icon="pi pi-file-excel"
+                            severity="secondary"
+                            :label="lang().label.export_excel || 'Экспорт Excel'"
+                            @click="toggleExcelExport"
+                        />
+                        <Popover
+                            ref="excelExportPanel"
+                            :dismissable="false"
+                            :pt="{ root: { style: { width: '360px' } } }"
+                        >
+                            <div class="space-y-3 p-1">
+                                <div class="text-base font-semibold dark:text-white">
+                                    {{ lang().label.export_excel || 'Экспорт Excel' }}
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.firstname }}</label>
+                                    <InputText v-model="exportFilters.firstname" :placeholder="lang().label.firstname" class="w-full" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.lastname }}</label>
+                                    <InputText v-model="exportFilters.lastname" :placeholder="lang().label.lastname" class="w-full" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.company }}</label>
+                                    <InputText v-model="exportFilters.company" :placeholder="lang().label.company" class="w-full" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.email }}</label>
+                                    <InputText v-model="exportFilters.email" :placeholder="lang().label.email" class="w-full" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.category }}</label>
+                                    <MultiSelect
+                                        v-model="exportFilters.category_id"
+                                        :options="props.categories"
+                                        optionLabel="title"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_category"
+                                        display="chip"
+                                        filter
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.country }}</label>
+                                    <MultiSelect
+                                        v-model="exportFilters.country"
+                                        :options="props.countries"
+                                        optionLabel="name"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_country"
+                                        display="chip"
+                                        filter
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm mb-1 dark:text-slate-200">{{ lang().label.status }}</label>
+                                    <Select
+                                        showClear
+                                        v-model="exportFilters.status"
+                                        :options="[{id:1,label:lang().label.active},{id:0,label:lang().label.inactive}]"
+                                        optionLabel="label"
+                                        optionValue="id"
+                                        :placeholder="lang().placeholder.select_status"
+                                        class="w-full"
+                                    />
+                                </div>
+                                <div class="flex justify-end gap-2 pt-1">
+                                    <Button type="button" severity="secondary" :label="lang().tooltip.cancel || 'Отмена'" @click="closeExcelExport" />
+                                    <Button type="button" icon="pi pi-download" :label="lang().label.download || 'Скачать'" @click="downloadExcel" />
+                                </div>
+                            </div>
+                        </Popover>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto scrollbar-table">
@@ -193,6 +271,8 @@ import DeleteBulk from '@/Pages/Contacts/DeleteBulk.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputText from 'primevue/inputtext';
 import Select from 'primevue/select';
+import MultiSelect from 'primevue/multiselect';
+import Popover from 'primevue/popover';
 import Menu from 'primevue/menu';
 import Button from 'primevue/button';
 import { TrashIcon, ChevronUpDownIcon  } from "@heroicons/vue/24/solid";
@@ -297,5 +377,34 @@ const selectAll = () => {
     } else {
         data.selectedId = [];
     }
+};
+
+const excelExportPanel = ref();
+const exportFilters = reactive({
+    firstname: '',
+    lastname: '',
+    company: '',
+    email: '',
+    category_id: [],
+    country: [],
+    status: null,
+});
+
+const toggleExcelExport = (event) => excelExportPanel.value.toggle(event);
+const closeExcelExport = () => excelExportPanel.value.hide();
+
+const downloadExcel = () => {
+    const params = new URLSearchParams();
+    ['firstname', 'lastname', 'company', 'email'].forEach((k) => {
+        if (exportFilters[k]) params.append(k, exportFilters[k]);
+    });
+    (exportFilters.category_id || []).forEach((v) => params.append('category_id[]', v));
+    (exportFilters.country || []).forEach((v) => params.append('country[]', v));
+    if (exportFilters.status !== null && exportFilters.status !== undefined) {
+        params.append('status', exportFilters.status);
+    }
+    const query = params.toString();
+    window.location.href = route('contacts.export-excel') + (query ? '?' + query : '');
+    closeExcelExport();
 };
 </script>
