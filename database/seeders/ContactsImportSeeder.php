@@ -8,6 +8,7 @@ use App\Models\ContactCategory;
 use App\Models\ContactSubcategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ContactsImportSeeder extends Seeder
@@ -45,6 +46,13 @@ class ContactsImportSeeder extends Seeder
 
         if (!file_exists($file)) {
             $this->command->error("Excel file not found: {$file}");
+            return;
+        }
+
+        $missing = $this->missingSchema();
+        if (!empty($missing)) {
+            $this->command->error('Schema is out of date — missing: ' . implode(', ', $missing));
+            $this->command->error('Run "php artisan migrate" first.');
             return;
         }
 
@@ -170,6 +178,29 @@ class ContactsImportSeeder extends Seeder
         }
 
         $this->command->info("Done. Inserted: {$inserted}, Updated: {$updated}, Skipped: {$skipped}");
+    }
+
+    private function missingSchema(): array
+    {
+        $required = [
+            'contacts' => ['firstname', 'lastname', 'company', 'email', 'category_id', 'subcategory_id', 'country'],
+            'contact_categories' => ['title'],
+            'contact_subcategories' => ['title', 'category_id'],
+        ];
+
+        $missing = [];
+        foreach ($required as $table => $columns) {
+            if (!Schema::hasTable($table)) {
+                $missing[] = "table {$table}";
+                continue;
+            }
+            foreach ($columns as $col) {
+                if (!Schema::hasColumn($table, $col)) {
+                    $missing[] = "{$table}.{$col}";
+                }
+            }
+        }
+        return $missing;
     }
 
     private function str($value): ?string
