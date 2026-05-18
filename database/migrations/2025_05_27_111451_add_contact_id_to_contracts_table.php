@@ -9,21 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+public function up(): void
+{
+    if (!Schema::hasColumn('contracts', 'contact_id')) {
         Schema::table('contracts', function (Blueprint $table) {
-            // Просто добавляем поле без внешнего ключа
-            $table->unsignedInteger('contact_id')->nullable()->after('id');
+            $table->unsignedBigInteger('contact_id')->nullable()->after('id');
         });
     }
+}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('contracts', function (Blueprint $table) {
+public function down(): void
+{
+    Schema::table('contracts', function (Blueprint $table) {
+        if (Schema::hasColumn('contracts', 'contact_id')) {
             $table->dropColumn('contact_id');
-        });
-    }
+        }
+    });
+}
 };
