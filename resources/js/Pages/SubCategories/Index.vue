@@ -171,7 +171,7 @@
                                 {{ subCategory?.info || lang().label.no_available }}
                             </td>
                             <td class="whitespace-pre-wrap py-4 px-2 w-40">
-                                {{ subCategory.category?.title || lang().label.no_available }}
+                                {{ (subCategory.categories?.length ? subCategory.categories.map(c => c.title).join(', ') : subCategory.category?.title) || lang().label.no_available }}
                             </td>
 
                             <td class="whitespace-pre-wrap py-4 px-2 w-32">

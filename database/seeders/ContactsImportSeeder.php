@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\City;
 use App\Models\Contact;
 use App\Models\Country;
 use App\Models\ContactCategory;
@@ -40,7 +39,6 @@ class ContactsImportSeeder extends Seeder
     private array $categoryCache = [];
     private array $subcategoryCache = [];
     private array $countryCache = [];
-    private array $cityCache = [];
 
     public function run(): void
     {
@@ -66,6 +64,9 @@ class ContactsImportSeeder extends Seeder
         if (empty($this->countryCache)) {
             $this->command->warn('Countries table is empty — contacts will be imported without country links.');
         }
+
+        $this->command->info("Consolidating duplicate subcategories...");
+        $this->consolidateDuplicateSubcategories();
 
         $this->command->info("Reading Excel file...");
         $reader = IOFactory::createReaderForFile($file);
@@ -124,7 +125,6 @@ class ContactsImportSeeder extends Seeder
                 $categoryId = $catName ? $this->resolveCategory($catName) : null;
                 $subcategoryId = ($catName && $subName) ? $this->resolveSubcategory($subName, $categoryId) : null;
                 $countryId = $country ? $this->resolveCountry($country) : null;
-                $cityId = ($city && $countryId) ? $this->resolveCity($city, $countryId) : null;
 
                 $attributes = [
                     'prefix'         => $prefix,
@@ -138,7 +138,7 @@ class ContactsImportSeeder extends Seeder
                     'address2'       => $address2,
                     'post_box'       => $postBox,
                     'zip_code'       => $zipCode,
-                    'city'           => $cityId,
+                    'city'           => $city,
                     'country'        => $countryId,
                     'language'       => $language,
                     'email'          => $email,
@@ -222,10 +222,13 @@ class ContactsImportSeeder extends Seeder
             return $this->categoryCache[$key];
         }
 
-        $category = ContactCategory::firstOrCreate(
-            ['title' => $name],
-            ['status' => ContactCategory::STATUS_ACTIVE]
-        );
+        $category = ContactCategory::whereRaw('LOWER(title) = ?', [$key])->first();
+        if (!$category) {
+            $category = ContactCategory::create([
+                'title' => $name,
+                'status' => ContactCategory::STATUS_ACTIVE,
+            ]);
+        }
         return $this->categoryCache[$key] = $category->id;
     }
 
@@ -234,16 +237,60 @@ class ContactsImportSeeder extends Seeder
         if ($categoryId === null) {
             return null;
         }
-        $key = $categoryId . '|' . mb_strtolower($name);
+        $key = mb_strtolower($name);
+
         if (isset($this->subcategoryCache[$key])) {
-            return $this->subcategoryCache[$key];
+            $subId = $this->subcategoryCache[$key];
+        } else {
+            $sub = ContactSubcategory::whereRaw('LOWER(title) = ?', [$key])->first();
+            if (!$sub) {
+                $sub = ContactSubcategory::create([
+                    'title' => $name,
+                    'category_id' => $categoryId,
+                    'status' => ContactSubcategory::STATUS_ACTIVE,
+                ]);
+            }
+            $subId = $this->subcategoryCache[$key] = $sub->id;
         }
 
-        $sub = ContactSubcategory::firstOrCreate(
-            ['title' => $name, 'category_id' => $categoryId],
-            ['status' => ContactSubcategory::STATUS_ACTIVE]
+        DB::table('contact_category_subcategory')->updateOrInsert(
+            ['category_id' => $categoryId, 'subcategory_id' => $subId],
+            []
         );
-        return $this->subcategoryCache[$key] = $sub->id;
+
+        return $subId;
+    }
+
+    private function consolidateDuplicateSubcategories(): void
+    {
+        $rows = DB::table('contact_subcategories')->orderBy('id')->get(['id', 'title']);
+        $grouped = [];
+        foreach ($rows as $r) {
+            $grouped[mb_strtolower((string) $r->title)][] = $r;
+        }
+
+        $merged = 0;
+        foreach ($grouped as $group) {
+            if (count($group) <= 1) {
+                continue;
+            }
+            $canonical = $group[0];
+            $dupIds = array_map(fn($r) => $r->id, array_slice($group, 1));
+
+            Contact::whereIn('subcategory_id', $dupIds)
+                ->update(['subcategory_id' => $canonical->id]);
+
+            DB::table('contact_category_subcategory')
+                ->whereIn('subcategory_id', $dupIds)
+                ->delete();
+
+            ContactSubcategory::whereIn('id', $dupIds)->delete();
+            $merged += count($dupIds);
+        }
+
+        if ($merged > 0) {
+            $this->command->info("  ... merged {$merged} duplicate subcategory rows");
+        }
     }
 
     private function resolveCountry(string $name): ?int
@@ -259,15 +306,4 @@ class ContactsImportSeeder extends Seeder
         return null;
     }
 
-    private function resolveCity(string $name, int $countryId): ?int
-    {
-        $key = $countryId . '|' . mb_strtolower($name);
-        if (array_key_exists($key, $this->cityCache)) {
-            return $this->cityCache[$key];
-        }
-        $id = City::where('country_id', $countryId)
-            ->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])
-            ->value('id');
-        return $this->cityCache[$key] = $id ? (int) $id : null;
-    }
 }

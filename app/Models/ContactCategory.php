@@ -22,6 +22,16 @@ class ContactCategory extends Model
 
     public function subcategories()
     {
+        return $this->belongsToMany(
+            ContactSubcategory::class,
+            'contact_category_subcategory',
+            'category_id',
+            'subcategory_id'
+        );
+    }
+
+    public function primarySubcategories()
+    {
         return $this->hasMany(ContactSubcategory::class, 'category_id');
     }
 

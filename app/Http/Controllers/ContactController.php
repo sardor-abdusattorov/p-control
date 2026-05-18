@@ -145,7 +145,10 @@ class ContactController extends Controller
         }
 
         return ContactSubcategory::query()
-            ->where('category_id', $categoryId)
+            ->where(function ($q) use ($categoryId) {
+                $q->where('category_id', $categoryId)
+                    ->orWhereHas('categories', fn($q2) => $q2->where('contact_categories.id', $categoryId));
+            })
             ->orderBy('title')
             ->get(['id', 'title']);
     }

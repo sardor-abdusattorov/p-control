@@ -24,7 +24,7 @@ class ContactSubcategoryController extends Controller
      */
     public function index(ContactSubIndexRequest $request)
     {
-        $query = ContactSubcategory::with('category');
+        $query = ContactSubcategory::with('categories');
 
         // 🔍 Фильтрация
         if ($request->filled('title')) {
@@ -36,7 +36,10 @@ class ContactSubcategoryController extends Controller
         }
 
         if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->where(function ($q) use ($request) {
+                $q->where('category_id', $request->category_id)
+                    ->orWhereHas('categories', fn($q2) => $q2->where('contact_categories.id', $request->category_id));
+            });
         }
 
         if ($request->filled('status')) {
@@ -97,6 +100,7 @@ class ContactSubcategoryController extends Controller
             $sub_category->category_id = $request->category_id;
             $sub_category->status = $request->status;
             $sub_category->save();
+            $sub_category->categories()->syncWithoutDetaching([$request->category_id]);
 
             DB::commit();
             return redirect()->route('contact-subcategories.index')->with('success', __('app.label.created_successfully', ['name' => $sub_category->title]));
@@ -157,6 +161,7 @@ class ContactSubcategoryController extends Controller
                 'category_id' => $request->category_id,
                 'status' => $request->status
             ]);
+            $contactSubcategory->categories()->syncWithoutDetaching([$request->category_id]);
 
             DB::commit();
             return redirect()->route('contact-subcategories.index')->with('success', __('app.label.updated_successfully', ['name' => $contactSubcategory->title]));

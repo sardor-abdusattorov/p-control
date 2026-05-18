@@ -26,6 +26,16 @@ class ContactSubcategory extends Model
         return $this->belongsTo(ContactCategory::class, 'category_id');
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(
+            ContactCategory::class,
+            'contact_category_subcategory',
+            'subcategory_id',
+            'category_id'
+        );
+    }
+
     public function getCreatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['created_at']));
     }
