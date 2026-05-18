@@ -51,9 +51,21 @@
                                 <Checkbox v-model:checked="data.multipleSelect" @change="selectAll" />
                             </th>
                             <th class="px-2 py-4 w-10">#</th>
-                            <th class="px-2 py-4 cursor-pointer" @click="order('title')">
+                            <th class="px-2 py-4 cursor-pointer" @click="order('firstname')">
                                 <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.title }}</span>
+                                    <span>{{ lang().label.firstname }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer" @click="order('lastname')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.lastname }}</span>
+                                    <ChevronUpDownIcon class="w-4 h-4" />
+                                </div>
+                            </th>
+                            <th class="px-2 py-4 cursor-pointer" @click="order('company')">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ lang().label.company }}</span>
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
@@ -75,19 +87,19 @@
                                     <ChevronUpDownIcon class="w-4 h-4" />
                                 </div>
                             </th>
-                            <th class="px-2 py-4 cursor-pointer" @click="order('owner_id')">
-                                <div class="flex justify-between items-center">
-                                    <span>{{ lang().label.user_id }}</span>
-                                    <ChevronUpDownIcon class="w-4 h-4" />
-                                </div>
-                            </th>
                             <th class="px-2 py-4 text-center">{{ lang().label.actions }}</th>
                         </tr>
 
                         <tr class="dark:bg-slate-900/50 text-left">
                             <th class="px-2 py-4" colspan="2"></th>
                             <th class="px-2 py-4">
-                                <InputText v-model="data.params.title" :placeholder="lang().label.title" class="w-full" />
+                                <InputText v-model="data.params.firstname" :placeholder="lang().label.firstname" class="w-full" />
+                            </th>
+                            <th class="px-2 py-4">
+                                <InputText v-model="data.params.lastname" :placeholder="lang().label.lastname" class="w-full" />
+                            </th>
+                            <th class="px-2 py-4">
+                                <InputText v-model="data.params.company" :placeholder="lang().label.company" class="w-full" />
                             </th>
                             <th class="px-2 py-4">
                                 <InputText v-model="data.params.email" :placeholder="lang().label.email" class="w-full" />
@@ -130,25 +142,6 @@
                             }"
                                 />
                             </th>
-                            <th class="px-2 py-4">
-                                <Select
-                                    showClear
-                                    v-model="data.params.owner_id"
-                                    :options="props.users"
-                                    optionLabel="name"
-                                    optionValue="id"
-                                    filter
-                                    checkmark
-                                    :highlightOnSelect="false"
-                                    :placeholder="lang().placeholder.select_user"
-                                    class="w-full"
-                                    :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '300px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
-                                />
-                            </th>
                             <th class="px-2 py-4"></th>
                         </tr>
                         </thead>
@@ -160,13 +153,14 @@
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ (contacts.current_page - 1) * contacts.per_page + index + 1 }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 <Link :href="route('contacts.show', { contact: contact.id })" class="text-blue-500 hover:underline">
-                                    {{ contact.title || lang().label.no_available }}
+                                    {{ contact.firstname || lang().label.no_available }}
                                 </Link>
                             </td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.lastname || lang().label.no_available }}</td>
+                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.company || lang().label.no_available }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.email || lang().label.no_available }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.category?.title || lang().label.no_available }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.country?.name || lang().label.no_available }}</td>
-                            <td class="whitespace-nowrap py-4 px-2 sm:py-3">{{ contact.owner?.name || lang().label.no_available }}</td>
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3  text-center">
                                 <Button icon="pi pi-ellipsis-v" @click="toggleMenu($event, contact)" />
                             </td>
@@ -218,12 +212,12 @@ const lang = () => usePage().props.language;
 
 const data = reactive({
     params: {
-        title: props.filters.title ?? '',
+        firstname: props.filters.firstname ?? '',
+        lastname: props.filters.lastname ?? '',
+        company: props.filters.company ?? '',
         email: props.filters.email ?? '',
         category_id: props.filters.category_id ?? null,
         country: props.filters.country ?? null,
-        city: props.filters.city ?? '',
-        owner_id: props.filters.owner_id ?? null,
         field: props.filters.field ?? '',
         order: props.filters.order ?? 'asc',
         perPage: props.perPage ?? 10,

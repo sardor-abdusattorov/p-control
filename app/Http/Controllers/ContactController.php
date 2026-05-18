@@ -41,8 +41,16 @@ class ContactController extends Controller
             $contacts->where('owner_id', $user->id);
         }
 
-        if ($request->filled('title')) {
-            $contacts->where('title', 'like', '%' . $request->title . '%');
+        if ($request->filled('firstname')) {
+            $contacts->where('firstname', 'like', '%' . $request->firstname . '%');
+        }
+
+        if ($request->filled('lastname')) {
+            $contacts->where('lastname', 'like', '%' . $request->lastname . '%');
+        }
+
+        if ($request->filled('company')) {
+            $contacts->where('company', 'like', '%' . $request->company . '%');
         }
 
         if ($request->filled('email')) {
@@ -57,10 +65,6 @@ class ContactController extends Controller
             $contacts->where('country', $request->country);
         }
 
-        if ($request->filled('owner_id')) {
-            $contacts->where('owner_id', $request->owner_id);
-        }
-
         if ($request->filled('field') && $request->filled('order')) {
             $contacts->orderBy($request->field, $request->order);
         } else {
@@ -71,7 +75,7 @@ class ContactController extends Controller
 
         return Inertia::render('Contacts/Index', [
             'title'        => __('app.label.contacts'),
-            'filters'      => $request->only(['title', 'email', 'category_id', 'country', 'city', 'owner_id', 'field', 'order', 'perPage']),
+            'filters'      => $request->only(['firstname', 'lastname', 'company', 'email', 'category_id', 'country', 'field', 'order', 'perPage']),
             'perPage'      => (int) $perPage,
             'contacts'     => $contacts->paginate($perPage)->withQueryString(),
             'categories' => ContactCategory::where('status', 1)->get(),

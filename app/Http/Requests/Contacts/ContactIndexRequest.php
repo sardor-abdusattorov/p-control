@@ -19,7 +19,7 @@ class ContactIndexRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,email'],
+            'field' => ['in:firstname,lastname,company,email,category_id,country'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
         ];
