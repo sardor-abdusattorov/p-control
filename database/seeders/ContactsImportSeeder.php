@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\City;
 use App\Models\Contact;
 use App\Models\Country;
 use App\Models\ContactCategory;
@@ -39,6 +40,7 @@ class ContactsImportSeeder extends Seeder
     private array $categoryCache = [];
     private array $subcategoryCache = [];
     private array $countryCache = [];
+    private array $cityCache = [];
 
     public function run(): void
     {
@@ -122,6 +124,7 @@ class ContactsImportSeeder extends Seeder
                 $categoryId = $catName ? $this->resolveCategory($catName) : null;
                 $subcategoryId = ($catName && $subName) ? $this->resolveSubcategory($subName, $categoryId) : null;
                 $countryId = $country ? $this->resolveCountry($country) : null;
+                $cityId = ($city && $countryId) ? $this->resolveCity($city, $countryId) : null;
 
                 $attributes = [
                     'prefix'         => $prefix,
@@ -135,7 +138,7 @@ class ContactsImportSeeder extends Seeder
                     'address2'       => $address2,
                     'post_box'       => $postBox,
                     'zip_code'       => $zipCode,
-                    'city'           => $city,
+                    'city'           => $cityId,
                     'country'        => $countryId,
                     'language'       => $language,
                     'email'          => $email,
@@ -254,5 +257,17 @@ class ContactsImportSeeder extends Seeder
             return $this->countryCache[$aliasKey] ?? null;
         }
         return null;
+    }
+
+    private function resolveCity(string $name, int $countryId): ?int
+    {
+        $key = $countryId . '|' . mb_strtolower($name);
+        if (array_key_exists($key, $this->cityCache)) {
+            return $this->cityCache[$key];
+        }
+        $id = City::where('country_id', $countryId)
+            ->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])
+            ->value('id');
+        return $this->cityCache[$key] = $id ? (int) $id : null;
     }
 }
