@@ -113,15 +113,6 @@ class ContactsImportSeeder extends Seeder
                     continue;
                 }
 
-                $emailKey = $email !== null ? mb_strtolower($email) : null;
-                if ($emailKey !== null && isset($seenEmails[$emailKey])) {
-                    $skipped++;
-                    continue;
-                }
-                if ($emailKey !== null) {
-                    $seenEmails[$emailKey] = true;
-                }
-
                 $categoryId = $catName ? $this->resolveCategory($catName) : null;
                 $subcategoryId = ($catName && $subName) ? $this->resolveSubcategory($subName, $categoryId) : null;
                 $countryId = $country ? $this->resolveCountry($country) : null;
@@ -148,13 +139,17 @@ class ContactsImportSeeder extends Seeder
                     'updated_at'     => $now,
                 ];
 
-                if ($email !== null) {
+                $emailKey = $email !== null ? mb_strtolower($email) : null;
+
+                if ($emailKey !== null && !isset($seenEmails[$emailKey])) {
                     $existing = Contact::where('email', $email)->first();
                     if ($existing) {
                         $existing->update($attributes);
+                        $seenEmails[$emailKey] = true;
                         $updated++;
                         continue;
                     }
+                    $seenEmails[$emailKey] = true;
                 }
 
                 $attributes['created_at'] = $now;

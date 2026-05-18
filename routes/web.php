@@ -107,6 +107,7 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::resource('logs', ActivityLogController::class);
 
     Route::resource('contacts', ContactController::class);
+    Route::get('/contacts-export/excel', [ContactController::class, 'exportExcel'])->name('contacts.export-excel');
     Route::post('/contacts/destroy-bulk', [ContactController::class, 'destroyBulk'])->name('contacts.destroy-bulk');
     Route::post('/contacts/cities', [ContactController::class, 'getCities'])->name('contacts.cities');
     Route::post('/contacts/subcategories', [ContactController::class, 'getSubcategories'])->name('contacts.subcategories');

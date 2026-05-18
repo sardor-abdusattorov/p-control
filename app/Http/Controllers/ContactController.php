@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ContactsExport;
 use App\Http\Requests\Contacts\ContactIndexRequest;
 use App\Http\Requests\Contacts\ContactStoreRequest;
 use App\Http\Requests\Contacts\ContactUpdateRequest;
@@ -12,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 use Altwaireb\World\Models\Country;
 use Altwaireb\World\Models\City;
 
@@ -20,9 +22,71 @@ class ContactController extends Controller
     public function __construct()
     {
         $this->middleware('permission:create contact', ['only' => ['create', 'store', 'findByEmail', 'getCities', 'getSubcategories', 'storeModal']]);
-        $this->middleware('permission:read contact', ['only' => ['index', 'show']]);
+        $this->middleware('permission:read contact', ['only' => ['index', 'show', 'exportExcel']]);
         $this->middleware('permission:update contact', ['only' => ['edit', 'update']]);
         $this->middleware('permission:delete contact', ['only' => ['destroy', 'destroyBulk']]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $this->authorize('export', Contact::class);
+
+        $categoryIds    = $this->intArrayFromRequest($request, 'category_id');
+        $subcategoryIds = $this->intArrayFromRequest($request, 'subcategory_id');
+        $countryIds     = $this->intArrayFromRequest($request, 'country');
+        $ownerIds       = $this->intArrayFromRequest($request, 'owner_id');
+        $cities         = $this->stringArrayFromRequest($request, 'city');
+        $status         = $request->filled('status') ? (int) $request->input('status') : null;
+
+        $parts = ['contacts'];
+        if (!empty($categoryIds))    $parts[] = 'cat-' . implode('-', $categoryIds);
+        if (!empty($subcategoryIds)) $parts[] = 'sub-' . implode('-', $subcategoryIds);
+        if (!empty($countryIds))     $parts[] = 'country-' . implode('-', $countryIds);
+        if (!empty($cities))         $parts[] = 'city-' . count($cities);
+        if (!empty($ownerIds))       $parts[] = 'owner-' . implode('-', $ownerIds);
+        if ($status !== null)        $parts[] = 'status-' . $status;
+        $filename = implode('_', $parts) . '.xlsx';
+
+        return Excel::download(
+            new ContactsExport(
+                auth()->user(),
+                $request->input('firstname'),
+                $request->input('lastname'),
+                $request->input('company'),
+                $request->input('email'),
+                $categoryIds,
+                $subcategoryIds,
+                $countryIds,
+                $cities,
+                $ownerIds,
+                $status,
+            ),
+            $filename
+        );
+    }
+
+    protected function intArrayFromRequest(Request $request, string $key): array
+    {
+        $value = $request->input($key);
+        if ($value === null || $value === '') {
+            return [];
+        }
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+        return array_values(array_filter(array_map('intval', (array) $value), fn($v) => $v > 0));
+    }
+
+    protected function stringArrayFromRequest(Request $request, string $key): array
+    {
+        $value = $request->input($key);
+        if ($value === null || $value === '') {
+            return [];
+        }
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+        return array_values(array_filter(array_map(fn($v) => trim((string) $v), (array) $value), fn($v) => $v !== ''));
     }
 
     /**
@@ -78,9 +142,17 @@ class ContactController extends Controller
             'filters'      => $request->only(['firstname', 'lastname', 'company', 'email', 'category_id', 'country', 'field', 'order', 'perPage']),
             'perPage'      => (int) $perPage,
             'contacts'     => $contacts->paginate($perPage)->withQueryString(),
-            'categories' => ContactCategory::where('status', 1)->get(),
-            'countries' => Country::select('id', 'name')->orderBy('name')->get(),
-            'users' => User::where('status', 1)->select('id', 'name')->get(),
+            'categories'   => ContactCategory::where('status', 1)->get(),
+            'subCategories'=> ContactSubcategory::where('status', 1)->orderBy('title')->get(['id', 'title']),
+            'countries'    => Country::select('id', 'name')->orderBy('name')->get(),
+            'cities'       => Contact::query()
+                ->whereNotNull('city')
+                ->where('city', '!=', '')
+                ->distinct()
+                ->orderBy('city')
+                ->pluck('city')
+                ->values(),
+            'users'        => User::where('status', 1)->select('id', 'name')->get(),
             'breadcrumbs'  => [['label' => __('app.label.contacts'), 'href' => route('contacts.index')]],
         ]);
     }
