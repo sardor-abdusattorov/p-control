@@ -89,9 +89,6 @@ class ContactController extends Controller
         return array_values(array_filter(array_map(fn($v) => trim((string) $v), (array) $value), fn($v) => $v !== ''));
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ContactIndexRequest $request)
     {
         $this->authorize('viewAny', Contact::class);
@@ -100,7 +97,6 @@ class ContactController extends Controller
         $contacts = Contact::query()
             ->with(['country', 'owner', 'category']);
 
-        // Access control: non-superadmin users without 'view all contacts' see only their own
         if (!$user->hasRole('superadmin') && !$user->can('view all contacts')) {
             $contacts->where('owner_id', $user->id);
         }
@@ -157,9 +153,6 @@ class ContactController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Contacts/Create', [
@@ -193,7 +186,6 @@ class ContactController extends Controller
         return response()->json($contact);
     }
 
-
     public function getCities(Request $request)
     {
         $countryId = $request->input('country');
@@ -225,9 +217,6 @@ class ContactController extends Controller
             ->get(['id', 'title']);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ContactStoreRequest $request)
     {
         DB::beginTransaction();
@@ -311,9 +300,6 @@ class ContactController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Contact $contact)
     {
         $this->authorize('view', $contact);
@@ -339,9 +325,6 @@ class ContactController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Contact $contact)
     {
         $this->authorize('update', $contact);
@@ -361,9 +344,6 @@ class ContactController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ContactUpdateRequest $request, Contact $contact)
     {
         $this->authorize('update', $contact);
@@ -400,9 +380,6 @@ class ContactController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Contact $contact)
     {
         $this->authorize('delete', $contact);

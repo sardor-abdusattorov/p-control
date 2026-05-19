@@ -169,7 +169,7 @@
                                 <template #content>
                                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                         <div class="flex-1">
-                                            <!-- Header with avatar and order badge -->
+
                                             <div class="flex items-center gap-3 mb-3">
                                                 <div class="relative">
                                                     <img
@@ -188,7 +188,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Status -->
                                             <div class="mb-3">
                                                 <span
                                                     class="inline-block px-3 py-1 rounded-full text-sm font-semibold"
@@ -220,7 +219,6 @@
                                                 </span>
                                             </div>
 
-                                            <!-- Blocking message for current user -->
                                             <Message
                                                 v-if="approval.user_id === authUser.id && block_info?.blocked && approval.approved === 2"
                                                 severity="warn"
@@ -231,7 +229,6 @@
                                                 {{ block_info.message }}
                                             </Message>
 
-                                            <!-- Can approve now indicator -->
                                             <Message
                                                 v-if="approval.user_id === authUser.id && can_approve && approval.approved === 2"
                                                 severity="success"
@@ -448,7 +445,6 @@
                 </div>
             </div>
         </section>
-
 
         <Dialog v-model:visible="showModal" modal :header="lang().label.application_details" class="w-[90vw] sm:w-2/3 md:w-1/2 lg:w-2/3">
             <div class="space-y-2 my-4">
@@ -721,7 +717,6 @@ const activeApprovals = computed(() => {
     return Object.values(uniqueByUser);
 });
 
-
 const userApproval = computed(() =>
     activeApprovals.value.find(a => a.user_id === authUser.id && a.approved === 2)
 );
@@ -743,7 +738,6 @@ const openFileViewer = (file) => {
     data.fileViewerVisible = true;
 };
 
-
 const uniqueApprovals = computed(() => {
     const sorted = [...props.application_approvals].sort(
         (a, b) => new Date(a.updated_at) - new Date(b.updated_at)
@@ -754,6 +748,5 @@ const uniqueApprovals = computed(() => {
     });
     return Object.values(map);
 });
-
 
 </script>

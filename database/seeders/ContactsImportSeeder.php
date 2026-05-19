@@ -300,5 +300,4 @@ class ContactsImportSeeder extends Seeder
         }
         return null;
     }
-
 }

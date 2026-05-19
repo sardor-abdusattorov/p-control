@@ -19,11 +19,6 @@ class User extends Authenticatable implements HasMedia
     const STATUS_ACTIVE = 1;
     const STATUS_DISABLED = 0;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name', 'email', 'password', 'department_id', 'telegram_id', 'position_id', 'status',
     ];
@@ -36,24 +31,12 @@ class User extends Authenticatable implements HasMedia
         ];
     }
 
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
     protected $appends = ['profile_image'];
-
-    /**
-     * The attributes that should be appended to the model's array form.
-     *
-     * @var array<int, string>
-     */
 
     public function getCreatedAtAttribute()
     {
@@ -157,5 +140,4 @@ class User extends Authenticatable implements HasMedia
             return null;
         })->filter()->values();
     }
-
 }

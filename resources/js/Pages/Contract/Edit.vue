@@ -441,7 +441,6 @@ const filteredApplications = computed(() => {
         .filter(group => group.items.length > 0);
 });
 
-
 const onFileChange = (event) => {
     form.files = event.files || [];
 };
@@ -486,7 +485,6 @@ watchEffect(() => {
     form.transaction_type = parseInt(props.contract.transaction_type) || 1;
     form.deadline = props.contract?.deadline ? new Date(props.contract.deadline) : null;
 
-    // Determine year from existing project's category
     if (props.contract.project_id && props.projects) {
         const existingProject = props.projects.find(p => p.id === props.contract.project_id);
         if (existingProject && existingProject.category && existingProject.category.year) {
@@ -515,12 +513,9 @@ const getFileIcon = (fileType) => {
     return 'pi pi-file';
 };
 
-
 watch(() => form.application_type, () => {
     form.application_id = "";
 });
-
-
 
 const formatDate = (dateString) => {
     if (!dateString) return "-";

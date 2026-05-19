@@ -18,7 +18,6 @@ import Select from "primevue/select";
 import EditLink from "@/Components/EditLink.vue";
 import ViewLink from "@/Components/ViewLink.vue";
 
-
 const { _, debounce, pickBy } = pkg;
 const props = defineProps({
     title: String,

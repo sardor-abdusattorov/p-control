@@ -7,34 +7,23 @@ use Illuminate\Validation\Rules\Password;
 
 class UserUpdateRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules()
     {
         return [
             'name'                  => ['required', 'string', 'max:255'],
             'email'                 => 'required|unique:users,email,' . $this->user,
             'password' => [
-                'nullable', // Пароль не обязателен
-                'confirmed', // Если есть, то должно быть подтверждение
-                'min:6', // Минимум 6 символов, если задан
+                'nullable',
+                'confirmed',
+                'min:6',
             ],
             'password_confirmation' => 'sometimes|required_with:password|same:password',
             'role'                  => ['required'],
         ];
     }
-
 }

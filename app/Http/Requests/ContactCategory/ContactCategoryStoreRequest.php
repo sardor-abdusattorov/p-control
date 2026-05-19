@@ -19,5 +19,4 @@ class ContactCategoryStoreRequest extends FormRequest
             'status' => ['required', 'integer', 'in:0,1'],
         ];
     }
-
 }

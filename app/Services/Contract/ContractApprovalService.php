@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class ContractApprovalService
 {
-    /**
-     * Submit contract for approval
-     */
     public function submit(Contract $contract, User $user): void
     {
         if (!$user->can('submit contract')) {
@@ -27,8 +24,6 @@ class ContractApprovalService
         try {
             $contract->update(['status' => Contract::STATUS_IN_PROGRESS]);
 
-            // Activate ALL approvers (make them visible in the list)
-            // But they can only approve when their order comes (checked in canApprove)
             $contract->approvals()
                 ->where('approved', Approvals::STATUS_NEW)
                 ->update([
@@ -39,16 +34,12 @@ class ContractApprovalService
             $this->logActivity('Заявка отправлена на согласование', $contract, [], $user);
 
             DB::commit();
-
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
-    /**
-     * Approve contract by current user
-     */
     public function approve(Contract $contract, User $user, ?string $comment = null): void
     {
         $approval = $this->findUserApproval($contract, $user);
@@ -61,7 +52,6 @@ class ContractApprovalService
             throw new \Exception(__('app.label.already_approved'));
         }
 
-        // Check if user can approve based on order (previous orders must be completed)
         if (!$this->canApprove($contract, $user)) {
             $blockInfo = $this->isBlockedByPreviousOrder($contract, $user);
             throw new \Exception($blockInfo['message'] ?: __('app.approval.blocked_by_previous_order'));
@@ -73,8 +63,6 @@ class ContractApprovalService
             'reason' => $comment,
         ]);
 
-        // All approvers are already PENDING from submit
-        // Next order approvers can now approve (checked in canApprove)
         $this->checkAndUpdateContractStatus($contract);
 
         $this->logActivity('Пользователь подтвердил контракт', $contract, [
@@ -85,9 +73,6 @@ class ContractApprovalService
         ], $user);
     }
 
-    /**
-     * Reject contract by current user
-     */
     public function reject(Contract $contract, User $user, ?string $reason = null): void
     {
         $approval = $this->findUserApproval($contract, $user);
@@ -100,7 +85,6 @@ class ContractApprovalService
             throw new \Exception(__('app.label.already_rejected'));
         }
 
-        // Update current approver
         $approval->update([
             'approved' => Approvals::STATUS_REJECTED,
             'reason' => $reason,
@@ -114,7 +98,6 @@ class ContractApprovalService
             'rejected_at' => now()->format('d.m.Y H:i'),
         ], $user);
 
-        // Update contract status to rejected
         if ($contract->status === Contract::STATUS_IN_PROGRESS) {
             $contract->update(['status' => Contract::STATUS_REJECTED]);
 
@@ -125,7 +108,6 @@ class ContractApprovalService
             ], $user);
         }
 
-        // Auto-reject all other pending approvals
         Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', '!=', $user->id)
@@ -137,9 +119,6 @@ class ContractApprovalService
             ]);
     }
 
-    /**
-     * Update approvers list for contract
-     */
     public function updateApprovers(Contract $contract, array $newUserIds): void
     {
         $newUserIds = collect($newUserIds);
@@ -153,10 +132,8 @@ class ContractApprovalService
         $usersToAdd = $newUserIds->diff($existingApprovals->keys());
         $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
 
-        // Load users with departments to determine approval order
         $users = User::whereIn('id', $usersToAdd)->get()->keyBy('id');
 
-        // Add new approvers
         foreach ($usersToAdd as $userId) {
             $user = $users->get($userId);
             $approvalOrder = $user ? Approvals::getApprovalOrder($user->department_id) : 1;
@@ -172,7 +149,6 @@ class ContractApprovalService
             ]);
         }
 
-        // Remove approvers based on contract status
         $deletableStatuses = match ($contract->status) {
             Contract::STATUS_NEW => [Approvals::STATUS_NEW],
             Contract::STATUS_IN_PROGRESS => [Approvals::STATUS_PENDING],
@@ -188,9 +164,6 @@ class ContractApprovalService
         }
     }
 
-    /**
-     * Remove a specific approver from contract
-     */
     public function removeApprover(Contract $contract, int $userId): void
     {
         $approval = Approvals::valid()
@@ -215,15 +188,8 @@ class ContractApprovalService
         $approval->delete();
     }
 
-    /**
-     * Check if user can approve the contract
-     * User can approve if:
-     * 1. They have PENDING status
-     * 2. All previous approval orders are completed
-     */
     public function canApprove(Contract $contract, User $user): bool
     {
-        // Find user's approval
         $userApproval = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $user->id)
@@ -234,7 +200,6 @@ class ContractApprovalService
             return false;
         }
 
-        // Check if all previous orders are approved
         $previousOrdersIncomplete = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('approval_order', '<', $userApproval->approval_order)
@@ -242,17 +207,11 @@ class ContractApprovalService
             ->where('approved', '!=', Approvals::STATUS_APPROVED)
             ->exists();
 
-        // Can approve only if no previous orders are incomplete
         return !$previousOrdersIncomplete;
     }
 
-    /**
-     * Check if user's approval is blocked by previous order
-     * Returns info about blocking: ['blocked' => bool, 'message' => string]
-     */
     public function isBlockedByPreviousOrder(Contract $contract, User $user): array
     {
-        // Find user's approval
         $userApproval = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('user_id', $user->id)
@@ -263,7 +222,6 @@ class ContractApprovalService
             return ['blocked' => false, 'message' => ''];
         }
 
-        // Check if there are incomplete previous orders
         $incompleteOrders = Approvals::where('approvable_type', Contract::class)
             ->where('approvable_id', $contract->id)
             ->where('approval_order', '<', $userApproval->approval_order)
@@ -276,7 +234,6 @@ class ContractApprovalService
             return ['blocked' => false, 'message' => ''];
         }
 
-        // Build message about who is blocking
         $departments = $incompleteOrders->map(fn($a) => optional(optional($a->user)->department)->name ?? __('app.approval.unknown_department'))
             ->unique()
             ->join(', ');
@@ -287,31 +244,23 @@ class ContractApprovalService
         ];
     }
 
-    /**
-     * Check and update contract status based on approvals
-     */
     protected function checkAndUpdateContractStatus(Contract $contract): void
     {
         $approvals = $contract->approvals()
             ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
             ->get();
 
-        // If any approval is rejected, set status to rejected
         if ($approvals->where('approved', Approvals::STATUS_REJECTED)->isNotEmpty()) {
             $contract->update(['status' => Contract::STATUS_REJECTED]);
             return;
         }
 
-        // If all approvals are approved, set status to approved
         if ($approvals->every(fn($a) => $a->approved === Approvals::STATUS_APPROVED)) {
             $contract->update(['status' => Contract::STATUS_APPROVED]);
             return;
         }
     }
 
-    /**
-     * Find user's approval for the contract
-     */
     protected function findUserApproval(Contract $contract, User $user): ?Approvals
     {
         return Approvals::where('approvable_type', Contract::class)
@@ -321,9 +270,6 @@ class ContractApprovalService
             ->first();
     }
 
-    /**
-     * Log activity
-     */
     protected function logActivity(string $message, Contract $contract, array $properties = [], ?User $user = null): void
     {
         activity('contract')

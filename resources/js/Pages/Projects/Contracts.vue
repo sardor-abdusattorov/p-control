@@ -2,10 +2,10 @@
     <section class="space-y-6">
         <Modal :show="props.show" @close="emit('close')" :maxWidth="'2xl'">
             <div class="p-6 text-slate-900 dark:text-slate-100">
-                <!-- Заголовок -->
+
                 <h2 class="text-lg font-medium">{{ title }}</h2>
                 <div class="my-6 overflow-x-auto">
-                    <!-- Таблица -->
+
                     <table class="table-auto min-w-full text-left">
                         <thead>
                         <tr class="border-b border-gray-300 dark:border-neutral-700">
@@ -27,7 +27,7 @@
                         </tbody>
                     </table>
                 </div>
-                <!-- Кнопки -->
+
                 <div class="mt-6 flex flex-wrap justify-end gap-4">
                     <Link
                         :href="route('projects.related-contracts', { project: project.id })"

@@ -52,7 +52,6 @@ provide("globalUser", authUser);
     </div>
 </template>
 
-
 <style>
 .custom-option{
     white-space: pre-wrap !important;

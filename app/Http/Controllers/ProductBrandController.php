@@ -13,7 +13,6 @@ use Inertia\Inertia;
 
 class ProductBrandController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -49,9 +48,6 @@ class ProductBrandController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('ProductBrand/Create', [
@@ -105,9 +101,6 @@ class ProductBrandController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(ProductBrand $productBrand)
     {
         return inertia('ProductBrand/Edit', [
@@ -144,7 +137,6 @@ class ProductBrandController extends Controller
             return redirect()
                 ->route('product_brands.index')
                 ->with('success', __('app.label.updated_successfully', ['title' => $productBrand->title]));
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -155,9 +147,6 @@ class ProductBrandController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ProductBrand $productBrand)
     {
         DB::beginTransaction();
@@ -176,9 +165,6 @@ class ProductBrandController extends Controller
         }
     }
 
-    /**
-     * Remove multiple resources from storage.
-     */
     public function destroyBulk(Request $request)
     {
         try {
@@ -198,7 +184,4 @@ class ProductBrandController extends Controller
                 ]) . $th->getMessage());
         }
     }
-
-
-
 }

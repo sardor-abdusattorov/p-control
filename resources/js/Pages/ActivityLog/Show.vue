@@ -2,13 +2,12 @@
     <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-            <!-- Заголовок -->
+
             <div class="p-4 sm:p-8">
                 <div class="block-header pb-3 mb-5 border-b border-gray-300 dark:border-neutral-600">
                     <h1 class="text-xl md:text-2xl font-bold">{{ activityLog.log_name }}</h1>
                 </div>
 
-                <!-- Таблица -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>

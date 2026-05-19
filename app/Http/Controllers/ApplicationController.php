@@ -30,9 +30,6 @@ class ApplicationController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ApplicationIndexRequest $request)
     {
         $this->authorize('viewAny', Application::class);
@@ -62,9 +59,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $this->authorize('create', Application::class);
@@ -90,9 +84,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ApplicationStoreRequest $request)
     {
         $this->authorize('create', Application::class);
@@ -106,7 +97,6 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.index')
                 ->with('success', __('app.label.created_successfully', ['name' => $application->title]));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with(
                 'error',
@@ -115,9 +105,6 @@ class ApplicationController extends Controller
         }
     }
 
-    /**
-     * Submit application for approval
-     */
     public function submit(Application $application)
     {
         $this->authorize('submit', $application);
@@ -126,16 +113,12 @@ class ApplicationController extends Controller
             $this->approvalService->submit($application, auth()->user());
 
             return back()->with('success', __('app.label.submitted_successfully'));
-
         } catch (\Throwable $th) {
             return redirect()->back()
                 ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Application $application)
     {
         $this->authorize('view', $application);
@@ -171,9 +154,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Approve application
-     */
     public function confirmApplication(Request $request, Application $application)
     {
         $this->authorize('approve', Application::class);
@@ -183,15 +163,11 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Reject application
-     */
     public function cancelApplication(Request $request, Application $application)
     {
         $this->authorize('approve', Application::class);
@@ -201,15 +177,11 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.cancelled_successfully', ['name' => $application->title]));
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', __('app.label.cancel_error', ['name' => $application->title]));
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Application $application)
     {
         $this->authorize('update', $application);
@@ -248,9 +220,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Show upload scan form
-     */
     public function uploadScan(Application $application)
     {
         $this->authorize('uploadScan', $application);
@@ -276,9 +245,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    /**
-     * Upload scan files
-     */
     public function uploadScanFiles(ScanFileUploadRequest $request, Application $application)
     {
         $this->authorize('uploadScan', $application);
@@ -288,15 +254,11 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.show', $application->id)
                 ->with('success', __('app.label.scans_uploaded_successfully'));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ApplicationUpdateRequest $request, Application $application)
     {
         $this->authorize('update', $application);
@@ -312,15 +274,11 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.index')
                 ->with('success', __('app.label.updated_successfully', ['name' => $application->title]));
-
         } catch (\Throwable $th) {
             return back()->with('error', __('app.label.updated_error', ['name' => $application->title]) . ' ' . $th->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Application $application)
     {
         $this->authorize('delete', $application);
@@ -330,15 +288,11 @@ class ApplicationController extends Controller
 
             return redirect()->route('application.index')
                 ->with('success', __('app.label.deleted_successfully', ['name' => $application->title]));
-
         } catch (\Throwable $th) {
             return back()->with('error', __('app.label.deleted_error', ['name' => $application->title]) . ' ' . $th->getMessage());
         }
     }
 
-    /**
-     * Bulk delete applications
-     */
     public function destroyBulk(Request $request)
     {
         $this->authorize('deleteAny', Application::class);
@@ -349,7 +303,6 @@ class ApplicationController extends Controller
             return back()->with('success', __('app.label.deleted_successfully', [
                 'name' => $count . ' ' . __('app.label.applications')
             ]));
-
         } catch (\Throwable $th) {
             return back()->with('error', __('app.label.deleted_error', [
                     'name' => count($request->id) . ' ' . __('app.label.applications')
@@ -357,9 +310,6 @@ class ApplicationController extends Controller
         }
     }
 
-    /**
-     * Remove approver from application
-     */
     public function removeApprover(ApplicationUserDeleteRequest $request, Application $application)
     {
         $this->authorize('manageApprovers', $application);
@@ -379,15 +329,11 @@ class ApplicationController extends Controller
                 ->with('success', __('app.label.deleted_successfully', [
                     'name' => $user?->name ?? __('app.label.unknown_user')
                 ]));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Update approvers list
-     */
     public function updateApprovers(ApplicationApproversUpdateRequest $request, Application $application)
     {
         $this->authorize('manageApprovers', $application);

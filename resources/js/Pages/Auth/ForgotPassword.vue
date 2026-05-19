@@ -4,7 +4,7 @@ import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Head, useForm } from "@inertiajs/vue3";
-import InputText from "primevue/inputtext"; // Новый импорт
+import InputText from "primevue/inputtext";
 
 const props = defineProps({
     status: String,
@@ -19,7 +19,6 @@ const submit = () => {
     form.post(route("password.email"));
 };
 </script>
-
 
 <template>
     <GuestLayout :title="props.title">

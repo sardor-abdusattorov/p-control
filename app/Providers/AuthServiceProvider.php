@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
 use App\Models\Application;
 use App\Models\Contract;
 use App\Policies\ApplicationPolicy;
@@ -11,11 +10,6 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
     protected $policies = [
         \App\Models\Application::class => \App\Policies\ApplicationPolicy::class,
         \App\Models\Contract::class => \App\Policies\ContractPolicy::class,
@@ -24,15 +18,8 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\ProjectCategory::class => \App\Policies\ProjectCategoryPolicy::class,
     ];
 
-    /**
-     * Register any authentication / authorization services.
-     *
-     * @return void
-     */
     public function boot()
     {
         $this->registerPolicies();
-
-        //
     }
 }

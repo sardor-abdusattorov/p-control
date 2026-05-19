@@ -58,7 +58,6 @@ watchEffect(() => {
 
 </script>
 
-
 <template>
     <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
@@ -207,7 +206,6 @@ watchEffect(() => {
                                 <InputError class="mt-2" :message="form.errors.user_id" />
                             </div>
 
-                            <!-- Sort -->
                             <div class="form-group mb-5">
                                 <InputLabel for="sort" :value="lang().label.sort" />
                                 <InputText
@@ -221,7 +219,6 @@ watchEffect(() => {
                                 <InputError class="mt-2" :message="form.errors.sort" />
                             </div>
 
-                            <!-- Image -->
                             <div class="form-group">
                                 <InputLabel for="status" :value="lang().label.status" />
                                 <ToggleButton

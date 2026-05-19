@@ -230,7 +230,6 @@ import FileUpload from 'primevue/fileupload';
 import Button from "primevue/button";
 import {Message} from "primevue";
 
-
 const props = defineProps({
     show: Boolean,
     title: String,
@@ -308,7 +307,6 @@ const getFileIcon = (fileType) => {
 };
 
 const yearsList = props.availableYears ?? [];
-
 
 </script>
 

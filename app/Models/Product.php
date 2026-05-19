@@ -23,7 +23,6 @@ class Product extends Model
         'user_id',
         'sort',
         'status',
-
     ];
 
     public function brand(): BelongsTo
@@ -56,5 +55,4 @@ class Product extends Model
             ['id' => self::STATUS_INACTIVE, 'label' => __('app.status.disable')],
         ];
     }
-
 }

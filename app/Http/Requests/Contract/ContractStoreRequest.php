@@ -18,7 +18,7 @@ class ContractStoreRequest extends FormRequest
     public function rules()
     {
         $transactionType = $this->input('transaction_type');
-        $isIncome = $transactionType == 2; // TYPE_INCOME
+        $isIncome = $transactionType == 2;
 
         return [
             'contract_number' => 'nullable|string|max:255',
@@ -28,7 +28,7 @@ class ContractStoreRequest extends FormRequest
                 $isIncome ? 'nullable' : 'required',
                 'integer',
                 function ($attribute, $value, $fail) {
-                    if (!$value) return; // Skip if nullable and empty
+                    if (!$value) return;
 
                     $application = Application::find($value);
                     $currencyId = $this->input('currency_id');
@@ -50,7 +50,7 @@ class ContractStoreRequest extends FormRequest
                 'array',
                 function ($attribute, $value, $fail) {
                     $transactionType = $this->input('transaction_type');
-                    $isIncome = $transactionType == 2; // TYPE_INCOME
+                    $isIncome = $transactionType == 2;
 
                     if (!is_array($value) || count($value) < 1) {
                         $fail('Необходимо выбрать минимум 1 получателя.');
@@ -59,8 +59,6 @@ class ContractStoreRequest extends FormRequest
                     $currencyId = $this->input('currency_id');
                     $currency = Currency::find($currencyId);
 
-                    // For income type, only require Legal department (7)
-                    // For expense type, require both Legal (7) and Financial (8)
                     $requiredDepartments = $isIncome ? [7] : [7, 8];
                     $usersByDepartment = User::whereIn('department_id', $requiredDepartments)->whereIn('id', $value)->pluck('department_id')->toArray();
 
@@ -71,8 +69,6 @@ class ContractStoreRequest extends FormRequest
                         }
                     }
 
-                    // For income type, accounting department (9) is not required
-                    // For expense type, accounting is required if currency is not UZS
                     if (!$isIncome && $currency && strtoupper($currency->short_name) !== 'UZS') {
                         $hasAccountant = User::whereIn('id', $value)
                             ->where('department_id', 9)
@@ -86,7 +82,6 @@ class ContractStoreRequest extends FormRequest
             ],
         ];
     }
-
 
     public function messages()
     {

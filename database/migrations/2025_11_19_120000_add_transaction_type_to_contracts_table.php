@@ -6,20 +6,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('contracts', function (Blueprint $table) {
-            // 1 = расход (expense), 2 = приход (income)
             $table->tinyInteger('transaction_type')->default(1)->after('status');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('contracts', function (Blueprint $table) {

@@ -38,7 +38,7 @@
 
                                 <div v-if="files.length > 0 || props.scans?.length > 0">
                                     <div class="flex flex-wrap gap-4">
-                                        <!-- Новые загружаемые файлы -->
+
                                         <div
                                             v-for="(file, index) in files"
                                             :key="'new-' + file.name + file.type + file.size"
@@ -60,7 +60,6 @@
                                             />
                                         </div>
 
-                                        <!-- Ранее загруженные сканы -->
                                         <div
                                             v-for="(file, index) in props.scans"
                                             :key="'scan-' + file.id"
@@ -85,7 +84,6 @@
                                 </div>
                             </div>
                         </template>
-
 
                         <template #empty>
                             <div v-if="form.files.length === 0 && props.scans.length === 0" class="flex items-center justify-center flex-col">
@@ -142,7 +140,6 @@ const form = useForm({
     files: [],
 });
 
-
 watchEffect(() => {
     form.errors = {};
     form.files = [];
@@ -158,7 +155,6 @@ const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("ru-RU", { dateStyle: "short", timeStyle: "short" }).format(date);
 };
-
 
 const onFileChange = (event) => {
     form.files = event.files || [];

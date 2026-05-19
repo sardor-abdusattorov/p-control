@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\Log;
 
 class UpdateCurrencyRates extends Command
 {
-    // Имя команды
     protected $signature = 'currency:update';
 
-    // Описание команды
     protected $description = 'Обновляет курсы валют';
 
     public function __construct()

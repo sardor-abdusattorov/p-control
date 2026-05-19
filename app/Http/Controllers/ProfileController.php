@@ -17,9 +17,6 @@ use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): Response
     {
         $departments = Department::where('status', 1)->get(['id', 'name']);
@@ -60,10 +57,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = auth()->user();
@@ -101,5 +94,4 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.edit')->with('status', 'Profile updated!');
     }
-
 }

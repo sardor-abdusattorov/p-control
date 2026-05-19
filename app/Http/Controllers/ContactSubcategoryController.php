@@ -19,14 +19,10 @@ class ContactSubcategoryController extends Controller
         $this->middleware('permission:manage contact categories');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ContactSubIndexRequest $request)
     {
         $query = ContactSubcategory::with('categories');
 
-        // 🔍 Фильтрация
         if ($request->filled('title')) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
@@ -46,11 +42,10 @@ class ContactSubcategoryController extends Controller
             $query->where('status', $request->status);
         }
 
-        // 📊 Сортировка
         if ($request->filled('field') && $request->filled('order')) {
             $query->orderBy($request->field, $request->order);
         } else {
-            $query->latest(); // По умолчанию по дате создания
+            $query->latest();
         }
 
         $perPage = $request->get('perPage', 10);
@@ -68,11 +63,6 @@ class ContactSubcategoryController extends Controller
         ]);
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('SubCategories/Create', [
@@ -86,9 +76,6 @@ class ContactSubcategoryController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ContactSubStoreRequest $request)
     {
         DB::beginTransaction();
@@ -112,9 +99,6 @@ class ContactSubcategoryController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(ContactSubcategory $contactSubcategory)
     {
         $contactSubcategory->load('categories');
@@ -131,10 +115,6 @@ class ContactSubcategoryController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(ContactSubcategory $contactSubcategory)
     {
         $contactSubcategory->load('categories');
@@ -152,9 +132,6 @@ class ContactSubcategoryController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ContactSubUpdateRequest $request, ContactSubcategory $contactSubcategory)
     {
         DB::beginTransaction();
@@ -178,10 +155,6 @@ class ContactSubcategoryController extends Controller
         }
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ContactSubcategory $contactSubcategory)
     {
         DB::beginTransaction();

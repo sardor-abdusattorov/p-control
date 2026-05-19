@@ -16,9 +16,9 @@ const emit = defineEmits(["open", "toggleMenu"]);
     >
         <div class="mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <!-- Left Side -->
+
                 <div class="flex items-center">
-                    <!-- Desktop Menu Toggle -->
+
                     <div class="mr-4 shrink-0 items-center hidden lg:flex">
                         <button
                             @click="emit('toggleMenu')"
@@ -31,7 +31,6 @@ const emit = defineEmits(["open", "toggleMenu"]);
                         </button>
                     </div>
 
-                    <!-- Mobile Menu Toggle -->
                     <div class="mr-4 shrink-0 flex items-center lg:hidden">
                         <button
                             @click="emit('open')"
@@ -45,20 +44,17 @@ const emit = defineEmits(["open", "toggleMenu"]);
                     </div>
                 </div>
 
-                <!-- Right Side -->
                 <div class="flex items-center space-x-2">
-                    <!-- Language Switcher -->
+
                     <SwitchLangNavbar />
 
-                    <!-- Dark Mode Toggle -->
                     <SwitchDarkModeNavbar />
 
-                    <!-- User Dropdown -->
                     <div class="relative">
                         <Dropdown align="right" width="48">
                             <template #trigger>
                                 <span class="inline-flex rounded-lg">
-                                    <!-- Mobile User Button (Icon Only) -->
+
                                     <button
                                         type="button"
                                         class="inline-flex items-center justify-center p-2 rounded-lg
@@ -69,7 +65,6 @@ const emit = defineEmits(["open", "toggleMenu"]);
                                         <UserIcon class="h-5 w-5" />
                                     </button>
 
-                                    <!-- Desktop User Button (With Name) -->
                                     <button
                                         type="button"
                                         class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg
@@ -86,7 +81,7 @@ const emit = defineEmits(["open", "toggleMenu"]);
                             </template>
 
                             <template #content>
-                                <!-- User Info Header -->
+
                                 <div
                                     class="py-3 px-4 border-b border-slate-200 dark:border-slate-700
                                            bg-slate-50 dark:bg-slate-800/50"
@@ -99,7 +94,6 @@ const emit = defineEmits(["open", "toggleMenu"]);
                                     </span>
                                 </div>
 
-                                <!-- Dropdown Links -->
                                 <DropdownLink :href="route('profile.edit')">
                                     {{ lang().label.profile }}
                                 </DropdownLink>
@@ -120,7 +114,7 @@ const emit = defineEmits(["open", "toggleMenu"]);
 </template>
 
 <style scoped>
-/* Ensure smooth transitions */
+
 nav {
     will-change: background-color, border-color;
 }

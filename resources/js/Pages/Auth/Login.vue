@@ -70,8 +70,6 @@
     </GuestLayout>
 </template>
 
-
-
 <script setup>
 import Checkbox from "@/Components/Checkbox.vue";
 import GuestLayout from "@/Layouts/GuestLayout.vue";

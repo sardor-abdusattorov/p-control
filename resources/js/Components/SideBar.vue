@@ -16,13 +16,13 @@ const emit = defineEmits(["close", "toggleMenu"]);
 </script>
 
 <template>
-    <!-- Desktop Sidebar -->
+
     <div class="hidden lg:flex transition-all duration-300">
         <aside
             class="fixed flex flex-col h-screen overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 border-r border-slate-700/50 text-slate-300 shadow-xl transition-all duration-300"
             :class="is_expanded ? 'w-64' : 'w-0'"
         >
-            <!-- Декоративный градиент сверху -->
+
             <div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none"></div>
 
             <div class="flex-1 h-screen overflow-y-auto scrollbar-sidebar px-3 relative z-10">
@@ -31,7 +31,6 @@ const emit = defineEmits(["close", "toggleMenu"]);
         </aside>
     </div>
 
-    <!-- Mobile Sidebar -->
     <TransitionRoot :show="open">
         <Dialog
             as="div"
@@ -50,7 +49,7 @@ const emit = defineEmits(["close", "toggleMenu"]);
                 <aside
                     class="flex flex-col relative z-10 w-64 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 border-r border-slate-700/50 shadow-2xl"
                 >
-                    <!-- Декоративный градиент сверху -->
+
                     <div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none"></div>
 
                     <div class="flex flex-col relative h-screen min-h-screen">
@@ -81,7 +80,7 @@ const emit = defineEmits(["close", "toggleMenu"]);
 </template>
 
 <style scoped>
-/* Кастомный scrollbar для sidebar */
+
 .scrollbar-sidebar::-webkit-scrollbar {
     width: 6px;
 }

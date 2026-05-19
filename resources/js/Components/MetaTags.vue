@@ -32,7 +32,6 @@ const {
     applicationName,
 } = useMeta();
 
-// Используем переданный title или default
 const pageTitle = computed(() => props.title || defaultTitle.value);
 const pageDescription = computed(() => props.description || defaultDescription.value);
 </script>
@@ -41,7 +40,6 @@ const pageDescription = computed(() => props.description || defaultDescription.v
     <Head>
         <title>{{ pageTitle }}</title>
 
-        <!-- Basic Meta Tags -->
         <meta name="description" :content="pageDescription" />
         <meta name="keywords" :content="keywords" />
         <meta name="author" :content="author" />
@@ -49,7 +47,6 @@ const pageDescription = computed(() => props.description || defaultDescription.v
         <meta name="application-name" :content="applicationName" />
         <meta name="theme-color" :content="themeColor" />
 
-        <!-- Open Graph Meta Tags -->
         <meta property="og:title" :content="props.title || ogTitle" />
         <meta property="og:description" :content="props.description || ogDescription" />
         <meta property="og:type" :content="ogType" />
@@ -57,7 +54,6 @@ const pageDescription = computed(() => props.description || defaultDescription.v
         <meta property="og:locale" :content="ogLocale" />
         <meta property="og:image" content="/images/main-logo.png" />
 
-        <!-- Twitter Card Meta Tags -->
         <meta name="twitter:card" :content="twitterCard" />
         <meta name="twitter:title" :content="props.title || twitterTitle" />
         <meta name="twitter:description" :content="props.description || twitterDescription" />

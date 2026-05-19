@@ -1,6 +1,6 @@
 <template>
     <div class="text-slate-300 pb-20">
-        <!-- Logo Section -->
+
         <div class="border-b border-slate-700/50 py-4 mb-2">
             <Link :href="route('dashboard')" class="flex items-center gap-3 px-2 hover:text-white transition-colors duration-300 group">
                 <img src="/images/main_logo.png" alt="Logo" class="rounded-full w-10 h-10 ring-2 ring-slate-700 group-hover:ring-sky-500 transition-all duration-300" />
@@ -8,7 +8,6 @@
             </Link>
         </div>
 
-        <!-- User Panel -->
         <div class="user-panel py-3 mb-2 border-b border-slate-700/50">
             <Link :href="route('profile.edit')" class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-800/50 transition-all duration-300 group">
                 <img :src="usePage().props.auth.user.profile_image" alt="User"
@@ -19,9 +18,8 @@
             </Link>
         </div>
 
-        <!-- Menu Items -->
         <ul class="space-y-1 my-4">
-            <!-- Applications -->
+
             <li>
                 <Link :href="route('application.index')"
                       class="flex items-center py-2.5 px-3 rounded-lg transition-all duration-300 group relative overflow-hidden"
@@ -35,7 +33,6 @@
                 </Link>
             </li>
 
-            <!-- Contracts -->
             <li>
                 <Link :href="route('contract.index')"
                       class="flex items-center py-2.5 px-3 rounded-lg transition-all duration-300 group relative overflow-hidden"
@@ -49,7 +46,6 @@
                 </Link>
             </li>
 
-            <!-- Projects Dropdown -->
             <li>
                 <button @click="toggleMenu('projects_group')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
@@ -87,7 +83,6 @@
                 </ul>
             </li>
 
-            <!-- Справочники Dropdown -->
             <li v-show="can(['manage department', 'manage position', 'manage status', 'manage currency'])">
                 <button @click="toggleMenu('dictionaries')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
@@ -102,7 +97,7 @@
                                      :class="{ 'rotate-180': expandedMenus.dictionaries.expanded }" />
                 </button>
                 <ul v-show="expandedMenus.dictionaries.expanded" class="space-y-1 mt-1 ml-4 pl-4 border-l-2 border-slate-700/50">
-                    <!-- Departments -->
+
                     <li v-show="can(['manage department'])">
                         <Link :href="route('departments.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
@@ -114,7 +109,6 @@
                         </Link>
                     </li>
 
-                    <!-- Positions -->
                     <li v-show="can(['manage position'])">
                         <Link :href="route('positions.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
@@ -126,7 +120,6 @@
                         </Link>
                     </li>
 
-                    <!-- Currency -->
                     <li v-show="can(['manage currency'])">
                         <Link :href="route('currency.index')"
                               class="flex items-center py-2 px-3 rounded-lg text-sm transition-all duration-300 group"
@@ -140,7 +133,6 @@
                 </ul>
             </li>
 
-            <!-- Products Dropdown -->
             <li v-show="can(['view products', 'manage products'])">
                 <button @click="toggleMenu('products')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
@@ -188,7 +180,6 @@
                 </ul>
             </li>
 
-            <!-- Contacts Dropdown -->
             <li v-show="can(['read contact', 'create contact', 'manage contact categories'])">
                 <button @click="toggleMenu('contacts')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"
@@ -236,7 +227,6 @@
                 </ul>
             </li>
 
-            <!-- Settings Dropdown -->
             <li v-show="can(['manage rbac', 'view logs'])">
                 <button @click="toggleMenu('settings')"
                         class="w-full flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group"

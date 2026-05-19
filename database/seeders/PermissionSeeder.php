@@ -8,11 +8,6 @@ use Illuminate\Database\Seeder;
 
 class PermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         Permission::create(['name' => 'manage rbac']);
@@ -20,7 +15,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'manage position']);
         Permission::create(['name' => 'manage department']);
 
-        //TASKS
         Permission::create(['name' => 'create task']);
         Permission::create(['name' => 'update task']);
         Permission::create(['name' => 'delete task']);
@@ -29,7 +23,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'start task']);
         Permission::create(['name' => 'complete task']);
 
-        //Applications
         Permission::create(['name' => 'create application']);
         Permission::create(['name' => 'submit application']);
         Permission::create(['name' => 'update application']);
@@ -38,13 +31,11 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'view all applications']);
         Permission::create(['name' => 'approve application']);
 
-        //PROJECTS
         Permission::create(['name' => 'create project']);
         Permission::create(['name' => 'update project']);
         Permission::create(['name' => 'delete project']);
         Permission::create(['name' => 'view project']);
 
-        //CONTRACTS
         Permission::create(['name' => 'create contract']);
         Permission::create(['name' => 'submit contract']);
         Permission::create(['name' => 'update contract']);
@@ -56,7 +47,6 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'view logs']);
 
-        //CONTACTS
         Permission::create(['name' => 'create contact']);
         Permission::create(['name' => 'read contact']);
         Permission::create(['name' => 'update contact']);
@@ -64,7 +54,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'view all contacts']);
         Permission::create(['name' => 'manage contact categories']);
 
-        //PROJECT CATEGORIES
         Permission::create(['name' => 'manage project categories']);
     }
 }

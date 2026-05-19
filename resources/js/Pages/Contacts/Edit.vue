@@ -5,7 +5,6 @@
         <section class="space-y-4 bg-white dark:bg-slate-800 shadow sm:rounded-lg p-6">
             <form @submit.prevent="update" class="space-y-6">
 
-                <!-- Название -->
                 <div>
                     <InputLabel for="title" :value="lang().label.title" />
                     <InputText id="title" v-model="form.title" class="w-full" :placeholder="lang().label.title" :error="form.errors.title" />
@@ -14,7 +13,6 @@
 
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.contact}}</h2>
 
-                <!-- Имя + Фамилия -->
                 <div class="grid lg:grid-cols-3 gap-4">
                     <div>
                         <InputLabel for="prefix" :value="lang().label.prefix" />
@@ -54,9 +52,7 @@
                     </div>
                 </div>
 
-                <!-- Язык + Компания -->
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.company}}</h2>
-
 
                 <div class="grid lg:grid-cols-2 gap-4">
                     <div>
@@ -74,7 +70,6 @@
                     </div>
                 </div>
 
-                <!-- Адрес -->
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">Адрес</h2>
                 <div class="grid lg:grid-cols-2 gap-4">
                     <div>
@@ -158,7 +153,6 @@
 
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.basic}}</h2>
 
-                <!-- Категория -->
                 <div class="grid lg:grid-cols-2 gap-4">
                     <div>
                         <InputLabel for="category_id" :value="lang().label.category"/>
@@ -206,7 +200,6 @@
                     <InputError :message="form.errors.status"/>
                 </div>
 
-                <!-- Кнопки -->
                 <div class="flex justify-start pt-2">
                     <BackLink :href="route('contacts.index')"/>
                     <PrimaryButton
@@ -335,7 +328,6 @@ watch(() => form.country, async (newCountry) => {
             });
             cities.value = Array.isArray(response.data) ? response.data : [];
         } catch (error) {
-
         }
     }
 });
@@ -351,7 +343,6 @@ watch(() => form.category_id, async (newCategory) => {
             });
             subCategories.value = Array.isArray(response.data) ? response.data : [];
         } catch (error) {
-
         }
     }
 });

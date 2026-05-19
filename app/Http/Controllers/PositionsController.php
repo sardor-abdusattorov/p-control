@@ -15,7 +15,6 @@ use Inertia\Inertia;
 
 class PositionsController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -26,9 +25,6 @@ class PositionsController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(PositionsIndexRequest $request)
     {
         $positions = Position::query();
@@ -49,10 +45,6 @@ class PositionsController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $departments = Department::where('status', 1)->get();
@@ -67,10 +59,6 @@ class PositionsController extends Controller
         ]);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(PositionsStoreRequest $request): RedirectResponse
     {
         DB::beginTransaction();
@@ -92,7 +80,6 @@ class PositionsController extends Controller
             DB::commit();
 
             return redirect()->route('positions.index')->with('success', __('app.label.created_successfully', ['name' => $position->name]));
-
         } catch (\Throwable $th) {
             DB::rollback();
 
@@ -100,9 +87,6 @@ class PositionsController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Position $position)
     {
         return Inertia::render('Positions/Show', [
@@ -115,10 +99,6 @@ class PositionsController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $position = Position::with('departments')->findOrFail($id);
@@ -137,9 +117,6 @@ class PositionsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(PositionsUpdateRequest $request, Position $position)
     {
         DB::beginTransaction();
@@ -168,9 +145,7 @@ class PositionsController extends Controller
             return back()->with('error', __('app.label.updated_error', ['name' => $position->name]) . ' ' . $th->getMessage());
         }
     }
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Position $position)
     {
         DB::beginTransaction();

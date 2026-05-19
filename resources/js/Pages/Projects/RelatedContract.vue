@@ -185,7 +185,6 @@ const select = () => {
     data.multipleSelect = props.contracts.data.length === data.selectedId.length;
 };
 
-
 const getStatusLabel = (statusId) => {
     const status = props.statuses.find(s => s.id === statusId);
     return status ? status.label : '';

@@ -22,9 +22,6 @@ class CurrencyController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(CurrencyIndexRequest $request)
     {
         $currencies = Currency::query();
@@ -45,9 +42,6 @@ class CurrencyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Currency/Create', [
@@ -60,9 +54,6 @@ class CurrencyController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(CurrencyStoreRequest $request)
     {
         DB::beginTransaction();
@@ -95,9 +86,6 @@ class CurrencyController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Currency $currency)
     {
         return inertia('Currency/Edit', [
@@ -130,7 +118,6 @@ class CurrencyController extends Controller
             return back()->with('error', __('app.label.updated_error', ['name' => $currency->name]) . $th->getMessage());
         }
     }
-
 
     public function destroy(Currency $currency)
     {

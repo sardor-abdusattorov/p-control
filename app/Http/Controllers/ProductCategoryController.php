@@ -13,7 +13,6 @@ use Inertia\Inertia;
 
 class ProductCategoryController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -48,9 +47,7 @@ class ProductCategoryController extends Controller
             ],
         ]);
     }
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         return Inertia::render('ProductCategory/Create', [
@@ -140,7 +137,6 @@ class ProductCategoryController extends Controller
             return redirect()
                 ->route('product_categories.index')
                 ->with('success', __('app.label.updated_successfully', ['title' => $productCategory->title]));
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -151,9 +147,6 @@ class ProductCategoryController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ProductCategory $productCategory)
     {
         DB::beginTransaction();
@@ -172,9 +165,6 @@ class ProductCategoryController extends Controller
         }
     }
 
-    /**
-     * Remove multiple resources from storage.
-     */
     public function destroyBulk(Request $request)
     {
         try {

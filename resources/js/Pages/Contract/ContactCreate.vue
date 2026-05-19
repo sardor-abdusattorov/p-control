@@ -61,7 +61,6 @@ watch(() => form.country, async (newCountry) => {
             });
             cities.value = Array.isArray(response.data) ? response.data : [];
         } catch (error) {
-
         }
     }
 });
@@ -77,7 +76,6 @@ watch(() => form.category_id, async (newCategory) => {
             });
             subCategories.value = Array.isArray(response.data) ? response.data : [];
         } catch (error) {
-
         }
     }
 });
@@ -97,7 +95,6 @@ const submit = () => {
 
 </script>
 
-
 <template>
     <Dialog
         v-model:visible="visible"
@@ -112,7 +109,6 @@ const submit = () => {
         <section class="space-y-4 bg-white dark:bg-slate-800 p-6">
             <form @submit.prevent="submit" class="space-y-6">
 
-                <!-- Название -->
                 <div>
                     <InputLabel for="title" :value="lang().label.title" />
                     <InputText id="title" v-model="form.title" class="w-full" :placeholder="lang().label.title" :error="form.errors.title"  />
@@ -121,7 +117,6 @@ const submit = () => {
 
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.contact}}</h2>
 
-                <!-- Имя + Фамилия -->
                 <div class="grid lg:grid-cols-3 gap-4">
                     <div>
                         <InputLabel for="prefix" :value="lang().label.prefix" />
@@ -140,9 +135,7 @@ const submit = () => {
                     </div>
                 </div>
 
-                <!-- Язык + Компания -->
                 <h2 class="text-base font-semibold text-slate-600 dark:text-slate-300 mt-4">{{lang().section.company}}</h2>
-
 
                 <div class="grid lg:grid-cols-2 gap-4">
                     <div>

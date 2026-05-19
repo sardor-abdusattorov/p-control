@@ -17,15 +17,11 @@ class ContactCategoryController extends Controller
         $this->middleware('permission:manage contact categories');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ContactCategoryRequest $request)
     {
         $categories = ContactCategory::query();
         $statuses = ContactCategory::getStatuses();
 
-        // 🔍 Фильтрация по полям
         if ($request->filled('title')) {
             $categories->where('title', 'like', '%' . $request->title . '%');
         }
@@ -56,9 +52,6 @@ class ContactCategoryController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('ContactCategory/Create', [
@@ -71,9 +64,6 @@ class ContactCategoryController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ContactCategoryStoreRequest $request)
     {
         DB::beginTransaction();
@@ -93,9 +83,6 @@ class ContactCategoryController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(ContactCategory $contactCategory)
     {
         return Inertia::render('ContactCategory/Show', [
@@ -108,9 +95,6 @@ class ContactCategoryController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(ContactCategory $contactCategory)
     {
         return inertia('ContactCategory/Edit', [
@@ -125,9 +109,6 @@ class ContactCategoryController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ContactCategoryUpdateRequest $request, ContactCategory $contactCategory)
     {
         DB::beginTransaction();
@@ -147,9 +128,6 @@ class ContactCategoryController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ContactCategory $contactCategory)
     {
         DB::beginTransaction();

@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
-
     const STATUS_ACTIVE = 1;
     const STATUS_DISABLED = 0;
 
@@ -67,9 +66,6 @@ class Contact extends Model
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function getFillable(): array
     {
         return $this->fillable;

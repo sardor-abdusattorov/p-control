@@ -10,7 +10,6 @@ use Spatie\Activitylog\ActivityLogger;
 
 class ActivityLogController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -21,15 +20,11 @@ class ActivityLogController extends Controller
         });
     }
 
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ActivityLogIndexRequest $request)
     {
         $logs = ActivityLog::query()
             ->with('user')
-            ->orderByDesc('created_at'); // Сортировка по убыванию
+            ->orderByDesc('created_at');
 
         if ($request->has('search')) {
             $logs->where('description', 'LIKE', "%" . $request->search . "%");
@@ -48,14 +43,8 @@ class ActivityLogController extends Controller
         ]);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-
     public function show(ActivityLog $log)
     {
-
         if (!$log) {
             abort(404, 'Лог не найден');
         }
@@ -71,7 +60,4 @@ class ActivityLogController extends Controller
             ],
         ]);
     }
-
-
-
 }

@@ -9,9 +9,6 @@ use Illuminate\Support\Facades\DB;
 
 class ApplicationApprovalService
 {
-    /**
-     * Submit application for approval
-     */
     public function submit(Application $application, User $user): void
     {
         if (!$user->can('submit application')) {
@@ -37,16 +34,12 @@ class ApplicationApprovalService
             $this->logActivity('Заявка отправлена на согласование', $application, [], $user);
 
             DB::commit();
-
         } catch (\Throwable $th) {
             DB::rollBack();
             throw $th;
         }
     }
 
-    /**
-     * Approve application by current user
-     */
     public function approve(Application $application, User $user, ?string $comment = null): void
     {
         $approval = $this->findUserApproval($application, $user);
@@ -75,9 +68,6 @@ class ApplicationApprovalService
         ], $user);
     }
 
-    /**
-     * Reject application by current user
-     */
     public function reject(Application $application, User $user, ?string $reason = null): void
     {
         $approval = $this->findUserApproval($application, $user);
@@ -90,7 +80,6 @@ class ApplicationApprovalService
             throw new \Exception(__('app.label.already_rejected'));
         }
 
-        // Update current approver
         $approval->update([
             'approved' => Approvals::STATUS_REJECTED,
             'reason' => $reason,
@@ -104,7 +93,6 @@ class ApplicationApprovalService
             'rejected_at' => now()->format('d.m.Y H:i'),
         ], $user);
 
-        // Update application status to rejected
         if ($application->status_id === Application::STATUS_IN_PROGRESS) {
             $application->update(['status_id' => Application::STATUS_REJECTED]);
 
@@ -115,7 +103,6 @@ class ApplicationApprovalService
             ], $user);
         }
 
-        // Auto-reject all other pending approvals
         Approvals::where('approvable_type', Application::class)
             ->where('approvable_id', $application->id)
             ->where('user_id', '!=', $user->id)
@@ -127,9 +114,6 @@ class ApplicationApprovalService
             ]);
     }
 
-    /**
-     * Update approvers list for application
-     */
     public function updateApprovers(Application $application, array $newUserIds): void
     {
         $newUserIds = collect($newUserIds);
@@ -143,7 +127,6 @@ class ApplicationApprovalService
         $usersToAdd = $newUserIds->diff($existingApprovals->keys());
         $usersToRemove = $existingApprovals->keys()->diff($newUserIds);
 
-        // Add new approvers
         foreach ($usersToAdd as $userId) {
             Approvals::create([
                 'approvable_type' => Application::class,
@@ -155,7 +138,6 @@ class ApplicationApprovalService
             ]);
         }
 
-        // Remove approvers based on application status
         $deletableStatuses = match ($application->status_id) {
             Application::STATUS_NEW => [Approvals::STATUS_NEW],
             Application::STATUS_IN_PROGRESS => [Approvals::STATUS_PENDING],
@@ -171,9 +153,6 @@ class ApplicationApprovalService
         }
     }
 
-    /**
-     * Remove a specific approver from application
-     */
     public function removeApprover(Application $application, int $userId): void
     {
         $approval = Approvals::valid()
@@ -198,9 +177,6 @@ class ApplicationApprovalService
         $approval->delete();
     }
 
-    /**
-     * Check if user can approve the application
-     */
     public function canApprove(Application $application, User $user): bool
     {
         return Approvals::where('approvable_type', Application::class)
@@ -210,31 +186,23 @@ class ApplicationApprovalService
             ->exists();
     }
 
-    /**
-     * Check and update application status based on approvals
-     */
     protected function checkAndUpdateApplicationStatus(Application $application): void
     {
         $approvals = $application->approvals()
             ->where('approved', '!=', Approvals::STATUS_INVALIDATED)
             ->get();
 
-        // If any approval is rejected, set status to rejected
         if ($approvals->where('approved', Approvals::STATUS_REJECTED)->isNotEmpty()) {
             $application->update(['status_id' => Application::STATUS_REJECTED]);
             return;
         }
 
-        // If all approvals are approved, set status to approved
         if ($approvals->every(fn($a) => $a->approved === Approvals::STATUS_APPROVED)) {
             $application->update(['status_id' => Application::STATUS_APPROVED]);
             return;
         }
     }
 
-    /**
-     * Find user's approval for the application
-     */
     protected function findUserApproval(Application $application, User $user): ?Approvals
     {
         return Approvals::where('approvable_type', Application::class)
@@ -244,9 +212,6 @@ class ApplicationApprovalService
             ->first();
     }
 
-    /**
-     * Log activity
-     */
     protected function logActivity(string $message, Application $application, array $properties = [], ?User $user = null): void
     {
         activity('application')

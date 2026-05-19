@@ -11,7 +11,6 @@ class HomeController extends Controller
     {
         $user = auth()->user();
 
-        // Get widgets for the user
         $widgetService = new WidgetService($user);
         $widgets = $widgetService->getWidgets();
 

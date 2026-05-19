@@ -10,7 +10,7 @@
 
                 <div class="my-6 space-y-4">
                     <div class="flex flex-wrap -mx-4">
-                        <!-- Title -->
+
                         <div class="w-full md:w-2/3 px-4 mb-4">
                             <div class="form-group">
                                 <InputLabel for="title" :value="lang().label.title" />
@@ -27,9 +27,8 @@
                             </div>
                         </div>
 
-                        <!-- Sort and Image -->
                         <div class="w-full md:w-1/3 px-4 mb-4">
-                            <!-- Sort -->
+
                             <div class="form-group mb-4">
                                 <InputLabel for="sort" :value="lang().label.sort" />
                                 <InputText
@@ -43,7 +42,6 @@
                                 <InputError class="mt-2" :message="form.errors.sort" />
                             </div>
 
-                            <!-- Image -->
                             <div class="form-group">
                                 <InputLabel for="image" :value="lang().label.image" />
                                 <FileUpload
@@ -67,7 +65,6 @@
                     </div>
                 </div>
 
-                <!-- Actions -->
                 <div class="flex justify-start">
                     <BackLink :href="route('product_brands.index')" />
                     <PrimaryButton

@@ -30,10 +30,8 @@ class ContractApproversUpdateRequest extends FormRequest
                     }
 
                     $currencyId = $contract->currency_id;
-                    $isIncome = $contract->transaction_type == 2; // TYPE_INCOME
+                    $isIncome = $contract->transaction_type == 2;
 
-                    // For income type, only require Legal department (7)
-                    // For expense type, require both Legal (7) and Financial (8)
                     $requiredDepartments = $isIncome ? [7] : [7, 8];
                     $departmentsFound = User::whereIn('id', $value)
                         ->whereIn('department_id', $requiredDepartments)
@@ -47,8 +45,6 @@ class ContractApproversUpdateRequest extends FormRequest
                         }
                     }
 
-                    // For income type, accounting department (9) is not required
-                    // For expense type, accounting is required if currency is not UZS (currency_id != 1)
                     if (!$isIncome && $currencyId != 1) {
                         $hasAccountant = User::whereIn('id', $value)
                             ->where('department_id', 9)
@@ -82,7 +78,6 @@ class ContractApproversUpdateRequest extends FormRequest
             ]
         ];
     }
-
 
     public function messages(): array
     {

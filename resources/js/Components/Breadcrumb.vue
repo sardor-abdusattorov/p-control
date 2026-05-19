@@ -87,7 +87,6 @@ defineProps({
 });
 </script>
 
-
 <style>
 .breadcrumb-wrapper{
 

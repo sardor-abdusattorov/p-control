@@ -32,7 +32,6 @@ Route::get('/setLang/{locale}', function ($locale) {
 })->name('setlang');
 
 Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
-
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::post('/', [ProfileController::class, 'update'])->name('update');
@@ -75,7 +74,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
 
     Route::get('/project-categories/by-year/{year}', [ProjectCategoryController::class, 'byYear'])->name('project-categories.byYear');
     Route::get('/projects/by-year/{year}', [ProjectsController::class, 'byYear'])->name('projects.by-year');
-
 
     Route::resource('contract', ContractController::class)->except(['update']);
     Route::get('/contract-export/excel', [ContractController::class, 'exportExcel'])->name('contract.export-excel');
@@ -120,7 +118,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::resource('contact-subcategories', ContactSubcategoryController::class);
     Route::post('/contact-subcategories/destroy-bulk', [ContactSubcategoryController::class, 'destroyBulk'])->name('contact-subcategories.destroy-bulk');
 
-
     Route::resource('product-brands', ProductBrandController::class)->names('product_brands')->except('update');
     Route::post('/product-brands/{product_brand}/update', [ProductBrandController::class, 'update'])->name('product_brands.update');
     Route::post('/product-brands/destroy-bulk', [ProductBrandController::class, 'destroyBulk'])
@@ -135,7 +132,6 @@ Route::middleware(['auth', 'verified', 'check.status'])->group(function () {
     Route::post('/products/{product}/update', [ProductController::class, 'update'])->name('products.update');
     Route::post('/products/destroy-bulk', [ProductController::class, 'destroyBulk'])
         ->name('products.destroy-bulk');
-
 });
 
 require __DIR__.'/auth.php';

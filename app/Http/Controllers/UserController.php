@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
 
-
 class UserController extends Controller
 {
     public function __construct()
@@ -30,11 +29,6 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Inertia\Response
-     */
     public function index(UserIndexRequest $request)
     {
         $users = User::query();
@@ -67,12 +61,6 @@ class UserController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Inertia\Response
-     */
     public function create()
     {
         $roles = Role::get();
@@ -100,13 +88,6 @@ class UserController extends Controller
         ]);
     }
 
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return RedirectResponse
-     */
     public function store(UserStoreRequest $request)
     {
         DB::beginTransaction();
@@ -152,13 +133,6 @@ class UserController extends Controller
         }
     }
 
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Inertia\Response
-     */
     public function show(User $user)
     {
         $image = $user->getFirstMediaUrl('profile_image');
@@ -180,13 +154,6 @@ class UserController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Inertia\Response|\Inertia\ResponseFactory
-     */
     public function edit(User $user)
     {
         $roles = Role::get();
@@ -271,13 +238,6 @@ class UserController extends Controller
         }
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return RedirectResponse
-     */
     public function destroy(User $user)
     {
         try {

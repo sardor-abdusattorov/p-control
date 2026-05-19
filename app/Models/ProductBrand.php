@@ -50,5 +50,4 @@ class ProductBrand extends Model implements HasMedia
     public function getUpdatedAtAttribute() {
         return date('d-m-Y H:i', strtotime($this->attributes['updated_at']));
     }
-
 }

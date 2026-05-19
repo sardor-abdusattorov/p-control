@@ -25,7 +25,7 @@ const form = useForm({
     name: "",
     guard_name: "web",
     permissions: [],
-    status: true, // Добавлено поле для статуса (по умолчанию true)
+    status: true,
 });
 
 const create = () => {
@@ -131,7 +131,7 @@ const select = () => {
                             </div>
                         </div>
                     </div>
-                    <!-- Добавление поля для статуса -->
+
                     <div>
                         <InputLabel :value="lang().label.status" />
                         <div class="flex items-center mt-2">

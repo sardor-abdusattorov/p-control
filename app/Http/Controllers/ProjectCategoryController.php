@@ -154,9 +154,6 @@ class ProjectCategoryController extends Controller
         }
     }
 
-    /**
-     * Get categories by year (for dependent dropdown in Projects form).
-     */
     public function byYear($year)
     {
         return $this->repository->getByYear($year);

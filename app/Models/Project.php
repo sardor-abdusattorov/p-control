@@ -15,7 +15,6 @@ class Project extends Model
     const STATUS_APPROVED = 2;
     const STATUS_REJECTED = -1;
 
-
     protected $fillable = [
         'project_number',
         'title',

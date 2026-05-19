@@ -26,5 +26,4 @@ class ProductStoreRequest extends FormRequest
             'status' => ['boolean'],
         ];
     }
-
 }

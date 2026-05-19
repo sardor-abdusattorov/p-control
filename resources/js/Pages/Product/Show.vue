@@ -29,12 +29,10 @@ const data = reactive({
     product: null,
 });
 
-
 const can = (permissions) => {
     const allPermissions = usePage().props.auth.can;
     return permissions.some(permission => allPermissions[permission]);
 };
-
 
 </script>
 
@@ -75,7 +73,6 @@ const can = (permissions) => {
                     </div>
                 </div>
 
-                <!-- Таблица -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>

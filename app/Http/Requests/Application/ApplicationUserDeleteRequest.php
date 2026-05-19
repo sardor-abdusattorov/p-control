@@ -43,7 +43,6 @@ class ApplicationUserDeleteRequest extends FormRequest
                     ]));
                 }
 
-                // Запретить удаление, если пользователь из отдела 7 или 8, или 9 если валюта не 1
                 $protectedDepartments = [7, 8];
                 if (in_array($user->department_id, $protectedDepartments)) {
                     return $fail(__('app.label.cannot_delete_protected_department', [

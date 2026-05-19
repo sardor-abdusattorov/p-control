@@ -42,7 +42,6 @@ const buttonColorClass = computed(() => {
             />
             <h2 class="text-2xl font-bold mb-4">{{ widget.title }}</h2>
 
-            <!-- Applications Widget -->
             <div v-if="widget.type === 'applications'" class="space-y-2">
                 <p class="text-lg">
                     {{ lang().label.total }}:
@@ -93,7 +92,6 @@ const buttonColorClass = computed(() => {
                 </p>
             </div>
 
-            <!-- Contracts Widget -->
             <div v-else-if="widget.type === 'contracts'" class="space-y-2">
                 <p class="text-lg">
                     {{ lang().label.total }}:
@@ -144,9 +142,8 @@ const buttonColorClass = computed(() => {
                 </p>
             </div>
 
-            <!-- Products Widget -->
             <div v-else-if="widget.type === 'products'" class="space-y-3">
-                <!-- Statistics -->
+
                 <div class="space-y-2">
                     <p class="text-lg">
                         {{ lang().label.total }}:
@@ -162,7 +159,6 @@ const buttonColorClass = computed(() => {
                     </p>
                 </div>
 
-                <!-- Products List -->
                 <div v-if="widget.data.products && widget.data.products.length > 0" class="mt-4 space-y-2 border-t border-gray-300 dark:border-gray-600 pt-3">
                     <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
                         {{ lang().label.recent || "Recent Items" }}:
@@ -194,13 +190,11 @@ const buttonColorClass = computed(() => {
                 </div>
             </div>
 
-            <!-- Generic Widget -->
             <div v-else class="space-y-2">
                 <pre class="text-sm">{{ widget.data }}</pre>
             </div>
         </div>
 
-        <!-- View All Button -->
         <Link
             :href="widget.type === 'applications' ? route('application.index') :
                    widget.type === 'contracts' ? route('contract.index') :

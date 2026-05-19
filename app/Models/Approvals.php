@@ -16,7 +16,6 @@ class Approvals extends Model
     const STATUS_REJECTED = -1;
     const STATUS_INVALIDATED  = -2;
 
-
     protected $table = 'approvals';
 
     protected $fillable = [
@@ -34,17 +33,11 @@ class Approvals extends Model
         'approved_at' => 'datetime',
     ];
 
-    /**
-     * Полиморфная связь (поддерживает контракты и заявки).
-     */
     public function approvable(): MorphTo
     {
         return $this->morphTo();
     }
 
-    /**
-     * Пользователь, который подтвердил.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -60,7 +53,6 @@ class Approvals extends Model
         ];
     }
 
-    // Только не аннулированные
     public function scopeValid($query)
     {
         return $query->where('approved', '!=', self::STATUS_INVALIDATED);
@@ -71,19 +63,12 @@ class Approvals extends Model
         return $query->whereNotIn('approved', [self::STATUS_INVALIDATED, self::STATUS_NEW]);
     }
 
-    /**
-     * Get approval order based on user's department
-     * Department 8 (Financial) = order 1 (first)
-     * Department 7 (Legal) = order 2 (second)
-     * Others = order 1 (default)
-     */
     public static function getApprovalOrder(int $departmentId): int
     {
         return match($departmentId) {
-            8 => 1, // Financial department goes first
-            7 => 2, // Legal department goes second
+            8 => 1,
+            7 => 2,
             default => 1,
         };
     }
-
 }

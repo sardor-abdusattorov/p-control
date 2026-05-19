@@ -13,7 +13,6 @@ import BackLink from "@/Components/BackLink.vue";
 import Textarea from "primevue/textarea";
 import axios from "axios";
 
-/* props СНАЧАЛА */
 const props = defineProps({
     show: Boolean,
     title: String,
@@ -23,7 +22,6 @@ const props = defineProps({
     availableYears: Array,
 });
 
-/* потом используем */
 const categoriesList = ref(props.categories ?? []);
 
 const form = useForm({
@@ -34,7 +32,6 @@ const form = useForm({
     sort: 0,
     status_id: 1,
 });
-
 
 const create = () => {
     form.post(route("projects.store"), {});
@@ -68,7 +65,6 @@ watch(
 const yearsList = props.availableYears ?? [];
 
 </script>
-
 
 <template>
     <AuthenticatedLayout :title="props.title">

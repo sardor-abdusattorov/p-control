@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ContactUpdateRequest extends FormRequest
 {
-
     public function authorize()
     {
         return true;

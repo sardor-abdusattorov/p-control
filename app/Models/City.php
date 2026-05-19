@@ -6,5 +6,4 @@ use Altwaireb\World\Models\City as Model;
 
 class City extends Model
 {
-    //
 }

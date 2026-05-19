@@ -61,7 +61,6 @@ watchEffect(() => {
 }
 </style>
 
-
 <template>
 
     <AuthenticatedLayout :title="props.title">
@@ -75,7 +74,7 @@ watchEffect(() => {
 
                 <div class="my-6 space-y-4">
                     <div class="flex flex-wrap -mx-4">
-                        <!-- Title -->
+
                         <div class="w-full md:w-2/3 px-4 mb-4">
                             <InputLabel for="title" :value="lang().label.title"/>
                             <InputText
@@ -88,7 +87,6 @@ watchEffect(() => {
                             <InputError class="mt-2" :message="form.errors.title"/>
                         </div>
 
-                        <!-- Sort and Image -->
                         <div class="w-full md:w-1/3 px-4 mb-4">
                             <div class="mb-4">
                                 <InputLabel for="sort" :value="lang().label.sort"/>

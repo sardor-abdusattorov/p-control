@@ -49,9 +49,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $this->authorize('create', Product::class);
@@ -120,9 +117,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Product $product)
     {
         $this->authorize('update', $product);
@@ -171,7 +165,6 @@ class ProductController extends Controller
             return redirect()
                 ->route('products.index')
                 ->with('success', __('app.label.updated_successfully', ['title' => $product->title]));
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -182,9 +175,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Product $product)
     {
         $this->authorize('delete', $product);
@@ -203,9 +193,6 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Remove multiple resources from storage.
-     */
     public function destroyBulk(Request $request)
     {
         $this->authorize('deleteAny', Product::class);

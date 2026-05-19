@@ -16,7 +16,6 @@ const props = defineProps({
     <AuthenticatedLayout :title="lang().label.dashboard">
         <Breadcrumb :title="lang().label.dashboard" :breadcrumbs="[]" />
 
-        <!-- Widgets -->
         <div v-if="props.widgets.length > 0" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <Widget
                 v-for="widget in props.widgets"
@@ -25,7 +24,6 @@ const props = defineProps({
             />
         </div>
 
-        <!-- Empty State -->
         <div v-else class="p-12 text-center">
             <p class="text-gray-500 dark:text-gray-400">
                 {{ lang().label.no_widgets || "No widgets available" }}

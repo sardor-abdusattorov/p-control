@@ -17,7 +17,6 @@ class Application extends Model implements HasMedia
     const TYPE_REQUEST = 1;
     const TYPE_MEMO = 2;
 
-
     use InteractsWithMedia;
     use HasFactory;
 

@@ -11,5 +11,4 @@ class FileNamer extends DefaultFileNamer
     {
         return Str::random(24);
     }
-
 }

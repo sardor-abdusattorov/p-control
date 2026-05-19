@@ -85,8 +85,6 @@ watchEffect(() => {
                         <InputError class="mt-2" :message="form.errors.departments" />
                     </div>
 
-
-
                 </div>
                 <div class="flex justify-start">
                     <BackLink :href="route('positions.index')"/>

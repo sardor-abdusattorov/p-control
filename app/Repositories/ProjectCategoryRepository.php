@@ -9,9 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ProjectCategoryRepository
 {
-    /**
-     * Get paginated project categories with filters
-     */
     public function paginateWithFilters(array $filters, int $perPage = 10): LengthAwarePaginator
     {
         $query = ProjectCategory::query();
@@ -22,9 +19,6 @@ class ProjectCategoryRepository
         return $query->paginate($perPage)->withQueryString();
     }
 
-    /**
-     * Apply filters to the query
-     */
     protected function applyFilters(Builder $query, array $filters): void
     {
         if (!empty($filters['title'])) {
@@ -40,9 +34,6 @@ class ProjectCategoryRepository
         }
     }
 
-    /**
-     * Apply sorting to the query
-     */
     protected function applySort(Builder $query, ?string $field, ?string $order): void
     {
         $sortableFields = ['title', 'sort', 'year', 'status', 'created_at'];
@@ -54,17 +45,11 @@ class ProjectCategoryRepository
         }
     }
 
-    /**
-     * Find project category by ID
-     */
     public function find(int $id): ?ProjectCategory
     {
         return ProjectCategory::find($id);
     }
 
-    /**
-     * Get active categories ordered by sort
-     */
     public function getActive(): Collection
     {
         return ProjectCategory::where('status', ProjectCategory::STATUS_ACTIVE)
@@ -72,49 +57,31 @@ class ProjectCategoryRepository
             ->get();
     }
 
-    /**
-     * Create a new project category
-     */
     public function create(array $data): ProjectCategory
     {
         return ProjectCategory::create($data);
     }
 
-    /**
-     * Update a project category
-     */
     public function update(ProjectCategory $category, array $data): bool
     {
         return $category->update($data);
     }
 
-    /**
-     * Delete a project category
-     */
     public function delete(ProjectCategory $category): bool
     {
         return $category->delete();
     }
 
-    /**
-     * Delete multiple project categories
-     */
     public function deleteBulk(array $ids): int
     {
         return ProjectCategory::whereIn('id', $ids)->delete();
     }
 
-    /**
-     * Get categories by IDs
-     */
     public function findByIds(array $ids): Collection
     {
         return ProjectCategory::whereIn('id', $ids)->get();
     }
 
-    /**
-     * Get active categories by year
-     */
     public function getByYear(int $year): Collection
     {
         return ProjectCategory::where('year', $year)

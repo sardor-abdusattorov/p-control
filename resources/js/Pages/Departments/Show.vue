@@ -3,7 +3,7 @@
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs"/>
 
         <div class="space-y-4 bg-white dark:bg-slate-800 shadow rounded-t-lg">
-            <!-- Заголовок и действия -->
+
             <div class="p-4 sm:p-8">
                 <div class="block-header pb-3 mb-5 border-b border-gray-300 dark:border-neutral-600 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <h1 class="text-xl md:text-2xl font-bold">{{ department.name }}</h1>
@@ -33,7 +33,6 @@
                     </div>
                 </div>
 
-                <!-- Таблица -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>
@@ -113,5 +112,4 @@ const data = reactive({
 });
 
 </script>
-
 

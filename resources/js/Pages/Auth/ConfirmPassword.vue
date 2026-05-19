@@ -21,7 +21,6 @@ const submit = () => {
 };
 </script>
 
-
 <template>
     <GuestLayout :title="props.title">
 

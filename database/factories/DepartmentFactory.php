@@ -5,16 +5,8 @@ namespace Database\Factories;
 use App\Enums\DepartmentEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Department>
- */
 class DepartmentFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
@@ -23,9 +15,6 @@ class DepartmentFactory extends Factory
         ];
     }
 
-    /**
-     * Set the name from an Enum.
-     */
     public function withEnumName(DepartmentEnum $name): static
     {
         return $this->state(fn (array $attributes) => [

@@ -69,7 +69,6 @@ class ProjectContractsExport implements FromCollection, WithHeadings, WithColumn
         ];
     }
 
-    // Ширина 30 для всех колонок (A — L)
     public function columnWidths(): array
     {
         return array_combine(range('A', 'L'), array_fill(0, 12, 30));
@@ -79,7 +78,6 @@ class ProjectContractsExport implements FromCollection, WithHeadings, WithColumn
     {
         $columns = 'A1:L' . ($sheet->getHighestRow());
 
-        // Header (как и раньше)
         $sheet->getStyle('A1:L1')->applyFromArray([
             'font' => [
                 'bold' => true,
@@ -92,7 +90,7 @@ class ProjectContractsExport implements FromCollection, WithHeadings, WithColumn
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical'   => Alignment::VERTICAL_CENTER,
-                'wrapText'   => true, // ВАЖНО: перенос текста для header
+                'wrapText'   => true,
             ],
             'borders' => [
                 'allBorders' => [
@@ -101,7 +99,6 @@ class ProjectContractsExport implements FromCollection, WithHeadings, WithColumn
                 ],
             ],
         ]);
-
 
         $sheet->getStyle($columns)->applyFromArray([
             'alignment' => [
@@ -119,7 +116,6 @@ class ProjectContractsExport implements FromCollection, WithHeadings, WithColumn
 
         return [];
     }
-
 
     public function getStatusLabel($status)
     {

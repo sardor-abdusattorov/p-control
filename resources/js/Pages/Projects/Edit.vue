@@ -49,7 +49,6 @@ watchEffect(() => {
     form.sort = props.project?.sort ?? 0;
     form.status_id = props.project?.status_id ?? 1;
 
-    // Set year from existing category
     if (props.project?.category?.year) {
         form.year = props.project.category.year;
         skipCategoryReset = true;

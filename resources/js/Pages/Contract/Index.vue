@@ -383,7 +383,6 @@
                                 </div>
                             </td>
 
-
                             <td class="whitespace-nowrap py-4 px-2">
                                 <div class="gap-1 flex justify-center">
                                     <Button
@@ -456,7 +455,6 @@ const items = computed(() => {
 
     if (!contract) return [];
 
-    // Отправить на согласование
     if (
         contract.status === 1 &&
         (contract.user_id === user.id || isAdmin)
@@ -470,7 +468,6 @@ const items = computed(() => {
         });
     }
 
-    // Просмотр
     baseItems.push({
         label: lang().tooltip.show,
         icon: 'pi pi-eye',
@@ -479,7 +476,6 @@ const items = computed(() => {
         },
     });
 
-    // Загрузить скан
     if (
         contract.status === 3 &&
         contract.type !== 2 &&
@@ -494,7 +490,6 @@ const items = computed(() => {
         });
     }
 
-    // Редактировать
     if (
         contract.status !== 3 &&
         (contract.user_id === user.id || isAdmin)
@@ -508,7 +503,6 @@ const items = computed(() => {
         });
     }
 
-    // Удалить
     if (
         contract.status === 1 &&
         (contract.user_id === user.id || isAdmin)
@@ -530,7 +524,6 @@ const items = computed(() => {
         },
     ];
 });
-
 
 const toggleMenu = (event, contract) => {
     selectedContract.value = contract;
@@ -695,7 +688,5 @@ const getUniqueApprovals = (list) => {
     });
     return Object.values(latest);
 };
-
-
 
 </script>

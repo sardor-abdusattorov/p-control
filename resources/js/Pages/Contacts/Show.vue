@@ -31,7 +31,6 @@
                     </div>
                 </div>
 
-                <!-- Таблица -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
                         <tbody>
@@ -106,7 +105,6 @@
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.language }}</td>
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ contact.language }}</td>
                         </tr>
-
 
                         <tr class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800">
                             <td class="py-4 px-4 border border-gray-300 dark:border-neutral-600">{{ lang().label.user_id }}</td>

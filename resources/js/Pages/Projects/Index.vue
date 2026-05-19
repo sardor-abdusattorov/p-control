@@ -88,7 +88,6 @@
                                 </div>
                             </th>
 
-
                             <th class="px-2 py-4 cursor-pointer" @click="order('project_number')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.project_number }}</span>
@@ -309,6 +308,5 @@ const getStatusSeverity = (statusId) => {
 const exportContractsExcel = (projectId) => {
     window.open(route('projects.contracts.export', { project: projectId }), '_blank');
 };
-
 
 </script>

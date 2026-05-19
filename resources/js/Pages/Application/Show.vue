@@ -213,7 +213,6 @@
                                                 @click="() => confirmRemoveApprover(approval)"
                                             />
 
-
                                         </div>
                                     </div>
                                 </template>
@@ -223,7 +222,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full border border-gray-300 dark:border-neutral-700 divide-y divide-gray-200 dark:divide-neutral-700">
@@ -324,7 +322,6 @@
                                 </div>
                             </td>
                         </tr>
-
 
                         <tr
                             class="odd:bg-white even:bg-gray-100 dark:odd:bg-neutral-900 dark:even:bg-neutral-800"

@@ -18,9 +18,8 @@ class Contract extends Model implements HasMedia
     const STATUS_REJECTED = -1;
     const STATUS_INVALIDATED = -2;
 
-    const TYPE_EXPENSE = 1; // Расход
-    const TYPE_INCOME = 2;  // Приход
-
+    const TYPE_EXPENSE = 1;
+    const TYPE_INCOME = 2;
 
     protected $table = 'contracts';
 
@@ -51,7 +50,6 @@ class Contract extends Model implements HasMedia
     {
         return $this->morphMany(Approvals::class, 'approvable');
     }
-
 
     public static function getStatuses(): array
     {
@@ -110,6 +108,4 @@ class Contract extends Model implements HasMedia
     {
         return $this->belongsTo(\App\Models\Application::class, 'application_id');
     }
-
-
 }

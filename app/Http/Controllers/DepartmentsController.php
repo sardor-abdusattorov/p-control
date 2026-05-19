@@ -13,7 +13,6 @@ use Inertia\Inertia;
 
 class DepartmentsController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -24,9 +23,6 @@ class DepartmentsController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(DepartmentsIndexRequest $request)
     {
         $departments = Department::query();
@@ -50,9 +46,6 @@ class DepartmentsController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $users = User::where('status', 1)->get();
@@ -67,9 +60,6 @@ class DepartmentsController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(DepartmentsStoreRequest $request)
     {
         DB::beginTransaction();
@@ -89,10 +79,6 @@ class DepartmentsController extends Controller
         }
     }
 
-
-    /**
-     * Display the specified resource.
-     */
     public function show(Department $department)
     {
         $headOfDepartmentName = $department->head_of_department
@@ -110,10 +96,6 @@ class DepartmentsController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Department $department)
     {
         $users = User::where('status', 1)->get();
@@ -130,9 +112,6 @@ class DepartmentsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(DepartmentsUpdateRequest $request, Department $department)
     {
         DB::beginTransaction();
@@ -152,9 +131,6 @@ class DepartmentsController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Department $department)
     {
         DB::beginTransaction();

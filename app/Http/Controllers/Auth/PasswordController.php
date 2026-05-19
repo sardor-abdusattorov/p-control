@@ -10,9 +10,6 @@ use Illuminate\Validation\Rules\Password;
 
 class PasswordController extends Controller
 {
-    /**
-     * Update the user's password.
-     */
     public function update(Request $request)
     {
         $request->validate([
@@ -30,5 +27,4 @@ class PasswordController extends Controller
         auth()->logout();
         return redirect()->route('login')->with('status', 'Пароль успешно изменён. Пожалуйста, войдите снова.');
     }
-
 }

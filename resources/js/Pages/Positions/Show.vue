@@ -30,7 +30,6 @@ const data = reactive({
 });
 </script>
 
-
 <template>
     <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="position.name" :breadcrumbs="breadcrumbs" />

@@ -37,9 +37,6 @@ class ContractController extends Controller
         $this->middleware('auth');
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ContractIndexRequest $request)
     {
         $this->authorize('viewAny', Contract::class);
@@ -77,9 +74,6 @@ class ContractController extends Controller
         ]);
     }
 
-    /**
-     * Export contracts to Excel filtered by year and status.
-     */
     public function exportExcel(Request $request)
     {
         $this->authorize('export', Contract::class);
@@ -116,9 +110,6 @@ class ContractController extends Controller
         );
     }
 
-    /**
-     * Normalize a request param into an int[] (accepts both ?key[]=1&key[]=2 and ?key=1,2).
-     */
     protected function intArrayFromRequest(Request $request, string $key): array
     {
         $value = $request->input($key);
@@ -139,9 +130,6 @@ class ContractController extends Controller
         ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $this->authorize('create', Contract::class);
@@ -184,9 +172,6 @@ class ContractController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ContractStoreRequest $request)
     {
         $this->authorize('create', Contract::class);
@@ -200,7 +185,6 @@ class ContractController extends Controller
 
             return redirect()->route('contract.index')
                 ->with('success', __('app.label.created_successfully', ['name' => $contract->title]));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with(
                 'error',
@@ -209,9 +193,6 @@ class ContractController extends Controller
         }
     }
 
-    /**
-     * Submit contract for approval
-     */
     public function submit(Contract $contract)
     {
         $this->authorize('submit', $contract);
@@ -220,16 +201,12 @@ class ContractController extends Controller
             $this->approvalService->submit($contract, auth()->user());
 
             return back()->with('success', __('app.label.submitted_successfully'));
-
         } catch (\Throwable $th) {
             return redirect()->back()
                 ->with('error', __('app.label.submit_failed') . ' ' . $th->getMessage());
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Contract $contract)
     {
         $this->authorize('view', $contract);
@@ -276,9 +253,6 @@ class ContractController extends Controller
         ]);
     }
 
-    /**
-     * Confirm (approve) contract
-     */
     public function confirmContract(Request $request, Contract $contract)
     {
         $this->authorize('approve', Contract::class);
@@ -288,15 +262,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.show', $contract->id)
                 ->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Cancel (reject) contract
-     */
     public function cancelContract(Request $request, Contract $contract)
     {
         $this->authorize('approve', Contract::class);
@@ -306,15 +276,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.show', $contract->id)
                 ->with('success', __('app.label.cancelled_successfully', ['name' => $contract->title]));
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Show upload scan page
-     */
     public function uploadScan(Contract $contract)
     {
         $this->authorize('uploadScan', $contract);
@@ -337,9 +303,6 @@ class ContractController extends Controller
         ]);
     }
 
-    /**
-     * Upload scan files
-     */
     public function uploadScanFiles(ContractScanRequest $request, Contract $contract)
     {
         $this->authorize('uploadScan', $contract);
@@ -349,15 +312,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.show', $contract->id)
                 ->with('success', __('app.label.scans_uploaded_successfully'));
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Contract $contract)
     {
         $this->authorize('update', $contract);
@@ -402,9 +361,6 @@ class ContractController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ContractUpdateRequest $request, Contract $contract)
     {
         $this->authorize('update', $contract);
@@ -420,15 +376,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.index')
                 ->with('success', __('app.label.updated_successfully', ['name' => $contract->title]));
-
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Contract $contract)
     {
         $this->authorize('delete', $contract);
@@ -439,15 +391,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.index')
                 ->with('success', __('app.label.deleted_successfully', ['name' => $contractTitle]));
-
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Bulk delete contracts
-     */
     public function destroyBulk(Request $request)
     {
         $this->authorize('deleteAny', Contract::class);
@@ -458,15 +406,11 @@ class ContractController extends Controller
             return back()->with('success', __('app.label.deleted_successfully', [
                 'name' => $count . ' ' . __('app.label.contracts')
             ]));
-
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
     }
 
-    /**
-     * Remove approver from contract
-     */
     public function removeApprover(ContractUserDeleteRequest $request, Contract $contract)
     {
         $this->authorize('manageApprovers', $contract);
@@ -481,15 +425,11 @@ class ContractController extends Controller
                 ->with('success', __('app.label.deleted_successfully', [
                     'name' => $user?->name ?? __('app.label.unknown_user')
                 ]));
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Update approvers list
-     */
     public function updateApprovers(ContractApproversUpdateRequest $request, Contract $contract)
     {
         $this->authorize('manageApprovers', $contract);
@@ -499,15 +439,11 @@ class ContractController extends Controller
 
             return redirect()->route('contract.show', ['contract' => $contract->id])
                 ->with('success', __('app.label.approvers_updated_successfully'));
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
-    /**
-     * Group applications by currency
-     */
     protected function groupApplicationsByCurrency($applications)
     {
         return $applications
@@ -526,9 +462,6 @@ class ContractController extends Controller
             })->values();
     }
 
-    /**
-     * Get application approvals formatted
-     */
     protected function getApplicationApprovals(Application $application)
     {
         return \App\Models\Approvals::where('approvable_type', Application::class)

@@ -16,9 +16,6 @@ class ApplicationService
         protected ApplicationRepository $repository
     ) {}
 
-    /**
-     * Create a new application with files and approvals
-     */
     public function create(array $data, ?array $files = null, ?array $recipientIds = null): Application
     {
         DB::beginTransaction();
@@ -50,7 +47,6 @@ class ApplicationService
             DB::commit();
 
             return $application;
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -62,9 +58,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Update an application
-     */
     public function update(Application $application, array $data, ?array $files = null, ?array $recipientIds = null, ?array $deletedFileIds = null): Application
     {
         DB::beginTransaction();
@@ -76,7 +69,6 @@ class ApplicationService
                 throw new \Exception(__('app.label.cannot_update_approved'));
             }
 
-            // Update approvals based on status
             if ($isNew) {
                 $application->approvals()->delete();
                 if ($recipientIds) {
@@ -89,7 +81,6 @@ class ApplicationService
                 }
             }
 
-            // Update application data
             $this->repository->update($application, [
                 'title' => $data['title'],
                 'project_id' => $data['project_id'],
@@ -98,12 +89,10 @@ class ApplicationService
                 'status_id' => Application::STATUS_NEW,
             ]);
 
-            // Handle file deletions
             if ($deletedFileIds) {
                 $this->deleteFiles($application, $deletedFileIds);
             }
 
-            // Handle new file uploads
             if ($files) {
                 $this->attachFiles($application, $files, 'documents');
             }
@@ -116,7 +105,6 @@ class ApplicationService
             DB::commit();
 
             return $application->fresh();
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -129,9 +117,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Delete an application
-     */
     public function delete(Application $application): void
     {
         if (
@@ -160,7 +145,6 @@ class ApplicationService
             $this->repository->delete($application);
 
             DB::commit();
-
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -173,9 +157,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Bulk delete applications
-     */
     public function deleteBulk(array $ids, User $user): int
     {
         if (!$user->hasRole('superadmin')) {
@@ -198,7 +179,6 @@ class ApplicationService
             }
 
             return count($applications);
-
         } catch (\Throwable $th) {
             $this->logActivity('Ошибка при массовом удалении заявок', null, [
                 'error' => $th->getMessage(),
@@ -209,9 +189,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Upload scan files for approved application
-     */
     public function uploadScanFiles(Application $application, array $files): void
     {
         if ($application->status_id !== Application::STATUS_APPROVED || $application->type == Application::TYPE_MEMO) {
@@ -231,9 +208,6 @@ class ApplicationService
         ]);
     }
 
-    /**
-     * Attach files to application
-     */
     protected function attachFiles(Application $application, array $files, string $collection = 'documents'): void
     {
         foreach ($files as $file) {
@@ -246,9 +220,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Delete specific files from application
-     */
     protected function deleteFiles(Application $application, array $fileIds): void
     {
         foreach ($fileIds as $fileId) {
@@ -259,9 +230,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Create approvals for application
-     */
     protected function createApprovals(Application $application, array $recipientIds, int $status = null): void
     {
         $status = $status ?? Approvals::STATUS_NEW;
@@ -274,9 +242,6 @@ class ApplicationService
         }
     }
 
-    /**
-     * Log activity
-     */
     protected function logActivity(string $message, ?Application $application = null, array $properties = [], ?User $user = null): void
     {
         $activity = activity('application')

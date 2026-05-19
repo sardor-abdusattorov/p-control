@@ -3,11 +3,10 @@ import { defineProps } from 'vue';
 import { TrashIcon } from '@heroicons/vue/24/solid';
 import { Link } from '@inertiajs/vue3';
 
-// Определяем свойства компонента
 const props = defineProps({
     href: {
         type: String,
-        required: true, // Обязательное свойство для ссылки
+        required: true,
     },
     class: {
         type: String,

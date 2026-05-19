@@ -51,9 +51,6 @@ class ProjectsController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(ProjectsIndexRequest $request)
     {
         $user = auth()->user();
@@ -83,7 +80,6 @@ class ProjectsController extends Controller
             ],
         ]);
     }
-
 
     public function relatedContracts(ContractRelatedRequest $request, Project $project)
     {
@@ -119,10 +115,6 @@ class ProjectsController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return Inertia::render('Projects/Create', [
@@ -137,9 +129,6 @@ class ProjectsController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(ProjectsStoreRequest $request): RedirectResponse
     {
         DB::beginTransaction();
@@ -179,9 +168,6 @@ class ProjectsController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Project $project)
     {
         $statuses = Project::getStatuses();
@@ -196,9 +182,6 @@ class ProjectsController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Project $project)
     {
         return inertia('Projects/Edit', [
@@ -215,9 +198,6 @@ class ProjectsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(ProjectsUpdateRequest $request, Project $project)
     {
         DB::beginTransaction();
@@ -259,9 +239,6 @@ class ProjectsController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Project $project)
     {
         DB::beginTransaction();
@@ -330,15 +307,11 @@ class ProjectsController extends Controller
         }
     }
 
-
     public function exportContracts(Project $project)
     {
         return Excel::download(new ProjectContractsExport($project, auth()->user()), 'contracts_project_' . $project->id . '.xlsx');
     }
 
-    /**
-     * Get projects grouped by category for a given year (for dependent dropdown in Applications/Contracts).
-     */
     public function byYear($year)
     {
         $categories = ProjectCategory::query()

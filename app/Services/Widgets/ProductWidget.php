@@ -6,17 +6,10 @@ use App\Models\Product;
 
 class ProductWidget extends AbstractWidget
 {
-    /**
-     * Define permissions required to view this widget
-     */
     protected array $permissions = ['view products', 'manage products'];
 
-    /**
-     * Get widget data
-     */
     public function getData(): array
     {
-        // All users see only THEIR products (including superadmin)
         $products = Product::with(['category', 'brand'])
             ->where('user_id', $this->user->id)
             ->where('status', Product::STATUS_ACTIVE)
@@ -51,33 +44,21 @@ class ProductWidget extends AbstractWidget
         ];
     }
 
-    /**
-     * Get widget title
-     */
     public function getTitle(): string
     {
         return __('app.label.products') ?? 'Products';
     }
 
-    /**
-     * Get widget type/identifier
-     */
     public function getType(): string
     {
         return 'products';
     }
 
-    /**
-     * Get widget icon
-     */
     public function getIcon(): ?string
     {
         return 'cube';
     }
 
-    /**
-     * Get widget color theme
-     */
     public function getColor(): string
     {
         return 'purple';

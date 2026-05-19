@@ -18,7 +18,6 @@ class CheckWidgets extends Command
         $this->info('=== Widget System Diagnostic ===');
         $this->newLine();
 
-        // 1. Check permissions
         $this->info('1. Checking product permissions:');
         $permissions = Permission::whereIn('name', [
             'view products',
@@ -41,7 +40,6 @@ class CheckWidgets extends Command
 
         $this->newLine();
 
-        // 2. Check user
         $userId = $this->argument('user_id') ?? auth()->id() ?? 1;
         $user = User::find($userId);
 
@@ -53,7 +51,6 @@ class CheckWidgets extends Command
         $this->info("2. Checking user: {$user->name} (ID: {$user->id})");
         $this->newLine();
 
-        // 3. Check user permissions
         $this->info('3. User permissions:');
         $userPermissions = $user->getAllPermissions()->pluck('name')->toArray();
 
@@ -78,7 +75,6 @@ class CheckWidgets extends Command
 
         $this->newLine();
 
-        // 4. Check roles
         $this->info('4. User roles:');
         $roles = $user->getRoleNames();
         if ($roles->count() > 0) {
@@ -89,7 +85,6 @@ class CheckWidgets extends Command
 
         $this->newLine();
 
-        // 5. Check products
         $this->info('5. Products in database:');
         $totalProducts = Product::count();
         $userProducts = Product::where('user_id', $user->id)->count();
@@ -103,7 +98,6 @@ class CheckWidgets extends Command
 
         $this->newLine();
 
-        // 6. Test WidgetService
         $this->info('6. Testing WidgetService:');
         try {
             $widgetService = new WidgetService($user);
@@ -130,7 +124,6 @@ class CheckWidgets extends Command
                 $this->error("\n✗ NO widgets returned!");
                 $this->error("  Reason: User doesn't have required permissions");
             }
-
         } catch (\Exception $e) {
             $this->error('✗ Error: ' . $e->getMessage());
             $this->error($e->getTraceAsString());

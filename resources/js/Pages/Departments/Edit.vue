@@ -33,7 +33,6 @@ const update = () => {
     });
 };
 
-
 watchEffect(() => {
     form.errors = {};
     form.name = props.department?.name;

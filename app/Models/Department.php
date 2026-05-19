@@ -38,5 +38,4 @@ class Department extends Model
     {
         return $this->belongsTo(User::class, 'head_of_department');
     }
-
 }

@@ -54,10 +54,6 @@
                                         </div>
                                     </div>
 
-
-
-
-
                                     <div class="inputs-group">
                                         <div class="form-group mb-3">
                                             <InputLabel for="name" :value="lang().label.name" />
@@ -228,7 +224,6 @@ import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import MultiSelect from 'primevue/multiselect';
 
-
 const props = defineProps({
     mustVerifyEmail: Boolean,
     status: String,
@@ -263,10 +258,8 @@ const updateProfile = () => {
 const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-
         const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
         if (!allowedMimeTypes.includes(file.type)) {
-
             form.image = null;
             previewImage.value = user.profile_image;
             form.errors.image = 'Недопустимый тип файла. Загрузите изображение.';

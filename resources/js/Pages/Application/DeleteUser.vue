@@ -31,7 +31,6 @@ const close = () => {
     emit("close");
 };
 
-
 const destroy = () => {
     form.post(route("application.remove-approver", { application: props.application.id }), {
         preserveScroll: true,
@@ -65,7 +64,6 @@ const destroy = () => {
         >
             {{ Object.values(form.errors)[0] }}
         </Message>
-
 
         <div class="flex justify-end gap-2 mt-6">
             <Button

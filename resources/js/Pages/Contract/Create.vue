@@ -467,7 +467,6 @@ watchEffect(() => {
     form.errors = {};
 });
 
-
 const formattedContacts = computed(() => {
     return props.contacts.map(contact => ({
         id: contact.id,
@@ -478,7 +477,6 @@ const formattedContacts = computed(() => {
     }))
 })
 const yearsList = props.availableYears ?? [];
-
 
 </script>
 

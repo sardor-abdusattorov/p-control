@@ -46,7 +46,6 @@ watch(
     { immediate: true }
 );
 
-
 const updateApprovers = () => {
     form.put(route("application.update-approvers", { application: props.application.id }), {
         preserveScroll: true,
@@ -87,7 +86,6 @@ const updateApprovers = () => {
                     {{ form.errors.user_ids }}
                 </Message>
             </div>
-
 
             <div class="flex justify-end gap-2 mt-6">
                 <Button

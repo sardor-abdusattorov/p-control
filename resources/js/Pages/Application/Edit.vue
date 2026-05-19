@@ -80,7 +80,6 @@
                     <InputError class="mt-2" :message="form.errors.project_id" />
                 </div>
 
-
                 <div class="form-group mb-5">
                     <InputLabel for="currency_id" :value="lang().label.currency_id" />
                     <Select
@@ -227,7 +226,6 @@
                         </template>
                     </FileUpload>
 
-
                     <InputError class="mt-2" :message="form.errors.files" />
                 </div>
 
@@ -310,7 +308,6 @@ watchEffect(() => {
     form.type = props.application.type;
     form.recipients = props.approval_user_ids || [];
 
-    // Determine year from existing project's category
     if (props.application.project_id && props.projects) {
         const existingProject = props.projects.find(p => p.id === props.application.project_id);
         if (existingProject && existingProject.category && existingProject.category.year) {
@@ -374,7 +371,6 @@ const removeOldFile = (index) => {
 const getFileIcon = (fileType) => {
     return 'pi pi-file';
 };
-
 
 const formatDate = (dateString) => {
     if (!dateString) return "-";

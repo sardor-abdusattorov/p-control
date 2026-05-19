@@ -34,7 +34,6 @@ const update = () => {
     });
 };
 
-
 watchEffect(() => {
     form.errors = {};
     form.name = props.currency?.name;

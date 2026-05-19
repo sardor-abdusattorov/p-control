@@ -24,7 +24,6 @@ const destroy = () => {
     });
 };
 
-
 </script>
 
 <template>

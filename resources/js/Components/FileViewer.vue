@@ -26,8 +26,8 @@ const error = ref(null);
 const currentPage = ref(1);
 const pageCount = ref(0);
 const isFullscreen = ref(false);
-const fileData = ref(null); // Для хранения данных файла
-const zoomLevel = ref(1); // Уровень масштаба (1 = 100%)
+const fileData = ref(null);
+const zoomLevel = ref(1);
 
 const dialogVisible = computed({
     get: () => props.visible,
@@ -40,31 +40,25 @@ const fileType = computed(() => {
     const mimeType = props.file.mime_type.toLowerCase();
     const fileName = props.file.name.toLowerCase();
 
-    // PDF
     if (mimeType === 'application/pdf') return 'pdf';
 
-    // Images
     if (mimeType.startsWith('image/')) return 'image';
 
-    // Excel spreadsheets - только новый формат .xlsx
     if (mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
         (fileName.endsWith('.xlsx') && mimeType.includes('spreadsheet'))) {
         return 'excel';
     }
 
-    // Старые форматы Excel (.xls) - не поддерживаются
     if (mimeType === 'application/vnd.ms-excel' ||
         fileName.endsWith('.xls')) {
         return 'excel-old';
     }
 
-    // Word documents - только новый формат .docx
     if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
         (fileName.endsWith('.docx') && mimeType.includes('word'))) {
         return 'word';
     }
 
-    // Старые форматы Word (.doc) - не поддерживаются
     if (mimeType === 'application/msword' ||
         fileName.endsWith('.doc')) {
         return 'word-old';
@@ -77,7 +71,6 @@ const canPreview = computed(() => {
     return ['pdf', 'image', 'word', 'excel'].includes(fileType.value);
 });
 
-// Зум доступен только для PDF и изображений
 const canZoom = computed(() => {
     return ['pdf', 'image'].includes(fileType.value);
 });
@@ -102,7 +95,6 @@ const handleDocumentLoad = ({ pageCount: count }) => {
 const handleDocumentError = (err) => {
     error.value = lang().file_viewer.error_loading_pdf;
     loading.value = false;
-
 };
 
 const handleImageLoad = () => {
@@ -121,10 +113,8 @@ const handleOfficeLoad = () => {
 const handleOfficeError = (err) => {
     error.value = lang().file_viewer.error_loading_document;
     loading.value = false;
-
 };
 
-// Загрузка файла для Office компонентов
 const loadOfficeFile = async () => {
     if (!props.file || !['word', 'excel'].includes(fileType.value)) return;
 
@@ -132,14 +122,11 @@ const loadOfficeFile = async () => {
     error.value = null;
 
     try {
-
         const response = await fetch(props.file.original_url);
-
 
         if (!response.ok) throw new Error(`Failed to load file: ${response.status} ${response.statusText}`);
 
         const blob = await response.blob();
-
 
         fileData.value = blob;
         loading.value = false;
@@ -172,13 +159,13 @@ const toggleFullscreen = () => {
 };
 
 const zoomIn = () => {
-    if (zoomLevel.value < 3) { // Максимум 300%
+    if (zoomLevel.value < 3) {
         zoomLevel.value += 0.25;
     }
 };
 
 const zoomOut = () => {
-    if (zoomLevel.value > 0.5) { // Минимум 50%
+    if (zoomLevel.value > 0.5) {
         zoomLevel.value -= 0.25;
     }
 };
@@ -187,9 +174,8 @@ const resetZoom = () => {
     zoomLevel.value = 1;
 };
 
-// Вычисляемая ширина для PDF (в пикселях)
 const pdfWidth = computed(() => {
-    return Math.round(800 * zoomLevel.value); // Базовая ширина 800px
+    return Math.round(800 * zoomLevel.value);
 });
 
 watch(() => props.visible, (newVal) => {
@@ -200,7 +186,6 @@ watch(() => props.visible, (newVal) => {
         fileData.value = null;
         zoomLevel.value = 1;
 
-        // Загружаем Office файлы
         if (props.file && ['word', 'excel'].includes(fileType.value)) {
             loadOfficeFile();
         }
@@ -227,7 +212,6 @@ watch(() => props.visible, (newVal) => {
                         <span class="file-name font-semibold">{{ file?.name || lang().file_viewer.file }}</span>
                     </div>
 
-                    <!-- Кнопки зума для мобилки (в одной строке) -->
                     <div v-if="canZoom" class="zoom-controls-mobile">
                         <Button
                             icon="pi pi-search-minus"
@@ -272,7 +256,6 @@ watch(() => props.visible, (newVal) => {
                     />
                 </div>
 
-                <!-- Zoom Controls в отдельной строке для десктопа -->
                 <div v-if="canZoom" class="header-row-2">
                     <div class="zoom-controls">
                         <Button
@@ -501,7 +484,6 @@ watch(() => props.visible, (newVal) => {
     padding: 1rem;
 }
 
-/* Убираем фон из внутренних элементов Office компонентов */
 .office-embed :deep(.docx-wrapper) {
     background: transparent !important;
 }
@@ -525,7 +507,6 @@ watch(() => props.visible, (newVal) => {
     background: #1f2937;
 }
 
-/* Улучшение отображения Excel таблиц */
 .excel-viewer :deep(canvas) {
     width: 100% !important;
     height: auto !important;
@@ -556,7 +537,6 @@ watch(() => props.visible, (newVal) => {
     display: inline-block;
 }
 
-/* Fullscreen styles */
 .fullscreen-content {
     padding: 1.5rem !important;
 }
@@ -631,7 +611,6 @@ watch(() => props.visible, (newVal) => {
     border-top-color: #374151;
 }
 
-/* Header styles */
 .file-viewer-header {
     width: 100%;
     display: flex;
@@ -652,7 +631,7 @@ watch(() => props.visible, (newVal) => {
     align-items: center;
     gap: 0.75rem;
     flex: 1;
-    min-width: 0; /* Важно для работы text-overflow */
+    min-width: 0;
 }
 
 .file-name {
@@ -680,19 +659,16 @@ watch(() => props.visible, (newVal) => {
     gap: 0.5rem;
 }
 
-/* Мобильные кнопки зума - скрыты на десктопе */
 .zoom-controls-mobile {
     display: none;
 }
 
-/* Mobile optimization */
 @media (max-width: 767px) {
     .file-viewer-dialog :deep(.p-dialog) {
         width: 95vw !important;
         max-width: 95vw !important;
     }
 
-    /* Скрываем название файла и иконку в header */
     .file-name {
         display: none;
     }
@@ -701,18 +677,14 @@ watch(() => props.visible, (newVal) => {
         display: none;
     }
 
-
-
     .file-info {
         display: none;
     }
 
-    /* Скрываем вторую строку с кнопками зума на мобилке */
     .header-row-2 {
         display: none;
     }
 
-    /* Показываем мобильные кнопки зума */
     .zoom-controls-mobile {
         display: flex;
         align-items: center;
@@ -724,7 +696,6 @@ watch(() => props.visible, (newVal) => {
         font-size: 0.75rem;
     }
 
-    /* Выравниваем все кнопки справа */
     .header-row-1 {
         justify-content: flex-end;
         gap: 0.5rem;
@@ -749,7 +720,6 @@ watch(() => props.visible, (newVal) => {
         gap: 0.5rem;
     }
 
-    /* Скрываем информацию о типе файла в footer */
     :deep(.p-dialog-footer) > div:first-child {
         display: none;
     }
@@ -771,7 +741,6 @@ watch(() => props.visible, (newVal) => {
         width: 100%;
     }
 
-    /* Уменьшаем размеры контента на мобилке */
     .image-scroll-container,
     .word-viewer .office-embed {
         max-height: 60vh;
@@ -791,7 +760,6 @@ watch(() => props.visible, (newVal) => {
     }
 }
 
-/* Small mobile devices */
 @media (max-width: 480px) {
     .file-viewer-dialog :deep(.p-dialog) {
         width: 100vw !important;

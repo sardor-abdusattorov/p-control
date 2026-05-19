@@ -15,7 +15,6 @@ class WidgetService
         ApplicationWidget::class,
         ContractWidget::class,
         ProductWidget::class,
-        // Add more widgets here as needed
     ];
 
     public function __construct(User $user)
@@ -23,15 +22,11 @@ class WidgetService
         $this->user = $user;
     }
 
-    /**
-     * Get all widgets available for the current user
-     */
     public function getWidgets(): array
     {
         $widgets = [];
 
         foreach ($this->availableWidgets as $widgetClass) {
-            /** @var AbstractWidget $widget */
             $widget = new $widgetClass($this->user);
 
             if ($widget->canView()) {
@@ -42,13 +37,9 @@ class WidgetService
         return $widgets;
     }
 
-    /**
-     * Get a specific widget by type
-     */
     public function getWidget(string $type): ?array
     {
         foreach ($this->availableWidgets as $widgetClass) {
-            /** @var AbstractWidget $widget */
             $widget = new $widgetClass($this->user);
 
             if ($widget->getType() === $type && $widget->canView()) {
@@ -59,9 +50,6 @@ class WidgetService
         return null;
     }
 
-    /**
-     * Register a new widget
-     */
     public function registerWidget(string $widgetClass): void
     {
         if (!in_array($widgetClass, $this->availableWidgets)) {

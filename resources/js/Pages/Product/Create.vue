@@ -47,7 +47,6 @@ watchEffect(() => {
 });
 </script>
 
-
 <template>
     <AuthenticatedLayout :title="props.title">
         <Breadcrumb :title="title" :breadcrumbs="breadcrumbs" />
