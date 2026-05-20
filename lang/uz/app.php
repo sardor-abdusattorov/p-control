@@ -78,6 +78,8 @@ return [
         'cannot_delete_protected_accountant' => 'Tanlangan valyutada :name foydalanuvchini buxgalteriyadan o‘chirish mumkin emas.',
         'cannot_update_approved' => 'Tasdiqlangan arizani tahrirlab bo‘lmaydi.',
         'cannot_edit_approved' => 'Tasdiqlangan arizani tahrirlab bo‘lmaydi.',
+        'preserve_approved_status' => '«Tasdiqlangan» holatini saqlash',
+        'preserve_approved_status_hint' => 'Shartnoma allaqachon tasdiqlangan. Holatni qayta tiklamasdan va qayta kelishuvsiz tahrirlarni saqlash uchun belgilang. Agar belgilanmasa — shartnoma «Yangi» holatiga qaytariladi va qayta kelishuvga yuboriladi.',
         'upload_scan' => 'Skanni yuklash',
         'files_array' => 'Fayllar massiv ko‘rinishida bo‘lishi kerak.',
         'each_file_required' => 'Har bir fayl majburiy.',

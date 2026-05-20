@@ -337,6 +337,27 @@
                         <InputError class="mt-2" :message="form.errors.files"/>
                     </div>
                 </div>
+                <div
+                    v-if="props.contract.status === 3 && props.can_update_approved"
+                    class="form-group mb-5 p-3 rounded-md bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700"
+                >
+                    <label class="flex items-start gap-2 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            v-model="form.preserve_status"
+                            class="mt-1 rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                        />
+                        <span class="text-sm">
+                            <strong class="block text-amber-800 dark:text-amber-300">
+                                {{ lang().label.preserve_approved_status }}
+                            </strong>
+                            <span class="text-amber-700 dark:text-amber-400">
+                                {{ lang().label.preserve_approved_status_hint }}
+                            </span>
+                        </span>
+                    </label>
+                </div>
+
                 <div class="flex justify-start">
                     <BackLink :href="route('contract.index')" />
                     <PrimaryButton
@@ -387,6 +408,7 @@ const props = defineProps({
     transaction_types: Array,
     approval_user_ids: Array,
     availableYears: Array,
+    can_update_approved: Boolean,
 });
 
 const projectYear = ref(new Date().getFullYear());
@@ -409,6 +431,7 @@ const form = useForm({
     application_type: "",
     transaction_type: "",
     contact_id: null,
+    preserve_status: false,
 });
 
 watch(

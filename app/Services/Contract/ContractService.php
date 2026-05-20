@@ -17,6 +17,9 @@ class ContractService
         protected ContractRepository $repository
     ) {}
 
+    /**
+     * Create a new contract with files and approvals
+     */
     public function create(array $data, ?array $files = null, ?array $recipientIds = null): Contract
     {
         DB::beginTransaction();
@@ -58,6 +61,7 @@ class ContractService
             DB::commit();
 
             return $contract;
+
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -71,33 +75,44 @@ class ContractService
         }
     }
 
-    public function update(Contract $contract, array $data, ?array $files = null, ?array $recipientIds = null, ?array $deletedFileIds = null): Contract
+    /**
+     * Update a contract
+     */
+    public function update(Contract $contract, array $data, ?array $files = null, ?array $recipientIds = null, ?array $deletedFileIds = null, bool $preserveStatus = false): Contract
     {
         DB::beginTransaction();
 
         try {
             $isNew = $contract->status === Contract::STATUS_NEW;
+            $wasApproved = $contract->status === Contract::STATUS_APPROVED;
 
-            if ($contract->status === Contract::STATUS_APPROVED) {
+            if ($wasApproved && !auth()->user()?->can('update approved contract')) {
                 throw new \Exception(__('app.label.cannot_update_approved'));
             }
 
+            $keepApprovedState = $wasApproved && $preserveStatus;
+
             $originalData = $contract->getOriginal();
 
-            if ($isNew) {
-                $contract->approvals()->delete();
+            // Update approvals based on status. When preserving an approved
+            // contract's state, leave existing approvals untouched.
+            if (!$keepApprovedState) {
+                if ($isNew) {
+                    $contract->approvals()->delete();
 
-                if ($recipientIds) {
-                    $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
-                }
-            } else {
-                $contract->approvals()->update(['approved' => Approvals::STATUS_INVALIDATED]);
+                    if ($recipientIds) {
+                        $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    }
+                } else {
+                    $contract->approvals()->update(['approved' => Approvals::STATUS_INVALIDATED]);
 
-                if ($recipientIds && ($data['type'] ?? null) != 2) {
-                    $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    if ($recipientIds && ($data['type'] ?? null) != 2) {
+                        $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    }
                 }
             }
 
+            // Update contract data
             $this->repository->update($contract, [
                 'contract_number' => $data['contract_number'],
                 'title' => $data['title'],
@@ -106,17 +121,19 @@ class ContractService
                 'application_id' => $data['application_id'] ?? null,
                 'currency_id' => $data['currency_id'],
                 'budget_sum' => $data['budget_sum'],
-                'status' => Contract::STATUS_NEW,
+                'status' => $keepApprovedState ? Contract::STATUS_APPROVED : Contract::STATUS_NEW,
                 'transaction_type' => $data['transaction_type'] ?? Contract::TYPE_EXPENSE,
                 'deadline' => Carbon::parse($data['deadline'])
                     ->timezone(config('app.timezone'))
                     ->format('Y-m-d H:i:s'),
             ]);
 
+            // Handle file deletions
             if ($deletedFileIds) {
                 $this->deleteFiles($contract, $deletedFileIds);
             }
 
+            // Handle new file uploads
             if ($files) {
                 $this->attachFiles($contract, $files, 'files');
             }
@@ -129,6 +146,7 @@ class ContractService
             DB::commit();
 
             return $contract->fresh();
+
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -141,6 +159,9 @@ class ContractService
         }
     }
 
+    /**
+     * Delete a contract
+     */
     public function delete(Contract $contract): void
     {
         DB::beginTransaction();
@@ -160,6 +181,7 @@ class ContractService
             $this->repository->delete($contract);
 
             DB::commit();
+
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -172,6 +194,9 @@ class ContractService
         }
     }
 
+    /**
+     * Bulk delete contracts
+     */
     public function deleteBulk(array $ids, User $user): int
     {
         if (!$user->hasRole('superadmin')) {
@@ -202,6 +227,7 @@ class ContractService
             DB::commit();
 
             return count($contracts);
+
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -214,6 +240,9 @@ class ContractService
         }
     }
 
+    /**
+     * Upload scan files for approved contract
+     */
     public function uploadScanFiles(Contract $contract, array $files): void
     {
         if ($contract->status !== Contract::STATUS_APPROVED) {
@@ -233,6 +262,9 @@ class ContractService
         ]);
     }
 
+    /**
+     * Attach files to contract
+     */
     protected function attachFiles(Contract $contract, array $files, string $collection = 'files'): void
     {
         foreach ($files as $file) {
@@ -245,6 +277,9 @@ class ContractService
         }
     }
 
+    /**
+     * Delete specific files from contract
+     */
     protected function deleteFiles(Contract $contract, array $fileIds): void
     {
         foreach ($fileIds as $fileId) {
@@ -255,10 +290,14 @@ class ContractService
         }
     }
 
+    /**
+     * Create approvals for contract
+     */
     protected function createApprovals(Contract $contract, array $recipientIds, int $status = null): void
     {
         $status = $status ?? Approvals::STATUS_NEW;
 
+        // Load users with their departments to determine approval order
         $users = User::whereIn('id', $recipientIds)->get()->keyBy('id');
 
         foreach ($recipientIds as $recipientId) {
@@ -273,6 +312,9 @@ class ContractService
         }
     }
 
+    /**
+     * Log activity
+     */
     protected function logActivity(string $message, ?Contract $contract = null, array $properties = [], ?User $user = null): void
     {
         $activity = activity('contract')
