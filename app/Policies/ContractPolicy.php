@@ -41,6 +41,10 @@ class ContractPolicy
             return false;
         }
 
+        if ($contract->status === Contract::STATUS_APPROVED && !$user->can('update approved contract')) {
+            return false;
+        }
+
         // Superadmin can update any contract
         if ($user->hasRole('superadmin')) {
             return true;

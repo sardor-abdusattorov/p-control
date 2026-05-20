@@ -392,6 +392,7 @@ class ContractController extends Controller
                 ->toArray(),
             'users' => $users,
             'files' => $files,
+            'can_update_approved' => auth()->user()->can('update approved contract'),
             'title' => __('app.label.contracts'),
             'breadcrumbs' => [
                 ['label' => __('app.label.contracts'), 'href' => route('contract.index')],
@@ -415,7 +416,8 @@ class ContractController extends Controller
                 $request->validated(),
                 $request->hasFile('files') ? $request->file('files') : null,
                 $request->recipients,
-                $request->input('deleted_old_file_ids')
+                $request->input('deleted_old_file_ids'),
+                $request->boolean('preserve_status')
             );
 
             return redirect()->route('contract.index')

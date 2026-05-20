@@ -43,6 +43,7 @@ class ContractUpdateRequest extends FormRequest
             'currency_id' => 'required|exists:currency,id',
             'deadline' => 'required|date',
             'transaction_type' => 'required|integer|in:1,2',
+            'preserve_status' => 'nullable|boolean',
 
             'files' => [
                 'nullable',

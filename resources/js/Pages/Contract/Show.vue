@@ -86,7 +86,7 @@
                         />
 
                         <EditLink
-                            v-if="contract.user_id === authUser.id && contract.status !== 3"
+                            v-if="(contract.user_id === authUser.id && contract.status !== 3) || (contract.status === 3 && can(['update approved contract']))"
                             :href="route('contract.edit', { contract: contract.id })"
                             class="px-4 py-2 rounded-md"
                             v-tooltip="lang().tooltip.edit"

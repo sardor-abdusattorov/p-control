@@ -78,31 +78,37 @@ class ContractService
     /**
      * Update a contract
      */
-    public function update(Contract $contract, array $data, ?array $files = null, ?array $recipientIds = null, ?array $deletedFileIds = null): Contract
+    public function update(Contract $contract, array $data, ?array $files = null, ?array $recipientIds = null, ?array $deletedFileIds = null, bool $preserveStatus = false): Contract
     {
         DB::beginTransaction();
 
         try {
             $isNew = $contract->status === Contract::STATUS_NEW;
+            $wasApproved = $contract->status === Contract::STATUS_APPROVED;
 
-            if ($contract->status === Contract::STATUS_APPROVED) {
+            if ($wasApproved && !auth()->user()?->can('update approved contract')) {
                 throw new \Exception(__('app.label.cannot_update_approved'));
             }
 
+            $keepApprovedState = $wasApproved && $preserveStatus;
+
             $originalData = $contract->getOriginal();
 
-            // Update approvals based on status
-            if ($isNew) {
-                $contract->approvals()->delete();
+            // Update approvals based on status. When preserving an approved
+            // contract's state, leave existing approvals untouched.
+            if (!$keepApprovedState) {
+                if ($isNew) {
+                    $contract->approvals()->delete();
 
-                if ($recipientIds) {
-                    $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
-                }
-            } else {
-                $contract->approvals()->update(['approved' => Approvals::STATUS_INVALIDATED]);
+                    if ($recipientIds) {
+                        $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    }
+                } else {
+                    $contract->approvals()->update(['approved' => Approvals::STATUS_INVALIDATED]);
 
-                if ($recipientIds && ($data['type'] ?? null) != 2) {
-                    $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    if ($recipientIds && ($data['type'] ?? null) != 2) {
+                        $this->createApprovals($contract, $recipientIds, Approvals::STATUS_NEW);
+                    }
                 }
             }
 
@@ -115,7 +121,7 @@ class ContractService
                 'application_id' => $data['application_id'] ?? null,
                 'currency_id' => $data['currency_id'],
                 'budget_sum' => $data['budget_sum'],
-                'status' => Contract::STATUS_NEW,
+                'status' => $keepApprovedState ? Contract::STATUS_APPROVED : Contract::STATUS_NEW,
                 'transaction_type' => $data['transaction_type'] ?? Contract::TYPE_EXPENSE,
                 'deadline' => Carbon::parse($data['deadline'])
                     ->timezone(config('app.timezone'))

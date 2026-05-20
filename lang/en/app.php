@@ -105,6 +105,8 @@ return [
         'cannot_delete_protected_accountant' => 'User :name from the accounting department cannot be deleted with the selected currency.',
         'cannot_update_approved' => 'Approved application cannot be edited.',
         'cannot_edit_approved' => 'Approved application cannot be edited.',
+        'preserve_approved_status' => 'Keep "Approved" status',
+        'preserve_approved_status_hint' => 'This contract is already approved. Check this to save edits without resetting the status and re-running approval. If unchecked, the contract will be reset to "New" and sent for approval again.',
         'upload_scan' => 'Upload Scan',
         'files_array' => 'The files must be an array.',
         'each_file_required' => 'Each file is required.',

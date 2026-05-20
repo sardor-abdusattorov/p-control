@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             'view contract',
             'view all contracts',
             'export contract',
+            'update approved contract',
 
             'create contact',
             'read contact',

@@ -495,10 +495,10 @@ const items = computed(() => {
     }
 
     // Редактировать
-    if (
-        contract.status !== 3 &&
-        (contract.user_id === user.id || isAdmin)
-    ) {
+    const userPermissions = usePage().props.auth.can || {};
+    const canEditNonApproved = contract.status !== 3 && (contract.user_id === user.id || isAdmin);
+    const canEditApproved = contract.status === 3 && !!userPermissions['update approved contract'];
+    if (canEditNonApproved || canEditApproved) {
         baseItems.push({
             label: lang().tooltip.edit,
             icon: 'pi pi-pencil',
