@@ -1,7 +1,7 @@
 <script setup>
 import { router } from "@inertiajs/vue3";
 import { pickBy } from "lodash";
-import { reactive, watchEffect } from "vue";
+import { computed, reactive, watchEffect } from "vue";
 import Icon from "@/Components/Icon.vue";
 
 const props = defineProps({
@@ -19,6 +19,7 @@ const data = reactive({
 });
 
 const goto = (link) => {
+    if (!link) return;
     let params = pickBy(data.params);
     router.get(link, params, {
         replace: true,
@@ -26,6 +27,14 @@ const goto = (link) => {
         preserveScroll: true,
     });
 };
+
+// Laravel paginator returns links.links as:
+// [{ Previous }, { 1 }, { 2 }, ..., { Next }]
+// We render only the numbered pages (and "..." separators) between
+// the prev/next buttons.
+const pages = computed(() =>
+    (props.links?.links ?? []).slice(1, -1)
+);
 
 watchEffect(() => {
     data.params.search = props.filters?.search;
@@ -46,28 +55,39 @@ watchEffect(() => {
         <p>{{ lang().label.no_data }}</p>
     </div>
     <div v-if="links.links.length > 3">
-
         <ul
-            class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
+            class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 divide-x divide-slate-200 dark:divide-slate-700"
         >
             <li>
                 <button
                     v-on:click="goto(links.prev_page_url)"
-                    class="px-4 py-2"
+                    class="px-4 py-2 transition-colors enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                     v-html="'&laquo;'"
                     :disabled="links.prev_page_url == null"
                 ></button>
             </li>
-            <li>
-                <p
-                    class="px-4 py-2 bg-primary text-white"
-                    v-html="links.current_page"
-                ></p>
+            <li v-for="(page, index) in pages" :key="index">
+                <span
+                    v-if="page.url == null"
+                    class="px-4 py-2 inline-block select-none text-slate-400 dark:text-slate-500"
+                    v-html="page.label"
+                ></span>
+                <button
+                    v-else
+                    v-on:click="goto(page.url)"
+                    class="px-4 py-2 transition-colors"
+                    :class="
+                        page.active
+                            ? 'bg-primary text-white'
+                            : 'enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700'
+                    "
+                    v-html="page.label"
+                ></button>
             </li>
             <li>
                 <button
                     v-on:click="goto(links.next_page_url)"
-                    class="px-4 py-2"
+                    class="px-4 py-2 transition-colors enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
                     v-html="'&raquo;'"
                     :disabled="links.next_page_url == null"
                 ></button>
