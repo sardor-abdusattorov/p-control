@@ -28,19 +28,14 @@ const goto = (link) => {
     });
 };
 
-// Number of pages shown on each side of the current page.
 const SIDE = 1;
 
-// Build a compact page list: first … current±SIDE … last,
-// inserting "..." separators for the gaps. Keeps the bar short even
-// when there are hundreds of pages.
 const pages = computed(() => {
     const links = props.links;
     const current = links?.current_page;
     const last = links?.last_page;
     if (!last || last <= 1) return [];
 
-    // page number -> url, taken from Laravel's own paginator links
     const urlByPage = {};
     (links.links ?? []).forEach((l) => {
         const n = parseInt(l.label, 10);
