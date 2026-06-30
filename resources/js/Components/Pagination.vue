@@ -28,13 +28,46 @@ const goto = (link) => {
     });
 };
 
-// Laravel paginator returns links.links as:
-// [{ Previous }, { 1 }, { 2 }, ..., { Next }]
-// We render only the numbered pages (and "..." separators) between
-// the prev/next buttons.
-const pages = computed(() =>
-    (props.links?.links ?? []).slice(1, -1)
-);
+// Number of pages shown on each side of the current page.
+const SIDE = 1;
+
+// Build a compact page list: first … current±SIDE … last,
+// inserting "..." separators for the gaps. Keeps the bar short even
+// when there are hundreds of pages.
+const pages = computed(() => {
+    const links = props.links;
+    const current = links?.current_page;
+    const last = links?.last_page;
+    if (!last || last <= 1) return [];
+
+    // page number -> url, taken from Laravel's own paginator links
+    const urlByPage = {};
+    (links.links ?? []).forEach((l) => {
+        const n = parseInt(l.label, 10);
+        if (!Number.isNaN(n)) urlByPage[n] = l.url;
+    });
+
+    const wanted = new Set([1, last]);
+    for (let p = current - SIDE; p <= current + SIDE; p++) {
+        if (p >= 1 && p <= last) wanted.add(p);
+    }
+    const nums = [...wanted].sort((a, b) => a - b);
+
+    const result = [];
+    let prev = 0;
+    nums.forEach((n) => {
+        if (n - prev > 1) {
+            result.push({ label: "...", url: null, active: false });
+        }
+        result.push({
+            label: String(n),
+            url: urlByPage[n] ?? `${links.path}?page=${n}`,
+            active: n === current,
+        });
+        prev = n;
+    });
+    return result;
+});
 
 watchEffect(() => {
     data.params.search = props.filters?.search;
