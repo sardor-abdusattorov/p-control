@@ -9,6 +9,37 @@ const props = defineProps({
     filters: Object,
 });
 
+const pageLinks = computed(() => {
+    const current = props.links.current_page;
+    const last = props.links.last_page;
+
+    const pages = new Set();
+    for (let p = 1; p <= Math.min(2, last); p++) pages.add(p);
+    for (let p = Math.max(1, current - 1); p <= Math.min(last, current + 1); p++) pages.add(p);
+    for (let p = Math.max(1, last - 1); p <= last; p++) pages.add(p);
+
+    const sorted = [...pages].sort((a, b) => a - b);
+
+    const result = [];
+    let previous = null;
+    for (const page of sorted) {
+        if (previous !== null && page - previous > 1) {
+            result.push({ page: null, label: "...", active: false });
+        }
+        result.push({
+            page,
+            label: String(page),
+            active: page === current,
+        });
+        previous = page;
+    }
+    return result;
+});
+
+const gotoPage = (page) => {
+    goto(`${props.links.path}?page=${page}`);
+};
+
 const data = reactive({
     params: {
         search: props.filters?.search,
@@ -19,7 +50,6 @@ const data = reactive({
 });
 
 const goto = (link) => {
-    if (!link) return;
     let params = pickBy(data.params);
     router.get(link, params, {
         replace: true,
@@ -27,42 +57,6 @@ const goto = (link) => {
         preserveScroll: true,
     });
 };
-
-const SIDE = 1;
-
-const pages = computed(() => {
-    const links = props.links;
-    const current = links?.current_page;
-    const last = links?.last_page;
-    if (!last || last <= 1) return [];
-
-    const urlByPage = {};
-    (links.links ?? []).forEach((l) => {
-        const n = parseInt(l.label, 10);
-        if (!Number.isNaN(n)) urlByPage[n] = l.url;
-    });
-
-    const wanted = new Set([1, last]);
-    for (let p = current - SIDE; p <= current + SIDE; p++) {
-        if (p >= 1 && p <= last) wanted.add(p);
-    }
-    const nums = [...wanted].sort((a, b) => a - b);
-
-    const result = [];
-    let prev = 0;
-    nums.forEach((n) => {
-        if (n - prev > 1) {
-            result.push({ label: "...", url: null, active: false });
-        }
-        result.push({
-            label: String(n),
-            url: urlByPage[n] ?? `${links.path}?page=${n}`,
-            active: n === current,
-        });
-        prev = n;
-    });
-    return result;
-});
 
 watchEffect(() => {
     data.params.search = props.filters?.search;
@@ -82,43 +76,20 @@ watchEffect(() => {
         <Icon :name="'nodata'" class="w-auto h-16" />
         <p>{{ lang().label.no_data }}</p>
     </div>
-    <div v-if="links.links.length > 3">
+    <div v-if="links.last_page > 1">
+
         <ul
-            class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 divide-x divide-slate-200 dark:divide-slate-700"
+            class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
         >
-            <li>
+            <li v-for="(link, index) in pageLinks" :key="index">
                 <button
-                    v-on:click="goto(links.prev_page_url)"
-                    class="px-4 py-2 transition-colors enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
-                    v-html="'&laquo;'"
-                    :disabled="links.prev_page_url == null"
+                    v-if="link.page !== null"
+                    v-on:click="gotoPage(link.page)"
+                    class="px-4 py-2"
+                    :class="link.active ? 'bg-primary text-white' : ''"
+                    v-html="link.label"
                 ></button>
-            </li>
-            <li v-for="(page, index) in pages" :key="index">
-                <span
-                    v-if="page.url == null"
-                    class="px-4 py-2 inline-block select-none text-slate-400 dark:text-slate-500"
-                    v-html="page.label"
-                ></span>
-                <button
-                    v-else
-                    v-on:click="goto(page.url)"
-                    class="px-4 py-2 transition-colors"
-                    :class="
-                        page.active
-                            ? 'bg-primary text-white'
-                            : 'enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700'
-                    "
-                    v-html="page.label"
-                ></button>
-            </li>
-            <li>
-                <button
-                    v-on:click="goto(links.next_page_url)"
-                    class="px-4 py-2 transition-colors enabled:hover:bg-slate-100 dark:enabled:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
-                    v-html="'&raquo;'"
-                    :disabled="links.next_page_url == null"
-                ></button>
+                <span v-else class="px-4 py-2" v-html="link.label"></span>
             </li>
         </ul>
     </div>
