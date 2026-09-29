@@ -42,26 +42,6 @@
                             :placeholder="lang().placeholder.select_year || lang().label.year || 'Год'"
                             class="min-w-32"
                         />
-                        <Select
-                            showClear
-                            v-model="data.params.project_id"
-                            :options="projectOptions"
-                            optionLabel="display"
-                            optionValue="id"
-                            optionGroupLabel="label"
-                            optionGroupChildren="items"
-                            filter
-                            checkmark
-                            :highlightOnSelect="false"
-                            :disabled="!data.params.year"
-                            :placeholder="lang().label.project_name || lang().label.project || 'Проект'"
-                            class="min-w-72"
-                            :pt="{
-                                option: { class: 'custom-option' },
-                                dropdown: { style: { maxWidth: '420px' } },
-                                overlay: { class: 'parent-wrapper-class' }
-                            }"
-                        />
                         <DangerButton
                             v-if="isAdmin"
                             v-show="data.selectedId.length !== 0 && can(['delete contract'])"
@@ -203,7 +183,7 @@
                                 </div>
                             </th>
 
-                            <th class="px-2 py-4 min-w-64">
+                            <th class="px-2 py-4" style="min-width: 440px; width: 440px;">
                                 <span>{{ lang().label.project }}</span>
                             </th>
 
@@ -254,7 +234,33 @@
                                     :placeholder="lang().label.title"
                                 />
                             </th>
-                            <th class="px-2 py-4"></th>
+                            <th class="px-2 py-4" style="min-width: 440px; width: 440px;">
+                                <Select
+                                    showClear
+                                    v-model="data.params.project_id"
+                                    :options="projectOptions"
+                                    optionLabel="display"
+                                    optionValue="id"
+                                    optionGroupLabel="label"
+                                    optionGroupChildren="items"
+                                    filter
+                                    checkmark
+                                    :highlightOnSelect="false"
+                                    :disabled="!data.params.year"
+                                    :placeholder="data.params.year
+                                        ? (lang().placeholder.select_project || lang().label.project_name || 'Выберите проект')
+                                        : (lang().placeholder.select_year || 'Сначала выберите год')"
+                                    :filterPlaceholder="lang().placeholder.select_project || 'Поиск проекта'"
+                                    class="w-full"
+                                    :pt="{
+                                        option: { class: 'custom-option whitespace-normal' },
+                                        overlay: {
+                                            class: 'parent-wrapper-class',
+                                            style: { minWidth: '520px', maxWidth: '680px' }
+                                        }
+                                    }"
+                                />
+                            </th>
                             <th class="px-2 py-4">
                                 <Select
                                     showClear
@@ -368,8 +374,8 @@
                                 </Link>
                             </td>
 
-                            <td class="py-4 px-2 sm:py-3 max-w-sm">
-                                <div v-if="contract.project" class="space-y-1">
+                            <td class="py-4 px-2 sm:py-3 align-top" style="min-width: 440px; width: 440px; max-width: 520px;">
+                                <div v-if="contract.project" class="space-y-1 whitespace-normal break-words">
                                     <div class="font-medium text-slate-800 dark:text-slate-100">
                                         {{ contract.project.project_number ? contract.project.project_number + '. ' : '' }}{{ contract.project.title }}
                                     </div>
