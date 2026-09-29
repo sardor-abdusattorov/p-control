@@ -42,6 +42,26 @@
                             :placeholder="lang().placeholder.select_year || lang().label.year || 'Год'"
                             class="min-w-32"
                         />
+                        <Select
+                            showClear
+                            v-model="data.params.project_id"
+                            :options="projectOptions"
+                            optionLabel="display"
+                            optionValue="id"
+                            optionGroupLabel="label"
+                            optionGroupChildren="items"
+                            filter
+                            checkmark
+                            :highlightOnSelect="false"
+                            :disabled="!data.params.year"
+                            :placeholder="lang().label.project_name || lang().label.project || 'Проект'"
+                            class="min-w-72"
+                            :pt="{
+                                option: { class: 'custom-option' },
+                                dropdown: { style: { maxWidth: '420px' } },
+                                overlay: { class: 'parent-wrapper-class' }
+                            }"
+                        />
                         <DangerButton
                             v-if="isAdmin"
                             v-show="data.selectedId.length !== 0 && can(['delete contract'])"
@@ -183,6 +203,10 @@
                                 </div>
                             </th>
 
+                            <th class="px-2 py-4 min-w-64">
+                                <span>{{ lang().label.project }}</span>
+                            </th>
+
                             <th class="px-2 py-4 cursor-pointer min-w-40" @click="order('currency_id')">
                                 <div class="flex justify-between items-center">
                                     <span>{{ lang().label.contract_sum }}</span>
@@ -230,6 +254,7 @@
                                     :placeholder="lang().label.title"
                                 />
                             </th>
+                            <th class="px-2 py-4"></th>
                             <th class="px-2 py-4">
                                 <Select
                                     showClear
@@ -343,6 +368,18 @@
                                 </Link>
                             </td>
 
+                            <td class="py-4 px-2 sm:py-3 max-w-sm">
+                                <div v-if="contract.project" class="space-y-1">
+                                    <div class="font-medium text-slate-800 dark:text-slate-100">
+                                        {{ contract.project.project_number ? contract.project.project_number + '. ' : '' }}{{ contract.project.title }}
+                                    </div>
+                                    <div v-if="contract.project.category" class="text-xs text-slate-500 dark:text-slate-400">
+                                        {{ contract.project.category.title }} · {{ contract.project.category.year }}
+                                    </div>
+                                </div>
+                                <span v-else>{{ lang().label.undefined }}</span>
+                            </td>
+
                             <td class="whitespace-nowrap py-4 px-2 sm:py-3">
                                 {{ formatNumber(contract.budget_sum) }} {{ contract.currency?.short_name || '' }}
                             </td>
@@ -449,6 +486,7 @@ import Menu from "primevue/menu";
 import Button from "primevue/button";
 import Popover from "primevue/popover";
 import ApprovalHistory from "@/Pages/Contract/ApprovalHistory.vue";
+import axios from "axios";
 
 const menu = ref();
 const selectedContract = ref(null);
@@ -574,6 +612,7 @@ const data = reactive({
         currency_id: props.filters.currency_id ? Number(props.filters.currency_id) : null,
         approval_filter: props.filters.approval_filter ?? null,
         year: props.filters.year ? Number(props.filters.year) : null,
+        project_id: props.filters.project_id ? Number(props.filters.project_id) : null,
     },
     selectedId: [],
     multipleSelect: false,
@@ -591,6 +630,36 @@ const order = (field) => {
         data.params.order = "asc";
     }
 };
+
+const projectOptions = ref([]);
+
+const loadProjectsByYear = async (year, keepSelectedProject = false) => {
+    if (!year) {
+        projectOptions.value = [];
+        data.params.project_id = null;
+        return;
+    }
+
+    if (!keepSelectedProject) {
+        data.params.project_id = null;
+    }
+
+    try {
+        const response = await axios.get(route("projects.by-year", year));
+        projectOptions.value = response.data;
+    } catch (error) {
+        projectOptions.value = [];
+        data.params.project_id = null;
+    }
+};
+
+watch(
+    () => data.params.year,
+    (year, previousYear) => {
+        loadProjectsByYear(year, previousYear === undefined);
+    },
+    { immediate: true }
+);
 
 watch(
     () => data.params,

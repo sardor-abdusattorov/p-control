@@ -14,7 +14,7 @@ class ContractRepository
 {
     public function paginateWithFilters(array $filters, User $user, int $perPage = 10): LengthAwarePaginator
     {
-        $query = Contract::query()->with(['user', 'currency']);
+        $query = Contract::query()->with(['user', 'currency', 'project.category']);
 
         $this->applyAccessControl($query, $user);
         $this->applyFilters($query, $filters);
@@ -65,6 +65,10 @@ class ContractRepository
             $query->whereHas('project.category', function ($q) use ($year) {
                 $q->where('year', $year);
             });
+        }
+
+        if (!empty($filters['project_id'])) {
+            $query->where('project_id', (int) $filters['project_id']);
         }
 
         if (!empty($filters['approval_filter'])) {

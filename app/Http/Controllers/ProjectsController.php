@@ -58,7 +58,7 @@ class ProjectsController extends Controller
         $currencies = Currency::where(['status' => 1])->get();
 
         $perPage = $request->has('perPage') ? $request->perPage : 10;
-        $filters = $request->all(['search', 'field', 'order']);
+        $filters = $request->only(['search', 'field', 'order', 'year']);
 
         $projects = $this->repository->paginateWithFilters($filters, $user, $perPage);
 
@@ -75,6 +75,11 @@ class ProjectsController extends Controller
             'statuses'    => $statuses,
             'contracts'   => $contractsQuery->get(),
             'currencies'  => $currencies,
+            'availableYears' => ProjectCategory::query()
+                ->whereNotNull('year')
+                ->distinct()
+                ->orderBy('year', 'desc')
+                ->pluck('year'),
             'breadcrumbs' => [
                 ['label' => __('app.label.projects'), 'href' => route('projects.index')],
             ],

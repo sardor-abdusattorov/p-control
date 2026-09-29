@@ -44,6 +44,13 @@
                             optionLabel="label"
                             optionValue="value"
                         />
+                        <Select
+                            showClear
+                            v-model="data.params.year"
+                            :options="props.availableYears || []"
+                            :placeholder="lang().placeholder.select_year || lang().label.year || 'Год'"
+                            class="min-w-32"
+                        />
 
                         <DangerButton
                             @click="data.deleteBulkOpen = true"
@@ -241,6 +248,7 @@ const props = defineProps({
     currencies: Object,
     breadcrumbs: Object,
     perPage: Number,
+    availableYears: Array,
 });
 const data = reactive({
     params: {
@@ -248,6 +256,7 @@ const data = reactive({
         field: props.filters.field,
         order: props.filters.order,
         perPage: props.perPage,
+        year: props.filters.year ? Number(props.filters.year) : null,
     },
     selectedId: [],
     multipleSelect: false,

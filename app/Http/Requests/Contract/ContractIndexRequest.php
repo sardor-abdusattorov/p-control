@@ -25,6 +25,7 @@ class ContractIndexRequest extends FormRequest
             'currency_id' => ['nullable', 'exists:currency,id'],
             'approval_filter' => ['nullable', 'string', 'in:approved_by_me,not_approved_by_me'],
             'year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
+            'project_id' => ['nullable', 'exists:projects,id'],
         ];
     }
 }

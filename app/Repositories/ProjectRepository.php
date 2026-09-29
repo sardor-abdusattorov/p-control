@@ -32,6 +32,13 @@ class ProjectRepository
                     ->orWhere('project_number', 'LIKE', '%' . $filters['search'] . '%');
             });
         }
+
+        if (!empty($filters['year'])) {
+            $year = (int) $filters['year'];
+            $query->whereHas('category', function ($q) use ($year) {
+                $q->where('year', $year);
+            });
+        }
     }
 
     protected function applySort(Builder $query, ?string $field, ?string $order): void

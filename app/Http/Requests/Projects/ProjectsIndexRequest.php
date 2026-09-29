@@ -14,6 +14,8 @@ class ProjectsIndexRequest extends FormRequest
     public function rules()
     {
         return [
+            'search' => ['nullable', 'string', 'max:255'],
+            'year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
             'field' => ['in:title,project_number,category_id,sort,status_id'],
             'order' => ['in:asc,desc'],
             'perPage' => ['numeric'],
