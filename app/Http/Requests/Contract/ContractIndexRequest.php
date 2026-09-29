@@ -24,6 +24,7 @@ class ContractIndexRequest extends FormRequest
             'status' => ['nullable', 'integer', 'in:1,2,3,-1'],
             'currency_id' => ['nullable', 'exists:currency,id'],
             'approval_filter' => ['nullable', 'string', 'in:approved_by_me,not_approved_by_me'],
+            'year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
         ];
     }
 }

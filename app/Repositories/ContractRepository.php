@@ -60,6 +60,13 @@ class ContractRepository
             $query->where('currency_id', (int) $filters['currency_id']);
         }
 
+        if (!empty($filters['year'])) {
+            $year = (int) $filters['year'];
+            $query->whereHas('project.category', function ($q) use ($year) {
+                $q->where('year', $year);
+            });
+        }
+
         if (!empty($filters['approval_filter'])) {
             $this->applyApprovalFilter($query, $filters['approval_filter']);
         }

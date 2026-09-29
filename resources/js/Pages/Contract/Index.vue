@@ -35,6 +35,13 @@
                             optionLabel="label"
                             optionValue="value"
                         />
+                        <Select
+                            showClear
+                            v-model="data.params.year"
+                            :options="props.availableYears || []"
+                            :placeholder="lang().placeholder.select_year || lang().label.year || 'Год'"
+                            class="min-w-32"
+                        />
                         <DangerButton
                             v-if="isAdmin"
                             v-show="data.selectedId.length !== 0 && can(['delete contract'])"
@@ -566,6 +573,7 @@ const data = reactive({
         contract_number: props.filters.contract_number ?? null,
         currency_id: props.filters.currency_id ? Number(props.filters.currency_id) : null,
         approval_filter: props.filters.approval_filter ?? null,
+        year: props.filters.year ? Number(props.filters.year) : null,
     },
     selectedId: [],
     multipleSelect: false,

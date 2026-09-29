@@ -48,7 +48,7 @@ class ContractController extends Controller
         $users = $this->repository->getAvailableUsers($user);
 
         $perPage = $request->input('perPage', 10);
-        $filters = $request->only(['contract_number', 'title', 'field', 'order', 'user_id', 'status', 'currency_id', 'approval_filter']);
+        $filters = $request->only(['contract_number', 'title', 'field', 'order', 'user_id', 'status', 'currency_id', 'approval_filter', 'year']);
 
         $contracts = $this->repository->paginateWithFilters($filters, $user, $perPage);
 
