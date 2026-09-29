@@ -1,7 +1,6 @@
 <script setup>
 import { router } from "@inertiajs/vue3";
-import { pickBy } from "lodash";
-import { computed, reactive, watchEffect } from "vue";
+import { computed } from "vue";
 import Icon from "@/Components/Icon.vue";
 
 const props = defineProps({
@@ -36,35 +35,32 @@ const pageLinks = computed(() => {
     return result;
 });
 
+const cleanFilters = () => {
+    return Object.fromEntries(
+        Object.entries(props.filters || {}).filter(([, value]) => {
+            if (value === null || value === undefined || value === "") return false;
+            if (Array.isArray(value) && value.length === 0) return false;
+            return true;
+        })
+    );
+};
+
 const gotoPage = (page) => {
-    goto(`${props.links.path}?page=${page}`);
+    router.get(
+        props.links.path,
+        {
+            ...cleanFilters(),
+            page,
+        },
+        {
+            replace: true,
+            preserveState: true,
+            preserveScroll: true,
+        }
+    );
 };
-
-const data = reactive({
-    params: {
-        search: props.filters?.search,
-        field: props.filters?.field,
-        order: props.filters?.order,
-        perPage: props.filters?.perPage,
-    },
-});
-
-const goto = (link) => {
-    let params = pickBy(data.params);
-    router.get(link, params, {
-        replace: true,
-        preserveState: true,
-        preserveScroll: true,
-    });
-};
-
-watchEffect(() => {
-    data.params.search = props.filters?.search;
-    data.params.field = props.filters?.field;
-    data.params.order = props.filters?.order;
-    data.params.perPage = props.filters?.perPage;
-});
 </script>
+
 <template>
     <div class="ml-2" v-if="links.data.length != 0">
         {{ links.from }}-{{ links.to }} {{ lang().label.of }} {{ links.total }}
@@ -77,7 +73,6 @@ watchEffect(() => {
         <p>{{ lang().label.no_data }}</p>
     </div>
     <div v-if="links.last_page > 1">
-
         <ul
             class="flex justify-center items-center rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700"
         >
