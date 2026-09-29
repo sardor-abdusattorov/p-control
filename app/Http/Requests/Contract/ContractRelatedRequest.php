@@ -14,9 +14,10 @@ class ContractRelatedRequest extends FormRequest
     public function rules()
     {
         return [
-            'field' => ['in:title,contract_number,budget_sum,status,currency_id'],
-            'order' => ['in:asc,desc'],
-            'perPage' => ['numeric'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'field' => ['nullable', 'in:title,contract_number,budget_sum,status,currency_id'],
+            'order' => ['nullable', 'in:asc,desc'],
+            'perPage' => ['nullable', 'numeric'],
         ];
     }
 }

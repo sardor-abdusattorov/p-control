@@ -96,8 +96,12 @@ class ProjectsController extends Controller
         if (!$user->can('view all contracts')) {
             $contractsQuery->where('user_id', $user->id);
         }
-        if ($request->has('search')) {
-            $contractsQuery->where('name', 'LIKE', "%" . $request->search . "%");
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $contractsQuery->where(function ($query) use ($search) {
+                $query->where('title', 'LIKE', "%{$search}%")
+                    ->orWhere('contract_number', 'LIKE', "%{$search}%");
+            });
         }
         if ($request->has(['field', 'order'])) {
             $contractsQuery->orderBy($request->field, $request->order);
