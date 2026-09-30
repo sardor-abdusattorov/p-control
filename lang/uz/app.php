@@ -297,6 +297,7 @@ return [
         'check_all' => 'Hammasini tanlash',
         'email_verification' => 'Emailni tasdiqlash',
         'password_forgot' => 'Parolni unutdingizmi?',
+        'old_version' => 'Eski versiya',
     ],
     'button' => [
         'edit' => "O'zgartirish",

@@ -304,6 +304,7 @@ return [
         'check_all' => 'Выбрать все',
         'email_verification' => 'Подтверждение электронной почты',
         'password_forgot' => 'Забыли пароль?',
+        'old_version' => 'Старая версия',
     ],
     'button' => [
         'edit' => 'Изменить',

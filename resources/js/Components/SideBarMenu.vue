@@ -284,6 +284,17 @@
                 </ul>
             </li>
         </ul>
+
+        <div v-if="oldVersionUrl" class="border-t border-slate-700/50 pt-4">
+            <a :href="oldVersionUrl" target="_blank" rel="noopener noreferrer"
+               class="flex items-center justify-between py-2.5 px-3 rounded-lg transition-all duration-300 group text-slate-300 hover:bg-slate-800/50 hover:text-white">
+                <div class="flex items-center">
+                    <ArchiveBoxIcon class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                    <span class="ml-3 font-medium">{{ lang().label.old_version }}</span>
+                </div>
+                <ArrowTopRightOnSquareIcon class="w-4 h-4 text-slate-500 group-hover:text-slate-300 transition-colors duration-300" />
+            </a>
+        </div>
     </div>
 </template>
 
@@ -303,11 +314,14 @@ import {
     BookOpenIcon,
     CubeIcon,
     CogIcon,
+    ArchiveBoxIcon,
+    ArrowTopRightOnSquareIcon,
 } from "@heroicons/vue/24/solid";
 import { Link, usePage } from "@inertiajs/vue3";
 import { ref, onMounted, reactive } from "vue";
 
 const lang = () => usePage().props.language;
+const oldVersionUrl = import.meta.env.VITE_OLD_VERSION_URL;
 
 const expandedMenus = reactive({
     projects_group: {

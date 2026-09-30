@@ -327,6 +327,7 @@ return [
         'check_all' => 'Check all',
         'email_verification' => 'Email Verification',
         'password_forgot' => 'Forgotten password?',
+        'old_version' => 'Old version',
     ],
     'button' => [
         'edit' => "Edit",
